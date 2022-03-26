@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"rifu520.gitee.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Es查询">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EclasticSearch 查询入门指南">
+<meta property="og:url" content="https://rifu520.gitee.io/2018/10/19/EclasticSearch-%E6%9F%A5%E8%AF%A2%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/index.html">
+<meta property="og:site_name" content="Single blog">
+<meta property="og:description" content="Es查询">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-10-19T07:54:47.000Z">
+<meta property="article:modified_time" content="2022-03-24T15:20:37.265Z">
+<meta property="article:author" content="Rifu">
+<meta property="article:tag" content="ElasticSearch">
+<meta property="article:tag" content="查询">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://rifu520.gitee.io/2018/10/19/EclasticSearch-%E6%9F%A5%E8%AF%A2%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://rifu520.gitee.io/2018/10/19/EclasticSearch-%E6%9F%A5%E8%AF%A2%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/","path":"2018/10/19/EclasticSearch-查询入门指南/","title":"EclasticSearch 查询入门指南"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>EclasticSearch 查询入门指南 | Single blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Single blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">One bat dream</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container"></div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="algolia-stats"><hr></div>
+  <div class="algolia-hits"></div>
+  <div class="algolia-pagination"></div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Es%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.</span> <span class="nav-text">Es查询</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Rifu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Rifu</p>
+  <div class="site-description" itemprop="description">临时停车</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">62</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rifu520.gitee.io/2018/10/19/EclasticSearch-%E6%9F%A5%E8%AF%A2%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Rifu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Single blog">
+      <meta itemprop="description" content="临时停车">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="EclasticSearch 查询入门指南 | Single blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          EclasticSearch 查询入门指南
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2018-10-19 15:54:47" itemprop="dateCreated datePublished" datetime="2018-10-19T15:54:47+08:00">2018-10-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>12k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>11 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h3 id="Es查询"><a href="#Es查询" class="headerlink" title="Es查询"></a>Es查询</h3><span id="more"></span>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br><span class="line">381</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.net.InetSocketAddress;</span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.Iterator;</span><br><span class="line"><span class="keyword">import</span> java.util.Map.Entry;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.elasticsearch.action.ListenableActionFuture;</span><br><span class="line"><span class="keyword">import</span> org.elasticsearch.action.get.GetRequestBuilder;</span><br><span class="line"><span class="keyword">import</span> org.elasticsearch.action.get.GetResponse;</span><br><span class="line"><span class="keyword">import</span> org.elasticsearch.action.search.SearchResponse;</span><br><span class="line"><span class="keyword">import</span> org.elasticsearch.action.search.SearchType;</span><br><span class="line"><span class="keyword">import</span> org.elasticsearch.client.transport.TransportClient;</span><br><span class="line"><span class="keyword">import</span> org.elasticsearch.common.settings.Settings;</span><br><span class="line"><span class="keyword">import</span> org.elasticsearch.common.text.Text;</span><br><span class="line"><span class="keyword">import</span> org.elasticsearch.common.transport.InetSocketTransportAddress;</span><br><span class="line"><span class="keyword">import</span> org.elasticsearch.common.unit.TimeValue;</span><br><span class="line"><span class="keyword">import</span> org.elasticsearch.index.query.IndicesQueryBuilder;</span><br><span class="line"><span class="keyword">import</span> org.elasticsearch.index.query.NestedQueryBuilder;</span><br><span class="line"><span class="keyword">import</span> org.elasticsearch.index.query.QueryBuilder;</span><br><span class="line"><span class="keyword">import</span> org.elasticsearch.index.query.QueryBuilders;</span><br><span class="line"><span class="keyword">import</span> org.elasticsearch.index.query.QueryStringQueryBuilder;</span><br><span class="line"><span class="keyword">import</span> org.elasticsearch.index.query.RangeQueryBuilder;</span><br><span class="line"><span class="keyword">import</span> org.elasticsearch.index.query.SpanFirstQueryBuilder;</span><br><span class="line"><span class="keyword">import</span> org.elasticsearch.index.query.WildcardQueryBuilder;</span><br><span class="line"><span class="keyword">import</span> org.elasticsearch.search.SearchHit;</span><br><span class="line"><span class="keyword">import</span> org.elasticsearch.search.SearchHits;</span><br><span class="line"><span class="keyword">import</span> org.junit.Before;</span><br><span class="line"><span class="keyword">import</span> org.junit.Test;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * java操作查询api</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> 231</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JavaESQuery</span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> TransportClient client;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Before</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testBefore</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">Settings</span> <span class="variable">settings</span> <span class="operator">=</span> Settings.settingsBuilder().put(<span class="string">&quot;cluster.name&quot;</span>, <span class="string">&quot;wenbronk_escluster&quot;</span>).build();</span><br><span class="line">        client = TransportClient.builder().settings(settings).build()</span><br><span class="line">                 .addTransportAddress(<span class="keyword">new</span> <span class="title class_">InetSocketTransportAddress</span>(<span class="keyword">new</span> <span class="title class_">InetSocketAddress</span>(<span class="string">&quot;192.168.50.37&quot;</span>, <span class="number">9300</span>)));</span><br><span class="line">        System.out.println(<span class="string">&quot;success to connect escluster&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 使用get查询</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testGet</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">GetRequestBuilder</span> <span class="variable">requestBuilder</span> <span class="operator">=</span> client.prepareGet(<span class="string">&quot;twitter&quot;</span>, <span class="string">&quot;tweet&quot;</span>, <span class="string">&quot;1&quot;</span>);</span><br><span class="line">        <span class="type">GetResponse</span> <span class="variable">response</span> <span class="operator">=</span> requestBuilder.execute().actionGet();</span><br><span class="line">        <span class="type">GetResponse</span> <span class="variable">getResponse</span> <span class="operator">=</span> requestBuilder.get();</span><br><span class="line">        ListenableActionFuture&lt;GetResponse&gt; execute = requestBuilder.execute();</span><br><span class="line">        System.out.println(response.getSourceAsString());</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 使用QueryBuilder</span></span><br><span class="line"><span class="comment">     * termQuery(&quot;key&quot;, obj) 完全匹配</span></span><br><span class="line"><span class="comment">     * termsQuery(&quot;key&quot;, obj1, obj2..)   一次匹配多个值</span></span><br><span class="line"><span class="comment">     * matchQuery(&quot;key&quot;, Obj) 单个匹配, field不支持通配符, 前缀具高级特性</span></span><br><span class="line"><span class="comment">     * multiMatchQuery(&quot;text&quot;, &quot;field1&quot;, &quot;field2&quot;..);  匹配多个字段, field有通配符忒行</span></span><br><span class="line"><span class="comment">     * matchAllQuery();         匹配所有文件</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testQueryBuilder</span><span class="params">()</span> &#123;</span><br><span class="line"><span class="comment">//        QueryBuilder queryBuilder = QueryBuilders.termQuery(&quot;user&quot;, &quot;kimchy&quot;);</span></span><br><span class="line">　　　　　　<span class="type">QueryBUilder</span> <span class="variable">queryBuilder</span> <span class="operator">=</span> QueryBuilders.termQuery(<span class="string">&quot;user&quot;</span>, <span class="string">&quot;kimchy&quot;</span>, <span class="string">&quot;wenbronk&quot;</span>, <span class="string">&quot;vini&quot;</span>);</span><br><span class="line">        QueryBuilders.termsQuery(<span class="string">&quot;user&quot;</span>, <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;String&gt;().add(<span class="string">&quot;kimchy&quot;</span>));</span><br><span class="line"><span class="comment">//        QueryBuilder queryBuilder = QueryBuilders.matchQuery(&quot;user&quot;, &quot;kimchy&quot;);</span></span><br><span class="line"><span class="comment">//        QueryBuilder queryBuilder = QueryBuilders.multiMatchQuery(&quot;kimchy&quot;, &quot;user&quot;, &quot;message&quot;, &quot;gender&quot;);</span></span><br><span class="line">        <span class="type">QueryBuilder</span> <span class="variable">queryBuilder</span> <span class="operator">=</span> QueryBuilders.matchAllQuery();</span><br><span class="line">        searchFunction(queryBuilder);</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 组合查询</span></span><br><span class="line"><span class="comment">     * must(QueryBuilders) :   AND</span></span><br><span class="line"><span class="comment">     * mustNot(QueryBuilders): NOT</span></span><br><span class="line"><span class="comment">     * should:                  : OR</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testQueryBuilder2</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">QueryBuilder</span> <span class="variable">queryBuilder</span> <span class="operator">=</span> QueryBuilders.boolQuery()</span><br><span class="line">            .must(QueryBuilders.termQuery(<span class="string">&quot;user&quot;</span>, <span class="string">&quot;kimchy&quot;</span>))</span><br><span class="line">            .mustNot(QueryBuilders.termQuery(<span class="string">&quot;message&quot;</span>, <span class="string">&quot;nihao&quot;</span>))</span><br><span class="line">            .should(QueryBuilders.termQuery(<span class="string">&quot;gender&quot;</span>, <span class="string">&quot;male&quot;</span>));</span><br><span class="line">        searchFunction(queryBuilder);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 只查询一个id的</span></span><br><span class="line"><span class="comment">     * QueryBuilders.idsQuery(String...type).ids(Collection&lt;String&gt; ids)</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testIdsQuery</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">QueryBuilder</span> <span class="variable">queryBuilder</span> <span class="operator">=</span> QueryBuilders.idsQuery().ids(<span class="string">&quot;1&quot;</span>);</span><br><span class="line">        searchFunction(queryBuilder);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 包裹查询, 高于设定分数, 不计算相关性</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testConstantScoreQuery</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">QueryBuilder</span> <span class="variable">queryBuilder</span> <span class="operator">=</span> QueryBuilders.constantScoreQuery(QueryBuilders.termQuery(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;kimchy&quot;</span>)).boost(<span class="number">2.0f</span>);</span><br><span class="line">        searchFunction(queryBuilder);</span><br><span class="line">        <span class="comment">// 过滤查询</span></span><br><span class="line"><span class="comment">//        QueryBuilders.constantScoreQuery(FilterBuilders.termQuery(&quot;name&quot;, &quot;kimchy&quot;)).boost(2.0f);</span></span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * disMax查询</span></span><br><span class="line"><span class="comment">     * 对子查询的结果做union, score沿用子查询score的最大值, </span></span><br><span class="line"><span class="comment">     * 广泛用于muti-field查询</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testDisMaxQuery</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">QueryBuilder</span> <span class="variable">queryBuilder</span> <span class="operator">=</span> QueryBuilders.disMaxQuery()</span><br><span class="line">            .add(QueryBuilders.termQuery(<span class="string">&quot;user&quot;</span>, <span class="string">&quot;kimch&quot;</span>))  <span class="comment">// 查询条件</span></span><br><span class="line">            .add(QueryBuilders.termQuery(<span class="string">&quot;message&quot;</span>, <span class="string">&quot;hello&quot;</span>))</span><br><span class="line">            .boost(<span class="number">1.3f</span>)</span><br><span class="line">            .tieBreaker(<span class="number">0.7f</span>);</span><br><span class="line">        searchFunction(queryBuilder);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 模糊查询</span></span><br><span class="line"><span class="comment">     * 不能用通配符, 不知道干啥用</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testFuzzyQuery</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">QueryBuilder</span> <span class="variable">queryBuilder</span> <span class="operator">=</span> QueryBuilders.fuzzyQuery(<span class="string">&quot;user&quot;</span>, <span class="string">&quot;kimch&quot;</span>);</span><br><span class="line">        searchFunction(queryBuilder);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 父或子的文档查询</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testChildQuery</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">QueryBuilder</span> <span class="variable">queryBuilder</span> <span class="operator">=</span> QueryBuilders.hasChildQuery(<span class="string">&quot;sonDoc&quot;</span>, QueryBuilders.termQuery(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;vini&quot;</span>));</span><br><span class="line">        searchFunction(queryBuilder);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * moreLikeThisQuery: 实现基于内容推荐, 支持实现一句话相似文章查询</span></span><br><span class="line"><span class="comment">     * &#123;   </span></span><br><span class="line"><span class="comment">        &quot;more_like_this&quot; : &#123;   </span></span><br><span class="line"><span class="comment">        &quot;fields&quot; : [&quot;title&quot;, &quot;content&quot;],   // 要匹配的字段, 不填默认_all</span></span><br><span class="line"><span class="comment">        &quot;like_text&quot; : &quot;text like this one&quot;,   // 匹配的文本</span></span><br><span class="line"><span class="comment">        &#125;   </span></span><br><span class="line"><span class="comment">    &#125;     </span></span><br><span class="line"><span class="comment">    </span></span><br><span class="line"><span class="comment">    percent_terms_to_match：匹配项（term）的百分比，默认是0.3</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    min_term_freq：一篇文档中一个词语至少出现次数，小于这个值的词将被忽略，默认是2</span></span><br><span class="line"><span class="comment">    </span></span><br><span class="line"><span class="comment">    max_query_terms：一条查询语句中允许最多查询词语的个数，默认是25</span></span><br><span class="line"><span class="comment">    </span></span><br><span class="line"><span class="comment">    stop_words：设置停止词，匹配时会忽略停止词</span></span><br><span class="line"><span class="comment">    </span></span><br><span class="line"><span class="comment">    min_doc_freq：一个词语最少在多少篇文档中出现，小于这个值的词会将被忽略，默认是无限制</span></span><br><span class="line"><span class="comment">    </span></span><br><span class="line"><span class="comment">    max_doc_freq：一个词语最多在多少篇文档中出现，大于这个值的词会将被忽略，默认是无限制</span></span><br><span class="line"><span class="comment">    </span></span><br><span class="line"><span class="comment">    min_word_len：最小的词语长度，默认是0</span></span><br><span class="line"><span class="comment">    </span></span><br><span class="line"><span class="comment">    max_word_len：最多的词语长度，默认无限制</span></span><br><span class="line"><span class="comment">    </span></span><br><span class="line"><span class="comment">    boost_terms：设置词语权重，默认是1</span></span><br><span class="line"><span class="comment">    </span></span><br><span class="line"><span class="comment">    boost：设置查询权重，默认是1</span></span><br><span class="line"><span class="comment">    </span></span><br><span class="line"><span class="comment">    analyzer：设置使用的分词器，默认是使用该字段指定的分词器</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testMoreLikeThisQuery</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">QueryBuilder</span> <span class="variable">queryBuilder</span> <span class="operator">=</span> QueryBuilders.moreLikeThisQuery(<span class="string">&quot;user&quot;</span>)</span><br><span class="line">                            .like(<span class="string">&quot;kimchy&quot;</span>);</span><br><span class="line"><span class="comment">//                            .minTermFreq(1)         //最少出现的次数</span></span><br><span class="line"><span class="comment">//                            .maxQueryTerms(12);        // 最多允许查询的词语</span></span><br><span class="line">        searchFunction(queryBuilder);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 前缀查询</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testPrefixQuery</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">QueryBuilder</span> <span class="variable">queryBuilder</span> <span class="operator">=</span> QueryBuilders.matchQuery(<span class="string">&quot;user&quot;</span>, <span class="string">&quot;kimchy&quot;</span>);</span><br><span class="line">        searchFunction(queryBuilder);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 查询解析查询字符串</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testQueryString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">QueryBuilder</span> <span class="variable">queryBuilder</span> <span class="operator">=</span> QueryBuilders.queryStringQuery(<span class="string">&quot;+kimchy&quot;</span>);</span><br><span class="line">        searchFunction(queryBuilder);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 范围内查询</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testRangeQuery</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">QueryBuilder</span> <span class="variable">queryBuilder</span> <span class="operator">=</span> QueryBuilders.rangeQuery(<span class="string">&quot;user&quot;</span>)</span><br><span class="line">            .from(<span class="string">&quot;kimchy&quot;</span>)</span><br><span class="line">            .to(<span class="string">&quot;wenbronk&quot;</span>)</span><br><span class="line">            .includeLower(<span class="literal">true</span>)     <span class="comment">// 包含上界</span></span><br><span class="line">            .includeUpper(<span class="literal">true</span>);      <span class="comment">// 包含下届</span></span><br><span class="line">        searchFunction(queryBuilder);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 跨度查询</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testSpanQueries</span><span class="params">()</span> &#123;</span><br><span class="line">         <span class="type">QueryBuilder</span> <span class="variable">queryBuilder1</span> <span class="operator">=</span> QueryBuilders.spanFirstQuery(QueryBuilders.spanTermQuery(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;葫芦580娃&quot;</span>), <span class="number">30000</span>);     <span class="comment">// Max查询范围的结束位置  </span></span><br><span class="line">      </span><br><span class="line">         <span class="type">QueryBuilder</span> <span class="variable">queryBuilder2</span> <span class="operator">=</span> QueryBuilders.spanNearQuery()  </span><br><span class="line">                .clause(QueryBuilders.spanTermQuery(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;葫芦580娃&quot;</span>)) <span class="comment">// Span Term Queries  </span></span><br><span class="line">                .clause(QueryBuilders.spanTermQuery(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;葫芦3812娃&quot;</span>))  </span><br><span class="line">                .clause(QueryBuilders.spanTermQuery(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;葫芦7139娃&quot;</span>))  </span><br><span class="line">                .slop(<span class="number">30000</span>)                                               <span class="comment">// Slop factor  </span></span><br><span class="line">                .inOrder(<span class="literal">false</span>)  </span><br><span class="line">                .collectPayloads(<span class="literal">false</span>);  </span><br><span class="line">  </span><br><span class="line">        <span class="comment">// Span Not</span></span><br><span class="line">         <span class="type">QueryBuilder</span> <span class="variable">queryBuilder3</span> <span class="operator">=</span> QueryBuilders.spanNotQuery()  </span><br><span class="line">                .include(QueryBuilders.spanTermQuery(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;葫芦580娃&quot;</span>))  </span><br><span class="line">                .exclude(QueryBuilders.spanTermQuery(<span class="string">&quot;home&quot;</span>, <span class="string">&quot;山西省太原市2552街道&quot;</span>));  </span><br><span class="line">  </span><br><span class="line">        <span class="comment">// Span Or   </span></span><br><span class="line">         <span class="type">QueryBuilder</span> <span class="variable">queryBuilder4</span> <span class="operator">=</span> QueryBuilders.spanOrQuery()  </span><br><span class="line">                .clause(QueryBuilders.spanTermQuery(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;葫芦580娃&quot;</span>))  </span><br><span class="line">                .clause(QueryBuilders.spanTermQuery(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;葫芦3812娃&quot;</span>))  </span><br><span class="line">                .clause(QueryBuilders.spanTermQuery(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;葫芦7139娃&quot;</span>));  </span><br><span class="line">  </span><br><span class="line">        <span class="comment">// Span Term  </span></span><br><span class="line">         <span class="type">QueryBuilder</span> <span class="variable">queryBuilder5</span> <span class="operator">=</span> QueryBuilders.spanTermQuery(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;葫芦580娃&quot;</span>);  </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 测试子查询</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testTopChildrenQuery</span><span class="params">()</span> &#123;</span><br><span class="line">        QueryBuilders.hasChildQuery(<span class="string">&quot;tweet&quot;</span>, </span><br><span class="line">                QueryBuilders.termQuery(<span class="string">&quot;user&quot;</span>, <span class="string">&quot;kimchy&quot;</span>))</span><br><span class="line">            .scoreMode(<span class="string">&quot;max&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 通配符查询, 支持 * </span></span><br><span class="line"><span class="comment">     * 匹配任何字符序列, 包括空</span></span><br><span class="line"><span class="comment">     * 避免* 开始, 会检索大量内容造成效率缓慢</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testWildCardQuery</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">QueryBuilder</span> <span class="variable">queryBuilder</span> <span class="operator">=</span> QueryBuilders.wildcardQuery(<span class="string">&quot;user&quot;</span>, <span class="string">&quot;ki*hy&quot;</span>);</span><br><span class="line">        searchFunction(queryBuilder);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 嵌套查询, 内嵌文档查询</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testNestedQuery</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">QueryBuilder</span> <span class="variable">queryBuilder</span> <span class="operator">=</span> QueryBuilders.nestedQuery(<span class="string">&quot;location&quot;</span>, </span><br><span class="line">                QueryBuilders.boolQuery()</span><br><span class="line">                    .must(QueryBuilders.matchQuery(<span class="string">&quot;location.lat&quot;</span>, <span class="number">0.962590433140581</span>))</span><br><span class="line">                    .must(QueryBuilders.rangeQuery(<span class="string">&quot;location.lon&quot;</span>).lt(<span class="number">36.0000</span>).gt(<span class="number">0.000</span>)))</span><br><span class="line">        .scoreMode(<span class="string">&quot;total&quot;</span>);</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 测试索引查询</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testIndicesQueryBuilder</span> <span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">QueryBuilder</span> <span class="variable">queryBuilder</span> <span class="operator">=</span> QueryBuilders.indicesQuery(</span><br><span class="line">                QueryBuilders.termQuery(<span class="string">&quot;user&quot;</span>, <span class="string">&quot;kimchy&quot;</span>), <span class="string">&quot;index1&quot;</span>, <span class="string">&quot;index2&quot;</span>)</span><br><span class="line">                .noMatchQuery(QueryBuilders.termQuery(<span class="string">&quot;user&quot;</span>, <span class="string">&quot;kimchy&quot;</span>));</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 查询遍历抽取</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> queryBuilder</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">searchFunction</span><span class="params">(QueryBuilder queryBuilder)</span> &#123;</span><br><span class="line">        <span class="type">SearchResponse</span> <span class="variable">response</span> <span class="operator">=</span> client.prepareSearch(<span class="string">&quot;twitter&quot;</span>)</span><br><span class="line">                .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)</span><br><span class="line">                .setScroll(<span class="keyword">new</span> <span class="title class_">TimeValue</span>(<span class="number">60000</span>))</span><br><span class="line">                .setQuery(queryBuilder)</span><br><span class="line">                .setSize(<span class="number">100</span>).execute().actionGet();</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">while</span>(<span class="literal">true</span>) &#123;</span><br><span class="line">            response = client.prepareSearchScroll(response.getScrollId())</span><br><span class="line">                .setScroll(<span class="keyword">new</span> <span class="title class_">TimeValue</span>(<span class="number">60000</span>)).execute().actionGet();</span><br><span class="line">            <span class="keyword">for</span> (SearchHit hit : response.getHits()) &#123;</span><br><span class="line">                Iterator&lt;Entry&lt;String, Object&gt;&gt; iterator = hit.getSource().entrySet().iterator();</span><br><span class="line">                <span class="keyword">while</span>(iterator.hasNext()) &#123;</span><br><span class="line">                    Entry&lt;String, Object&gt; next = iterator.next();</span><br><span class="line">                    System.out.println(next.getKey() + <span class="string">&quot;: &quot;</span> + next.getValue());</span><br><span class="line">                    <span class="keyword">if</span>(response.getHits().hits().length == <span class="number">0</span>) &#123;</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"><span class="comment">//        testResponse(response);</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 对response结果的分析</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> response</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testResponse</span><span class="params">(SearchResponse response)</span> &#123;</span><br><span class="line">        <span class="comment">// 命中的记录数</span></span><br><span class="line">        <span class="type">long</span> <span class="variable">totalHits</span> <span class="operator">=</span> response.getHits().totalHits();</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">for</span> (SearchHit searchHit : response.getHits()) &#123;</span><br><span class="line">            <span class="comment">// 打分</span></span><br><span class="line">            <span class="type">float</span> <span class="variable">score</span> <span class="operator">=</span> searchHit.getScore();</span><br><span class="line">            <span class="comment">// 文章id</span></span><br><span class="line">            <span class="type">int</span> <span class="variable">id</span> <span class="operator">=</span> Integer.parseInt(searchHit.getSource().get(<span class="string">&quot;id&quot;</span>).toString());</span><br><span class="line">            <span class="comment">// title</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">title</span> <span class="operator">=</span> searchHit.getSource().get(<span class="string">&quot;title&quot;</span>).toString();</span><br><span class="line">            <span class="comment">// 内容</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">content</span> <span class="operator">=</span> searchHit.getSource().get(<span class="string">&quot;content&quot;</span>).toString();</span><br><span class="line">            <span class="comment">// 文章更新时间</span></span><br><span class="line">            <span class="type">long</span> <span class="variable">updatetime</span> <span class="operator">=</span> Long.parseLong(searchHit.getSource().get(<span class="string">&quot;updatetime&quot;</span>).toString());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 对结果设置高亮显示</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testHighLighted</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">/*  5.0 版本后的高亮设置</span></span><br><span class="line"><span class="comment">         * client.#().#().highlighter(hBuilder).execute().actionGet();</span></span><br><span class="line"><span class="comment">        HighlightBuilder hBuilder = new HighlightBuilder();</span></span><br><span class="line"><span class="comment">        hBuilder.preTags(&quot;&lt;h2&gt;&quot;);</span></span><br><span class="line"><span class="comment">        hBuilder.postTags(&quot;&lt;/h2&gt;&quot;);</span></span><br><span class="line"><span class="comment">        hBuilder.field(&quot;user&quot;);        // 设置高亮显示的字段</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line">        <span class="comment">// 加入查询中</span></span><br><span class="line">        <span class="type">SearchResponse</span> <span class="variable">response</span> <span class="operator">=</span> client.prepareSearch(<span class="string">&quot;blog&quot;</span>)</span><br><span class="line">            .setQuery(QueryBuilders.matchAllQuery())</span><br><span class="line">            .addHighlightedField(<span class="string">&quot;user&quot;</span>)        <span class="comment">// 添加高亮的字段</span></span><br><span class="line">            .setHighlighterPreTags(<span class="string">&quot;&lt;h1&gt;&quot;</span>)</span><br><span class="line">            .setHighlighterPostTags(<span class="string">&quot;&lt;/h1&gt;&quot;</span>)</span><br><span class="line">            .execute().actionGet();</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 遍历结果, 获取高亮片段</span></span><br><span class="line">        <span class="type">SearchHits</span> <span class="variable">searchHits</span> <span class="operator">=</span> response.getHits();</span><br><span class="line">        <span class="keyword">for</span>(SearchHit hit:searchHits)&#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;String方式打印文档搜索内容:&quot;</span>);</span><br><span class="line">            System.out.println(hit.getSourceAsString());</span><br><span class="line">            System.out.println(<span class="string">&quot;Map方式打印高亮内容&quot;</span>);</span><br><span class="line">            System.out.println(hit.getHighlightFields());</span><br><span class="line"></span><br><span class="line">            System.out.println(<span class="string">&quot;遍历高亮集合，打印高亮片段:&quot;</span>);</span><br><span class="line">            Text[] text = hit.getHighlightFields().get(<span class="string">&quot;title&quot;</span>).getFragments();</span><br><span class="line">            <span class="keyword">for</span> (Text str : text) &#123;</span><br><span class="line">                System.out.println(str.string());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ElasticSearch/" rel="tag"># ElasticSearch</a>
+              <a href="/tags/%E6%9F%A5%E8%AF%A2/" rel="tag"># 查询</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/10/18/%E4%BD%BF%E7%94%A8SpringBoot%E7%9A%84%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/" rel="prev" title="使用SpringBoot的定时任务">
+                  <i class="fa fa-chevron-left"></i> 使用SpringBoot的定时任务
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/10/25/Springboot%E9%9B%86%E6%88%90Mybatis%E4%B8%8BPageHelper%E4%B8%8D%E8%B5%B7%E4%BD%9C%E7%94%A8/" rel="next" title="Springboot集成Mybatis下PageHelper不起作用">
+                  Springboot集成Mybatis下PageHelper不起作用 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rifu</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">139k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">2:06</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/algoliasearch@4.12.1/dist/algoliasearch-lite.umd.js" integrity="sha256-gOvJ6W+j+t/cgnnl9iUU3cb6F1WFQGDdtTXhfPjU4bc=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.39.0/dist/instantsearch.production.min.js" integrity="sha256-+ZlQZK9m82XOYGFZCIRrPOFh2kDdAGB6e7TjWGvoaSY=" crossorigin="anonymous"></script><script src="/js/third-party/search/algolia-search.js"></script>
+
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdn.jsdelivr.net/npm/pdfobject@2.2.7/pdfobject.min.js","integrity":"sha256-ph3Dk89VmuTVXG6x/RDzk53SU9LPdAh1tpv0UvnDZ2I="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js"></script>
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false});</script></body>
+</html>

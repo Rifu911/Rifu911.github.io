@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"rifu520.gitee.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="计算机基础1.软件设计的六大原则 单一职责原则：不要存在多于一个导致类变更的原因。通俗的说，即一个类只负责一项职责。 里氏替换原则：子类可以扩展父类的功能，但不能改变父类原有的功能。 依赖倒置原则：高层模块不应该依赖低层模块，二者都应该依赖其抽象；抽象不应该依赖细节；细节应该依赖抽象。 接口隔离原则：客户端不应该依赖它不需要的接口；一个类对另一个类的依赖应该建立在最小的接口上。 迪米特法则：一个对">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Interview">
+<meta property="og:url" content="https://rifu520.gitee.io/2021/04/17/Interview/index.html">
+<meta property="og:site_name" content="Single blog">
+<meta property="og:description" content="计算机基础1.软件设计的六大原则 单一职责原则：不要存在多于一个导致类变更的原因。通俗的说，即一个类只负责一项职责。 里氏替换原则：子类可以扩展父类的功能，但不能改变父类原有的功能。 依赖倒置原则：高层模块不应该依赖低层模块，二者都应该依赖其抽象；抽象不应该依赖细节；细节应该依赖抽象。 接口隔离原则：客户端不应该依赖它不需要的接口；一个类对另一个类的依赖应该建立在最小的接口上。 迪米特法则：一个对">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://image-static.segmentfault.com/237/957/2379573156-e0be89c7e6213336">
+<meta property="og:image" content="c:/Users/Administrator/AppData/Roaming/Typora/typora-user-images/1594720933210.png">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2017/11/9/d8bf92c7906718271fdb8b0d2d5fe5b4?imageslim">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2017/11/9/8c7874fafe233c9278509e40e906055c?imageView2/0/w/1280/h/960/format/webp/ignore-error/1">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2017/8/25/3fe5c91aafa1173c22b944e0ed8746c8?imageView2/0/w/1280/h/960/format/webp/ignore-error/1">
+<meta property="og:image" content="c:/Users/Administrator/AppData/Roaming/Typora/typora-user-images/1594720668312.png">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2019/5/19/16ad044ca097b7d4?imageslim">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2019/1/22/16874bae6bd24813?imageView2/0/w/1280/h/960/format/webp/ignore-error/1">
+<meta property="article:published_time" content="2021-04-17T14:43:00.000Z">
+<meta property="article:modified_time" content="2022-03-24T15:22:21.570Z">
+<meta property="article:author" content="Rifu">
+<meta property="article:tag" content="面试">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://image-static.segmentfault.com/237/957/2379573156-e0be89c7e6213336">
+
+
+<link rel="canonical" href="https://rifu520.gitee.io/2021/04/17/Interview/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://rifu520.gitee.io/2021/04/17/Interview/","path":"2021/04/17/Interview/","title":"Interview"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Interview | Single blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Single blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">One bat dream</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container"></div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="algolia-stats"><hr></div>
+  <div class="algolia-hits"></div>
+  <div class="algolia-pagination"></div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">计算机基础</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E8%BD%AF%E4%BB%B6%E8%AE%BE%E8%AE%A1%E7%9A%84%E5%85%AD%E5%A4%A7%E5%8E%9F%E5%88%99"><span class="nav-number">1.0.1.</span> <span class="nav-text">1.软件设计的六大原则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.0.2.</span> <span class="nav-text">2.设计模式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis"><span class="nav-number">2.</span> <span class="nav-text">Redis</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-Redis%E7%9A%84%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">2.0.1.</span> <span class="nav-text">1.Redis的应用场景</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Redis%E6%94%AF%E6%8C%81%E7%9A%84%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.0.2.</span> <span class="nav-text">2.Redis支持的数据类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Redis%E7%9A%84%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">2.0.3.</span> <span class="nav-text">3.Redis的持久化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E6%95%B0%E6%8D%AE%E8%BF%87%E6%9C%9F%E7%AD%96%E7%95%A5%E5%92%8C%E5%86%85%E5%AD%98%E6%B7%98%E6%B1%B0%E6%9C%BA%E5%88%B6"><span class="nav-number">2.0.4.</span> <span class="nav-text">4.数据过期策略和内存淘汰机制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-Redis%E5%93%88%E5%B8%8C%E6%A7%BD%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="nav-number">2.0.5.</span> <span class="nav-text">5.Redis哈希槽的概念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-Redis%E6%94%AF%E6%8C%81%E4%BA%8B%E5%8A%A1%E5%90%97"><span class="nav-number">2.0.6.</span> <span class="nav-text">6.Redis支持事务吗</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81-redis-%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E9%83%BD%E6%98%AF%E7%83%AD%E7%82%B9%E6%95%B0%E6%8D%AE"><span class="nav-number">2.0.7.</span> <span class="nav-text">7.如何保证 redis 中的数据都是热点数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8-keys%E5%92%8Cscan%E6%8C%87%E4%BB%A4"><span class="nav-number">2.0.8.</span> <span class="nav-text">8.keys和scan指令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#9-%E4%BD%BF%E7%94%A8Redis%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%EF%BC%88%E5%9F%BA%E4%BA%8ERedission%EF%BC%8C%E7%9C%8B%E9%97%A8%E7%8B%97%E7%9A%84%E4%BD%BF%E7%94%A8%EF%BC%89"><span class="nav-number">2.0.9.</span> <span class="nav-text">9.使用Redis的分布式锁（基于Redission，看门狗的使用）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#10-%E4%B8%BA%E4%BB%80%E4%B9%88Redis%E6%98%AF%E5%8D%95%E7%BA%BF%E7%A8%8B%E7%9A%84%EF%BC%8C%E4%BD%86%E6%98%AF%E5%8F%88%E8%83%BD%E6%94%AF%E6%8C%81%E9%AB%98%E5%B9%B6%E5%8F%91"><span class="nav-number">2.0.10.</span> <span class="nav-text">10.为什么Redis是单线程的，但是又能支持高并发</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#11-%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81Redis%E5%92%8C%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%8F%8C%E5%86%99%E4%B8%80%E8%87%B4%E6%80%A7"><span class="nav-number">2.0.11.</span> <span class="nav-text">11.如何保证Redis和数据库的双写一致性</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Java%E5%9F%BA%E7%A1%80"><span class="nav-number">3.</span> <span class="nav-text">Java基础</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-synchronzied%EF%BC%88jdk1-6%E4%BB%A5%E5%90%8E%EF%BC%89"><span class="nav-number">3.0.1.</span> <span class="nav-text">1.synchronzied（jdk1.6以后）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-volatile"><span class="nav-number">3.0.2.</span> <span class="nav-text">2.volatile</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Java%E9%AB%98%E5%B9%B6%E5%8F%91"><span class="nav-number">4.</span> <span class="nav-text">Java高并发</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%BF%85%E9%A1%BB%E8%A6%81%E6%B8%85%E6%A5%9A%E7%9A%84%E5%87%A0%E4%B8%AA%E6%A6%82%E5%BF%B5"><span class="nav-number">4.0.1.</span> <span class="nav-text">1.必须要清楚的几个概念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-ReentrantLock"><span class="nav-number">4.0.2.</span> <span class="nav-text">2.ReentrantLock</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Condition"><span class="nav-number">4.0.3.</span> <span class="nav-text">3.Condition</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-LockSupport"><span class="nav-number">4.0.4.</span> <span class="nav-text">4.LockSupport</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-Semaphore"><span class="nav-number">4.0.5.</span> <span class="nav-text">5.Semaphore</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-CountDownLatch%EF%BC%88%E9%97%AD%E9%94%81%EF%BC%89"><span class="nav-number">4.0.6.</span> <span class="nav-text">6.CountDownLatch（闭锁）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-CyclicBarrier%EF%BC%88%E5%BE%AA%E7%8E%AF%E6%A0%85%E6%A0%8F-%E5%BE%AA%E7%8E%AF%E5%B1%8F%E9%9A%9C%EF%BC%89"><span class="nav-number">4.0.7.</span> <span class="nav-text">7.CyclicBarrier（循环栅栏&#x2F;循环屏障）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8-Unsafe"><span class="nav-number">4.0.8.</span> <span class="nav-text">8.Unsafe</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#9-JUC%E4%B8%AD%E7%9A%84%E5%8E%9F%E5%AD%90%E7%B1%BB"><span class="nav-number">4.0.9.</span> <span class="nav-text">9.JUC中的原子类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#10-ThreadLocal"><span class="nav-number">4.0.10.</span> <span class="nav-text">10.ThreadLocal</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#11-Queue"><span class="nav-number">4.0.11.</span> <span class="nav-text">11.Queue</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#12-BlockingQueue"><span class="nav-number">4.0.12.</span> <span class="nav-text">12.BlockingQueue</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#13-%E5%8F%AF%E4%BE%9B%E9%80%89%E6%8B%A9%E7%9A%84%E5%90%84%E7%A7%8D%E9%98%BB%E5%A1%9E%E9%98%9F%E5%88%97"><span class="nav-number">4.0.13.</span> <span class="nav-text">13.可供选择的各种阻塞队列</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#14-%E9%AB%98%E5%B9%B6%E5%8F%91%E9%99%90%E6%B5%81"><span class="nav-number">4.0.14.</span> <span class="nav-text">14.高并发限流</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JVM"><span class="nav-number">5.</span> <span class="nav-text">JVM</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-JDK%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%92%8CCGlib%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">5.0.1.</span> <span class="nav-text">1.JDK动态代理和CGlib的区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-JVM%E7%9A%84%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%EF%BC%88JMM%EF%BC%89"><span class="nav-number">5.0.2.</span> <span class="nav-text">2.JVM的内存模型（JMM）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E6%9C%BA%E5%88%B6"><span class="nav-number">5.0.3.</span> <span class="nav-text">3.垃圾回收机制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95"><span class="nav-number">5.0.4.</span> <span class="nav-text">4.垃圾回收算法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8"><span class="nav-number">5.0.5.</span> <span class="nav-text">5.垃圾回收器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-%E6%8C%87%E9%92%88%E5%8E%8B%E7%BC%A9"><span class="nav-number">5.0.6.</span> <span class="nav-text">6.指针压缩</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE%E7%AF%87"><span class="nav-number">6.</span> <span class="nav-text">网络协议篇</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-TCP%E7%9A%84%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E5%92%8C%E5%9B%9B%E6%AC%A1%E6%8C%A5%E6%89%8B"><span class="nav-number">6.0.1.</span> <span class="nav-text">1.TCP的三次握手和四次挥手</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-HTTP%E5%92%8CHTTPS%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB"><span class="nav-number">6.0.2.</span> <span class="nav-text">2.HTTP和HTTPS有什么区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B"><span class="nav-number">6.0.3.</span> <span class="nav-text">3.网络模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-TCP%E6%98%AF%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E4%BC%A0%E8%BE%93%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%80%A7"><span class="nav-number">6.0.4.</span> <span class="nav-text">4.TCP是如何保证传输的可靠性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#10-%E8%81%8A%E8%81%8ASSL%E5%92%8CTLS"><span class="nav-number">6.0.5.</span> <span class="nav-text">10.聊聊SSL和TLS</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Mysql"><span class="nav-number">7.</span> <span class="nav-text">Mysql</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BC%95%E6%93%8E"><span class="nav-number">7.0.1.</span> <span class="nav-text">1.数据库引擎</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E7%B4%A2%E5%BC%95"><span class="nav-number">7.0.2.</span> <span class="nav-text">2.索引</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E4%BA%8B%E5%8A%A1%E7%9A%84%E5%9B%9B%E5%A4%A7%E7%89%B9%E6%80%A7-ACID"><span class="nav-number">7.0.3.</span> <span class="nav-text">3.事务的四大特性(ACID)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E6%A0%87%E5%87%86%E7%9A%84%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB"><span class="nav-number">7.0.4.</span> <span class="nav-text">4.标准的隔离级别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-Mysql%E6%94%AF%E6%8C%81%E7%9A%84%E9%94%81"><span class="nav-number">7.0.5.</span> <span class="nav-text">5.Mysql支持的锁</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring"><span class="nav-number">8.</span> <span class="nav-text">Spring</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-IOC%E5%92%8CAOP"><span class="nav-number">8.0.1.</span> <span class="nav-text">1.IOC和AOP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-IOC%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96%E8%BF%87%E7%A8%8B"><span class="nav-number">8.0.2.</span> <span class="nav-text">2.IOC的初始化过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Bean%E7%9A%84%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B"><span class="nav-number">8.0.3.</span> <span class="nav-text">3.Bean的创建过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3Bean%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">8.0.4.</span> <span class="nav-text">4.如何解决Bean循环依赖的问题</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SpringMVC"><span class="nav-number">9.</span> <span class="nav-text">SpringMVC</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%A4%84%E7%90%86%E8%AF%B7%E6%B1%82%E7%9A%84%E6%B5%81%E7%A8%8B"><span class="nav-number">9.0.1.</span> <span class="nav-text">1.处理请求的流程</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E6%8A%80%E6%9C%AF"><span class="nav-number">10.</span> <span class="nav-text">分布式技术</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%92%8C%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1"><span class="nav-number">10.0.1.</span> <span class="nav-text">1.分布式锁和分布式事务</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RabbitMQ"><span class="nav-number">11.</span> <span class="nav-text">RabbitMQ</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%9F%BA%E7%A1%80"><span class="nav-number">11.0.1.</span> <span class="nav-text">1.基础</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E6%B6%88%E6%81%AF%E4%B8%A2%E5%A4%B1"><span class="nav-number">11.0.2.</span> <span class="nav-text">2.如何避免消息丢失</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%BB%B6%E8%BF%9F%E9%98%9F%E5%88%97"><span class="nav-number">11.0.3.</span> <span class="nav-text">3.如何实现延迟队列</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ElasticSearch"><span class="nav-number">12.</span> <span class="nav-text">ElasticSearch</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E6%A6%82%E8%BF%B0"><span class="nav-number">12.0.1.</span> <span class="nav-text">1.概述</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E5%85%B3%E4%BA%8EIK%E5%88%86%E8%AF%8D%E5%99%A8"><span class="nav-number">12.0.2.</span> <span class="nav-text">2.关于IK分词器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E5%80%92%E6%8E%92%E7%B4%A2%E5%BC%95"><span class="nav-number">12.0.3.</span> <span class="nav-text">3.倒排索引</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Rifu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Rifu</p>
+  <div class="site-description" itemprop="description">临时停车</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">62</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rifu520.gitee.io/2021/04/17/Interview/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Rifu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Single blog">
+      <meta itemprop="description" content="临时停车">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Interview | Single blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Interview
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-04-17 22:43:00" itemprop="dateCreated datePublished" datetime="2021-04-17T22:43:00+08:00">2021-04-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E7%AF%87/" itemprop="url" rel="index"><span itemprop="name">面试篇</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>19k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>17 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="计算机基础"><a href="#计算机基础" class="headerlink" title="计算机基础"></a>计算机基础</h2><h4 id="1-软件设计的六大原则"><a href="#1-软件设计的六大原则" class="headerlink" title="1.软件设计的六大原则"></a>1.软件设计的六大原则</h4><ul>
+<li><strong>单一职责原则</strong>：不要存在多于一个导致类变更的原因。通俗的说，即一个类只负责一项职责。</li>
+<li><strong>里氏替换原则</strong>：子类可以扩展父类的功能，但不能改变父类原有的功能。</li>
+<li><strong>依赖倒置原则</strong>：高层模块不应该依赖低层模块，二者都应该依赖其抽象；抽象不应该依赖细节；细节应该依赖抽象。</li>
+<li><strong>接口隔离原则</strong>：客户端不应该依赖它不需要的接口；一个类对另一个类的依赖应该建立在最小的接口上。</li>
+<li><strong>迪米特法则</strong>：一个对象应该对其他对象保持最少的了解。<span id="more"></span></li>
+</ul>
+<h4 id="2-设计模式"><a href="#2-设计模式" class="headerlink" title="2.设计模式"></a>2.设计模式</h4><ul>
+<li><strong>单例模式</strong>：懒汉模式，饿汉模式</li>
+<li><strong>工厂模式</strong>：</li>
+<li><strong>代理模式</strong>：Proxy</li>
+<li><strong>委派模式</strong>：JDBC的驱动加载，启动类加载器委派应用类加载器来加载对应的class文件</li>
+<li><strong>策略模式</strong>：eg:操作符号-&gt;加、减、乘、除；一个接口有多个实现，一个抽象类有多个实现</li>
+<li><strong>适配器模式</strong>：比如vga-html接头，实现两个接口，使得适配器同时拥有这两个接口的方法</li>
+</ul>
+<h2 id="Redis"><a href="#Redis" class="headerlink" title="Redis"></a>Redis</h2><h4 id="1-Redis的应用场景"><a href="#1-Redis的应用场景" class="headerlink" title="1.Redis的应用场景"></a>1.Redis的应用场景</h4><p>缓存、简单消息队列、分布式锁、共享session。</p>
+<h4 id="2-Redis支持的数据类型"><a href="#2-Redis支持的数据类型" class="headerlink" title="2.Redis支持的数据类型"></a>2.Redis支持的数据类型</h4><ul>
+<li><p>String      支持最大512M</p>
+</li>
+<li><p>List</p>
+</li>
+<li><p>Set</p>
+</li>
+<li><p>ZSet    底层的数据结构是跳表，增删查都达到了预期效果。</p>
+</li>
+<li><p>Hash</p>
+</li>
+</ul>
+<h4 id="3-Redis的持久化"><a href="#3-Redis的持久化" class="headerlink" title="3.Redis的持久化"></a>3.Redis的持久化</h4><ul>
+<li>RDB(默认)   快照的方式，fork一个子进程定期将数据转换为占用空间小的快照（例如每十分钟）,dump.rdb文件，使用的具体指令是bgsave，恢复数据快</li>
+<li>AOF   将执行过的指令都存到一个aof文件里面，如果指令过多，恢复数据的效率很慢，但是顶多损坏一秒钟的数据</li>
+</ul>
+<p>Best：一般是使用这两种持久化方式结合，优先采用aof进行数据恢复，然后再使用rdb</p>
+<h4 id="4-数据过期策略和内存淘汰机制"><a href="#4-数据过期策略和内存淘汰机制" class="headerlink" title="4.数据过期策略和内存淘汰机制"></a>4.数据过期策略和内存淘汰机制</h4><blockquote>
+<p>Redis是使用<strong>定期删除</strong>和<strong>惰性删除</strong>两者配合的过期策略。</p>
+</blockquote>
+<p>定期删除：默认每个100ms就随机抽取设置了过期时间的key，判断是否过期，过期就删除。因为key太多，全盘扫描会耗费很多时间，所以是随机抽取，但是这样的策略不够完善，需要惰性删除来配合。</p>
+<p>惰性删除：客户端获取某个key，redis会检测是否过期，是，则删除并且不会返回给客户端。</p>
+<p>由于以上两种策略都无法解决redis使用内存过高问题，所以有了下面的内存淘汰机制。</p>
+<ul>
+<li><p>noeviction：当内存不足以容纳新写入数据时，新写入操作会报错。<strong>默认策略</strong></p>
+</li>
+<li><p>allkeys-lru：当内存不足以容纳新写入数据时，在键空间中，移除最近最少使用的key。</p>
+</li>
+<li><p>allkeys-random：当内存不足以容纳新写入数据时，在键空间中，随机移除某个key。</p>
+</li>
+<li><p>volatile-lru：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，移除最近最少使用的key。</p>
+</li>
+<li><p>volatile-random：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，随机移除某个key。</p>
+</li>
+<li><p>volatile-ttl：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，有更早过期时间的key优先移除。</p>
+</li>
+</ul>
+<h4 id="5-Redis哈希槽的概念"><a href="#5-Redis哈希槽的概念" class="headerlink" title="5.Redis哈希槽的概念"></a>5.Redis哈希槽的概念</h4><p>Redis集群没有使用一致性哈希，而是引入了hash槽的概念，Redis集群有16384个哈希槽，每个key经过CRC16校验后对16384进行取模，来决定放置到哪个槽里面，集群的每个节点都会负责部分槽。</p>
+<h4 id="6-Redis支持事务吗"><a href="#6-Redis支持事务吗" class="headerlink" title="6.Redis支持事务吗"></a>6.Redis支持事务吗</h4><p>Redis支持部分事务，但是不满足像mysql数据库定义的事务的四大特性ACID，不满足的部分是强一致性。</p>
+<p>相关的指令：</p>
+<ul>
+<li>MULTI：开启一个事务，MULTI 执行之后，客户端可以继续向服务器发送任意多条命令，这些命令不会立即被执行，而是被放到一个队列中。</li>
+<li>EXEC：执行队列中所有的命令。</li>
+<li>DISCARD：清空事务队列,并放弃执行事务。</li>
+<li>UNWATCH：取消 WATCH 命令对所有 key 的监视。</li>
+<li>WATCH key1 key2 …    ：监视一个(或多个) key ，如果在事务执行之前这个(或这些) key 被其他命令所改动，那么事务将被打断。</li>
+</ul>
+<h4 id="7-如何保证-redis-中的数据都是热点数据"><a href="#7-如何保证-redis-中的数据都是热点数据" class="headerlink" title="7.如何保证 redis 中的数据都是热点数据"></a>7.如何保证 redis 中的数据都是热点数据</h4><p>这个其实考验的是Redis的6种内存淘汰机制，我们可以将内存淘汰机制设置为allkeys-lru或者volatile-lru。</p>
+<p>具体的操作是到redis的配置文件里面修改以下属性：</p>
+<blockquote>
+<p>maxmemory-policy volatile-lru</p>
+</blockquote>
+<h4 id="8-keys和scan指令"><a href="#8-keys和scan指令" class="headerlink" title="8.keys和scan指令"></a>8.keys和scan指令</h4><p>使用keys 和scan可以扫出指定模式的key。</p>
+<p>但是由于Redis是单线程的，keys指令会导致线程阻塞一段时间，如果是线上环境，建议使用scan指令，scan指令可以无阻塞的取出符合条件的key，但是会有一定的重复概率，需要客户端再进行一次去重，效率会比keys慢。</p>
+<h4 id="9-使用Redis的分布式锁（基于Redission，看门狗的使用）"><a href="#9-使用Redis的分布式锁（基于Redission，看门狗的使用）" class="headerlink" title="9.使用Redis的分布式锁（基于Redission，看门狗的使用）"></a>9.使用Redis的分布式锁（基于Redission，看门狗的使用）</h4><p>具体指令就是SETNX(SET IF NOT EXIST)：尝试给某个key赋值，如果key不存在则赋值成功，并返回1，如果赋值不成功则返回0；设置成功后会给这个key设置过期时间。</p>
+<p>看门狗的作用：有可能业务时间大于-锁的过期时间，这时候就会导致事务无法提交；看门狗能给占有的锁自动续期，保证业务完成之后能够正常释放持有的Redis锁。</p>
+<h4 id="10-为什么Redis是单线程的，但是又能支持高并发"><a href="#10-为什么Redis是单线程的，但是又能支持高并发" class="headerlink" title="10.为什么Redis是单线程的，但是又能支持高并发"></a>10.为什么Redis是单线程的，但是又能支持高并发</h4><p>因为Redis是基于内存的操作，CPU不是Redis的瓶颈，Redis的瓶颈最有可能是机器内存的大小或者网络带宽。既然单线程容易实现，多线程会增加一个上下文切换的消耗和锁的竞争条件，而且CPU不会成为瓶颈，那就顺理成章地采用单线程的方案了。</p>
+<p><strong>总结</strong>：</p>
+<ul>
+<li>操作的数据都是在内存里面</li>
+<li>单线程，没有上下文的切换消耗资源</li>
+<li>NIO多路复用机制</li>
+</ul>
+<h4 id="11-如何保证Redis和数据库的双写一致性"><a href="#11-如何保证Redis和数据库的双写一致性" class="headerlink" title="11.如何保证Redis和数据库的双写一致性"></a>11.如何保证Redis和数据库的双写一致性</h4><ul>
+<li>懒加载模式缓存可采取双删+TTL失效来实现；</li>
+<li>双删失败情况下可采取重试措施，重试有业务通过mq重试以及组件消费mysql的binlog再写入mq重试两种方式；</li>
+<li>主动加载由于操作本身不具有幂等性，所以需要考虑加载的有序性问题，采取mq的分区机制实现串行化处理，实现缓存和mysql数据的最终一致，此时读和写操作的缓存加载事件是走的同一个mq。</li>
+</ul>
+<h2 id="Java基础"><a href="#Java基础" class="headerlink" title="Java基础"></a>Java基础</h2><h4 id="1-synchronzied（jdk1-6以后）"><a href="#1-synchronzied（jdk1-6以后）" class="headerlink" title="1.synchronzied（jdk1.6以后）"></a>1.synchronzied（jdk1.6以后）</h4><blockquote>
+<p>锁粗化的过程是不可逆的</p>
+</blockquote>
+<p>偏向锁-&gt;CAS-&gt;自旋锁-&gt;轻量级锁-&gt;重量级锁</p>
+<p>接下来谈下锁升级的过程。</p>
+<p>默认使用的锁是Mark Word。</p>
+<p>线程来请求资源锁，会先判断当前资源的是否有锁，有锁的话回去判断锁的对象头里面存的线程id是否为自己，是的话可直接获得当前锁（偏向锁的体现）。如果不是自己，则会进行一次CAS，判断锁标记的线程是否还存活，如果线程已经结束，则直接改线程id修改为自己，如果线程是存活，则会继续进行CAS，重复上面步骤，此时晋升为轻量级锁，在一定的自旋失败后(默认10次)，会进一步变成重量级锁，会将自己挂起。</p>
+<img src="https://image-static.segmentfault.com/237/957/2379573156-e0be89c7e6213336" alt="img" style="zoom:200%;" />
+
+
+
+<h4 id="2-volatile"><a href="#2-volatile" class="headerlink" title="2.volatile"></a>2.volatile</h4><ul>
+<li><p>线程中读取的时候，每次读取都会去主内存中读取共享变量最新的值，然后将其复制到工作内存</p>
+</li>
+<li><p>线程中修改了工作内存中变量的副本，修改之后会立即刷新到主内存</p>
+</li>
+</ul>
+<p>Extra：volatile是如何实现内存的可见性？</p>
+<blockquote>
+<p>通过加入内存屏障和禁止重排优化来实现的。</p>
+<p>在每个volatile写操作前插入StoreStore屏障，在写操作后插入StoreLoad屏障<br>在每个volatile读操作前插入LoadLoad屏障，在读操作后插入LoadStore屏障</p>
+</blockquote>
+<h2 id="Java高并发"><a href="#Java高并发" class="headerlink" title="Java高并发"></a>Java高并发</h2><h4 id="1-必须要清楚的几个概念"><a href="#1-必须要清楚的几个概念" class="headerlink" title="1.必须要清楚的几个概念"></a>1.必须要清楚的几个概念</h4><ul>
+<li><strong>同步（Synchronous）和异步（Asynchronous）</strong>：同步方法一旦开始调用，调用者必须要等方法放回结果才能继续执行；异步更像是一个消息传递，一旦开始调用，立即返回，调用者继续后续的操作。</li>
+<li><strong>并发（Concurrency）和并行（Parallelism）</strong>：并发侧重于线程的上下文切换；而并行是多个线程一起执行。</li>
+<li><strong>临界区</strong>：临界区用来表示一种公共资源或者说共享数据，可以被多个线程使用，但是每一次只能有一个线程使用它，一旦临界区资源被占用，其他线程要想使用这个资源就必须等待。</li>
+<li><strong>阻塞（Blocking）和非阻塞（Non-Blocking）</strong>：阻塞指的是多个线程请求同一个资源（临界区），但是某个时刻只能有一个线程享用，其他线程只能等待。非阻塞的意思和其相反，它强调的是多个线程之间不会互相影响，都可以正常执行。</li>
+<li><strong>死锁（DeadLock）、饥饿（Stravation）和活锁（LiveLock）</strong>：死锁就不再阐述；饥饿优先级低的线程总是被优先级高的线程插队，导致很长时间拿不到资源锁，处于饥饿的状态；活锁指的是秉承“谦让”的原则，互相让出自己所占有的锁，导致资源都是在两个线程之前切换，而没有一个线程可以拿到所有的资源正常执行。</li>
+</ul>
+<h4 id="2-ReentrantLock"><a href="#2-ReentrantLock" class="headerlink" title="2.ReentrantLock"></a>2.ReentrantLock</h4><ul>
+<li>ReentrantLock可以实现公平锁和非公平锁。</li>
+<li>ReentrantLock默认实现的是非公平锁。</li>
+<li>ReentrantLock的获取锁和释放锁必须成对出现，锁了几次，也要释放几次。</li>
+<li>释放锁的操作必须放在finally中执行。</li>
+<li>lockInterruptibly()实例方法可以相应线程的中断方法，调用线程的interrupt()方法时，lockInterruptibly()方法会触发 <code>InterruptedException</code>异常。</li>
+<li>关于 <code>InterruptedException</code>异常说一下，看到方法声明上带有 <code>throwsInterruptedException</code>，表示该方法可以响应线程中断，调用线程的interrupt()方法时，这些方法会触发 <code>InterruptedException</code>异常，触发InterruptedException时，线程的中断中断状态会被清除。所以如果程序由于调用 <code>interrupt()</code>方法而触发 <code>InterruptedException</code>异常，线程的标志由默认的false变为ture，然后又变为false。</li>
+<li>实例方法tryLock()获会尝试获取锁，会立即返回，返回值表示是否获取成功。</li>
+<li>实例方法tryLock(long timeout, TimeUnit unit)会在指定的时间内尝试获取锁，指定的时间内是否能够获取锁，都会返回，返回值表示是否获取锁成功，该方法会响应线程的中断。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">获取锁的方法</th>
+<th align="left">是否立即响应(不会阻塞)</th>
+<th align="left">是否响应中断</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">lock()</td>
+<td align="left">×</td>
+<td align="left">×</td>
+</tr>
+<tr>
+<td align="left">lockInterruptibly()</td>
+<td align="left">×</td>
+<td align="left">√</td>
+</tr>
+<tr>
+<td align="left">tryLock()</td>
+<td align="left">√</td>
+<td align="left">×</td>
+</tr>
+<tr>
+<td align="left">tryLock(long timeout, TimeUnit unit)</td>
+<td align="left">×</td>
+<td align="left">√</td>
+</tr>
+</tbody></table>
+<h4 id="3-Condition"><a href="#3-Condition" class="headerlink" title="3.Condition"></a>3.Condition</h4><ul>
+<li>使用condition的步骤：创建condition对象，获取锁，然后调用condition的方法</li>
+<li>一个ReentrantLock支持床多个condition对象</li>
+<li>**void await() throws InterruptedException;**方法会释放锁，让当前线程等待，支持唤醒，支持线程中断</li>
+<li><strong>void awaitUninterruptibly()</strong>;方法会释放锁，让当前线程等待，支持唤醒，不支持线程中断</li>
+<li><strong>long awaitNanos(long nanosTimeout) throws InterruptedException</strong>;参数为纳秒，此方法会释放锁，让当前线程等待，支持唤醒，支持中断。超时之后返回的，结果为负数；超时之前被唤醒返回的，结果为正数（表示返回时距离超时时间相差的纳秒数）</li>
+<li><strong>boolean await(longtime,TimeUnit unit) throws InterruptedException</strong>;方法会释放锁，让当前线程等待，支持唤醒，支持中断。超时之后返回的，结果为false；超时之前被唤醒返回的，结果为true</li>
+<li><strong>boolean awaitUntil(Date deadline)throws InterruptedException</strong>;参数表示超时的截止时间点，方法会释放锁，让当前线程等待，支持唤醒，支持中断。超时之后返回的，结果为false；超时之前被唤醒返回的，结果为true</li>
+<li><strong>void signal()</strong>;会唤醒一个等待中的线程，然后被唤醒的线程会被加入同步队列，去尝试获取锁</li>
+<li><strong>void signalAll()</strong>;会唤醒所有等待中的线程，将所有等待中的线程加入同步队列，然后去尝试获取锁</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">对比项</th>
+<th align="left">Object 监视器方法</th>
+<th align="left">Condition</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">前置条件</td>
+<td align="left">获取对象的锁</td>
+<td align="left">调用Lock.lock获取锁，调用Lock.newCondition()获取Condition对象</td>
+</tr>
+<tr>
+<td align="left">调用方式</td>
+<td align="left">直接调用，如：object.wait()</td>
+<td align="left">直接调用，如：condition.await()</td>
+</tr>
+<tr>
+<td align="left">等待队列个数</td>
+<td align="left">一个</td>
+<td align="left">多个，使用多个condition实现</td>
+</tr>
+<tr>
+<td align="left">当前线程释放锁并进入等待状态</td>
+<td align="left">支持</td>
+<td align="left">支持</td>
+</tr>
+<tr>
+<td align="left">当前线程释放锁进入等待状态中不响应中断</td>
+<td align="left">不支持</td>
+<td align="left">支持</td>
+</tr>
+<tr>
+<td align="left">当前线程释放锁并进入超时等待状态</td>
+<td align="left">支持</td>
+<td align="left">支持</td>
+</tr>
+<tr>
+<td align="left">当前线程释放锁并进入等待状态到将来某个时间</td>
+<td align="left">不支持</td>
+<td align="left">支持</td>
+</tr>
+<tr>
+<td align="left">唤醒等待队列中的一个线程</td>
+<td align="left">支持</td>
+<td align="left">支持</td>
+</tr>
+<tr>
+<td align="left">唤醒等待队列中的全部线程</td>
+<td align="left">支持</td>
+<td align="left">支持</td>
+</tr>
+</tbody></table>
+<h4 id="4-LockSupport"><a href="#4-LockSupport" class="headerlink" title="4.LockSupport"></a>4.LockSupport</h4><p><strong>LockSupport</strong>位于<strong>java.util.concurrent</strong>包中，是juc中一个基础类。</p>
+<p>目前为止的3种让线程等待和唤醒的方式：</p>
+<p>1.Object的wait和notify,notifyAll</p>
+<p>2.Condition的await和signal,signalAll</p>
+<p>3.LockSupport的park和unpark</p>
+<table>
+<thead>
+<tr>
+<th align="left"></th>
+<th align="left">Object</th>
+<th align="left">Condtion</th>
+<th>LockSupport</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">前置条件</td>
+<td align="left">需要在synchronized中运行</td>
+<td align="left">需要先获取Lock的锁</td>
+<td>无</td>
+</tr>
+<tr>
+<td align="left">无限等待</td>
+<td align="left">支持</td>
+<td align="left">支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td align="left">超时等待</td>
+<td align="left">支持</td>
+<td align="left">支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td align="left">等待到将来某个时间返回</td>
+<td align="left">不支持</td>
+<td align="left">支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td align="left">等待状态中释放锁</td>
+<td align="left">会释放</td>
+<td align="left">会释放</td>
+<td>不会释放</td>
+</tr>
+<tr>
+<td align="left"><strong>唤醒方法先于等待方法执行，能否唤醒线程</strong></td>
+<td align="left">否</td>
+<td align="left">否</td>
+<td>可以</td>
+</tr>
+<tr>
+<td align="left">是否能响应线程中断</td>
+<td align="left">是</td>
+<td align="left">是</td>
+<td>是</td>
+</tr>
+<tr>
+<td align="left">线程中断是否会清除中断标志</td>
+<td align="left">是</td>
+<td align="left">是</td>
+<td>否</td>
+</tr>
+<tr>
+<td align="left">是否支持等待状态中不响应中断</td>
+<td align="left">不支持</td>
+<td align="left">支持</td>
+<td>不支持</td>
+</tr>
+</tbody></table>
+<h4 id="5-Semaphore"><a href="#5-Semaphore" class="headerlink" title="5.Semaphore"></a>5.Semaphore</h4><p>常用场景：<strong>限流</strong>。</p>
+<ul>
+<li>**Semaphore(int permits)**：构造方法，参数表示许可证数量，用来创建信号量</li>
+<li>**Semaphore(int permits,boolean fair)**：构造方法，当fair等于true时，创建具有给定许可数的计数信号量并设置为公平信号量</li>
+<li><strong>void acquire() throws InterruptedException</strong>：从此信号量获取1个许可前线程将一直阻塞，相当于一辆车占了一个车位，此方法会响应线程中断，表示调用线程的interrupt方法，会使该方法抛出InterruptedException异常</li>
+<li><strong>void acquire(int permits) throws InterruptedException</strong> ：和acquire()方法类似，参数表示需要获取许可的数量；比如一个大卡车要入停车场，由于车比较大，需要申请3个车位才可以停放</li>
+<li><strong>void acquireUninterruptibly(int permits)</strong> ：和acquire(int permits) 方法类似，只是不会响应线程中断</li>
+<li>**boolean tryAcquire()**：尝试获取1个许可，不管是否能够获取成功，都立即返回，true表示获取成功，false表示获取失败</li>
+<li>**boolean tryAcquire(int permits)**：和tryAcquire()，表示尝试获取permits个许可</li>
+<li><strong>boolean tryAcquire(long timeout, TimeUnit unit) throws InterruptedException</strong>：尝试在指定的时间内获取1个许可，获取成功返回true，指定的时间过后还是无法获取许可，返回false</li>
+<li><strong>boolean tryAcquire(int permits, long timeout, TimeUnit unit) throws InterruptedException</strong>：和tryAcquire(long timeout, TimeUnit unit)类似，多了一个permits参数，表示尝试获取permits个许可</li>
+<li>**void release()**：释放一个许可，将其返回给信号量，相当于车从停车场出去时将钥匙归还给门卫</li>
+<li>**void release(int n)**：释放n个许可</li>
+<li>**int availablePermits()**：当前可用的许可数</li>
+</ul>
+<h4 id="6-CountDownLatch（闭锁）"><a href="#6-CountDownLatch（闭锁）" class="headerlink" title="6.CountDownLatch（闭锁）"></a>6.CountDownLatch（闭锁）</h4><p>常用场景：等待所有线程一起到了再执行，或者等所有线程执行完了给回调。</p>
+<p>常用方法：</p>
+<ul>
+<li><p>**public CountDownLatch(int count)**：构造方法，count表示计数器的值，不能小于0，否者会报异常。</p>
+</li>
+<li><p><strong>public void await() throws InterruptedException</strong>：调用await()会让当前线程等待，直到计数器为0的时候，方法才会返回，此方法会响应线程中断操作。</p>
+</li>
+<li><p><strong>public boolean await(long timeout, TimeUnit unit) throws InterruptedException</strong>：限时等待，在超时之前，计数器变为了0，方法返回true，否者直到超时，返回false，此方法会响应线程中断操作。</p>
+</li>
+<li><p>**public void countDown()**：让计数器减1</p>
+<p>CountDownLatch使用步骤：</p>
+<ol>
+<li>创建CountDownLatch对象</li>
+<li>调用其实例方法 <code>await()</code>，让当前线程等待</li>
+<li>调用 <code>countDown()</code>方法，让计数器减1</li>
+<li>当计数器变为0的时候， <code>await()</code>方法会返回</li>
+</ol>
+</li>
+</ul>
+<h4 id="7-CyclicBarrier（循环栅栏-循环屏障）"><a href="#7-CyclicBarrier（循环栅栏-循环屏障）" class="headerlink" title="7.CyclicBarrier（循环栅栏/循环屏障）"></a>7.CyclicBarrier（循环栅栏/循环屏障）</h4><p>常用场景：让一批线程等待然后一起执行。</p>
+<p>它和CountDownLatch非常相似，不过CountDownLatch是让一批线程等待另一批线程执行完后再执行，而CyclicBarrier是使等待的线程达到一定数目后执行。</p>
+<p>常用方法：</p>
+<ul>
+<li><p>public CyclicBarrier(int parties)：构造方法，指定等待线程的数目。</p>
+</li>
+<li><p>public void await() throws InterruptedException,BrokenBarrierException：调用await()让当前线程等待，如果有线程响应中断，则会抛出BrokenBarrierException，破坏当前的规则，然后会调用notifyAll()，唤醒之前所有在等待的线程。</p>
+</li>
+<li><p>public void await(long timeout, TimeUnit unit) throws InterruptedException,BrokenBarrierException,TimeoutException：某个线程只等待timeout时间，超过之后await会触发TimeoutException，然后线程继续往下执行，其他等待中的线程，新到的线程会在await方法直接抛出BrokenBarrierException，然后继续执行。</p>
+</li>
+<li><p>public void reset()：重置规则，新来的线程要继续等待（前提是之前有线程响应了中断抛出了BrokenBarrierException），达到一定数目后一起执行。</p>
+</li>
+</ul>
+<h4 id="8-Unsafe"><a href="#8-Unsafe" class="headerlink" title="8.Unsafe"></a>8.Unsafe</h4><p>Unsafe是位于sum.misc下的一个类，主要提供一些执行低级别、不安全的操作方法。</p>
+<p>常用场景：<strong>内存操作</strong>，<strong>CAS操作</strong>，<strong>Class相关</strong>，<strong>对象操作</strong>，<strong>线程调度</strong>，<strong>系统信息获取</strong>，<strong>内存屏障</strong>，<strong>数组操作</strong></p>
+<p>其中我们常说的AtomicInteger这些原子操作类，底层都是使用了Unsafe的cas操作api；LockSupport则是用了Unsafe的park和unpark方法。</p>
+<h4 id="9-JUC中的原子类"><a href="#9-JUC中的原子类" class="headerlink" title="9.JUC中的原子类"></a>9.JUC中的原子类</h4><p>原子类底层对数据的修改是用了CAS，但是CAS有可能产生ABA问题，一般我们的做法是给数据添加一个版本号，而每次修改都会讲版本号version+1，JUC也考虑到了这个问题，为我们提供了AtomicStampedReference。</p>
+<p>public boolean compareAndSet(V   expectedReference,V   newReference,int expectedStamp, int newStamp)</p>
+<h4 id="10-ThreadLocal"><a href="#10-ThreadLocal" class="headerlink" title="10.ThreadLocal"></a>10.ThreadLocal</h4><p>定义一个ThreadLocal.ThreadLocalMap，里面存着键值对，键是当前的线程id，值可以是基础类型的包装或者对象。（存储的位置在主内存）</p>
+<h4 id="11-Queue"><a href="#11-Queue" class="headerlink" title="11.Queue"></a>11.Queue</h4><table>
+<thead>
+<tr>
+<th align="left">操作类型</th>
+<th align="left">抛出异常</th>
+<th align="left">返回特殊值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">插入</td>
+<td align="left"><code>add(e)</code></td>
+<td align="left"><code>offer(e)</code>-返回（true/false）</td>
+</tr>
+<tr>
+<td align="left">移除</td>
+<td align="left"><code>remove()</code>为空抛出异常</td>
+<td align="left"><code>poll()</code>为空返回null</td>
+</tr>
+<tr>
+<td align="left">检查（返回队列头部元素，但不移除）</td>
+<td align="left"><code>element()</code></td>
+<td align="left"><code>peek()</code></td>
+</tr>
+</tbody></table>
+<h4 id="12-BlockingQueue"><a href="#12-BlockingQueue" class="headerlink" title="12.BlockingQueue"></a>12.BlockingQueue</h4><ol>
+<li>队列满的情况下，调用put方法会导致当前线程阻塞</li>
+<li>队列为空的情况下，调用take方法会导致当前线程阻塞</li>
+<li><code>offer(e,timeuout,unit)</code>，超时之前，插入成功返回true，否者返回false</li>
+<li><code>poll(timeout,unit)</code>，超时之前，获取到头部元素并将其移除，返回true，否者返回false</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th align="left">操作类型</th>
+<th align="left">抛出异常</th>
+<th align="left">返回特殊值</th>
+<th align="left">一直阻塞</th>
+<th align="left">超时退出</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">插入</td>
+<td align="left"><code>add(e)</code></td>
+<td align="left"><code>offer(e)</code></td>
+<td align="left">put(e)</td>
+<td align="left">offer(e,timeuout,unit)</td>
+</tr>
+<tr>
+<td align="left">移除</td>
+<td align="left"><code>remove()</code></td>
+<td align="left"><code>poll()</code></td>
+<td align="left">take()</td>
+<td align="left">poll(timeout,unit)</td>
+</tr>
+<tr>
+<td align="left">检查</td>
+<td align="left"><code>element()</code></td>
+<td align="left"><code>peek()</code></td>
+<td align="left">不支持</td>
+<td align="left">不支持</td>
+</tr>
+</tbody></table>
+<h4 id="13-可供选择的各种阻塞队列"><a href="#13-可供选择的各种阻塞队列" class="headerlink" title="13.可供选择的各种阻塞队列"></a>13.可供选择的各种阻塞队列</h4><ul>
+<li><strong>ArrayBlockingQueue</strong></li>
+</ul>
+<p>基于数组的阻塞队列实现，其内部维护一个定长的数组，用于存储队列元素。线程阻塞的实现是通过ReentrantLock来完成的，数据的插入与取出共用同一个锁，因此ArrayBlockingQueue并不能实现生产、消费同时进行。而且在创建ArrayBlockingQueue时，我们还可以控制对象的内部锁是否采用公平锁，默认采用非公平锁。</p>
+<ul>
+<li><strong>LinkedBlockingQueue</strong></li>
+</ul>
+<p>基于单向链表的阻塞队列实现，在初始化LinkedBlockingQueue的时候可以指定大小，也可以不指定，默认类似一个无限大小的容量（Integer.MAX_VALUE），不指队列容量大小也是会有风险的，一旦数据生产速度大于消费速度，系统内存将有可能被消耗殆尽，因此要谨慎操作。另外LinkedBlockingQueue中用于阻塞生产者、消费者的锁是两个（锁分离），因此生产与消费是可以同时进行的。</p>
+<ul>
+<li><strong>PriorityBlockingQueue</strong></li>
+</ul>
+<p>一个支持优先级排序的无界阻塞队列，进入队列的元素会按照优先级进行排序。</p>
+<p>优先级队列放入元素的时候，会进行排序，所以我们需要指定排序规则，有2种方式：</p>
+<ol>
+<li>创建<code>PriorityBlockingQueue</code>指定比较器<code>Comparator</code></li>
+<li>放入的元素需要实现<code>Comparable</code>接口</li>
+</ol>
+<p>上面2种方式必须选一个，如果2个都有，则走第一个规则排序。</p>
+<ul>
+<li><strong>SynchronousQueue</strong></li>
+</ul>
+<p>同步阻塞队列，SynchronousQueue没有容量，与其他BlockingQueue不同，SynchronousQueue是一个不存储元素的BlockingQueue，每一个put操作必须要等待一个take操作，否则不能继续添加元素，反之亦然。</p>
+<ul>
+<li><strong>DelayQueue</strong></li>
+</ul>
+<p>DelayQueue是一个支持延时获取元素的无界阻塞队列，里面的元素全部都是“可延期”的元素，列头的元素是最先“到期”的元素，如果队列里面没有元素到期，是不能从列头获取元素的，哪怕有元素也不行，也就是说只有在延迟期到时才能够从队列中取元素。</p>
+<ul>
+<li><strong>LinkedTransferQueue</strong></li>
+</ul>
+<p>LinkedTransferQueue是基于链表的FIFO无界阻塞队列，它出现在JDK7中，Doug Lea 大神说LinkedTransferQueue是一个聪明的队列，它是ConcurrentLinkedQueue、SynchronousQueue(公平模式下)、无界的LinkedBlockingQueues等的超集，<code>LinkedTransferQueue</code>包含了<code>ConcurrentLinkedQueue、SynchronousQueue、LinkedBlockingQueues</code>三种队列的功能。</p>
+<h4 id="14-高并发限流"><a href="#14-高并发限流" class="headerlink" title="14.高并发限流"></a>14.高并发限流</h4><p>如果是微服务的话，可借助豪猪哥<strong>Hystrix</strong>或者阿里巴巴的<strong>Sentinel</strong>来进行流控。</p>
+<p>如果是单体应用可以考虑使用<strong>漏桶算法、令牌桶算法</strong>。</p>
+<ul>
+<li><p><strong>Redis</strong>：给接口级别或者ip设置对应kv,并设置过期时间，每次请求+1，达到限流的效果。</p>
+</li>
+<li><p><strong>漏桶算法</strong>：水（请求）先进入到漏桶里，漏桶以一定的速度出水，当水流入速度过大会直接溢出，可以看出漏桶算法能强行限制数据的传输速率。</p>
+</li>
+<li><p><strong>令牌桶算法</strong>：系统以恒定的速率产生令牌，然后把令牌放到令牌桶中，令牌桶有一个容量，当令牌桶满了的时候，再向其中放令牌，那么多余的令牌会被丢弃；当想要处理一个请求的时候，需要从令牌桶中取出一个令牌，如果此时令牌桶中没有令牌，那么则拒绝该请求。</p>
+</li>
+</ul>
+<h2 id="JVM"><a href="#JVM" class="headerlink" title="JVM"></a>JVM</h2><h4 id="1-JDK动态代理和CGlib的区别"><a href="#1-JDK动态代理和CGlib的区别" class="headerlink" title="1.JDK动态代理和CGlib的区别"></a>1.JDK动态代理和CGlib的区别</h4><p>首先这两个都是动态代理，静态代理只有一个就是使用aspectj对java对象在编译时期就进行静态织入；而jdk动态代理是通过实现InvocationHandler，再使用proxy来调用其实现类的方法来进行反射代理，cglib是通过asm框架在对象加载时期，对其字节码进行修改生成子类来实现。</p>
+<p><strong>编译</strong>：.java文件==&gt;.class文件</p>
+<p><strong>加载</strong>：字节码文件通过加载，验证，准备，解析和初始化阶段（验证，准备，解析又统称作链接），被加载到jvm内存。</p>
+<p><strong>java动态代理：</strong> 利用反射机制生成一个实现代理接口的匿名类，在调用具体方法前调用InvokeHandler来处理。</p>
+<p><strong>cglib动态代理：</strong> 利用asm开源包，对代理对象类的class文件加载进来，通过修改其字节码生成子类来处理。</p>
+<p><strong>JDK动态代理和CGLIB字节码生成的区别？</strong></p>
+<ol>
+<li>JDK动态代理只能对实现了接口的类生成代理，而不能针对类</li>
+<li>CGLIB是针对类实现代理，主要是对指定的类生成一个子类，覆盖其中的方法 因为是继承，所以该类或方法不要声明成final</li>
+</ol>
+<h4 id="2-JVM的内存模型（JMM）"><a href="#2-JVM的内存模型（JMM）" class="headerlink" title="2.JVM的内存模型（JMM）"></a>2.JVM的内存模型（JMM）</h4><blockquote>
+<p>只是一种规范，并不是实际实现。</p>
+</blockquote>
+<p>堆：</p>
+<p>方法区：</p>
+<p>虚拟机栈：</p>
+<p>本地方法栈：</p>
+<p>程序计数器：</p>
+<h4 id="3-垃圾回收机制"><a href="#3-垃圾回收机制" class="headerlink" title="3.垃圾回收机制"></a>3.垃圾回收机制</h4><p>强引用：即使爆出OOM也不会被回收。</p>
+<p>软引用：内存不够就会被回收。</p>
+<p>弱引用：每次GC都会被回收。</p>
+<p>虚引用：可以用来跟踪GC，对象准备被回收时发现他还有虚引用，会把这个虚引用加入一个引用队列，可以观察这个队列中虚引用是否存在来判断对象是否被回收了。</p>
+<h4 id="4-垃圾回收算法"><a href="#4-垃圾回收算法" class="headerlink" title="4.垃圾回收算法"></a>4.垃圾回收算法</h4><p>引用计数法：每有一个对该对象的引用，则引用加1，缺点：如果两个对象互相引用，将导致无法回收。</p>
+<p>GCRoots：根可达法</p>
+<h4 id="5-垃圾回收器"><a href="#5-垃圾回收器" class="headerlink" title="5.垃圾回收器"></a>5.垃圾回收器</h4><table><thead><tr><th style="width:284px;">垃圾回收器</th>
+            <th style="width:685px;">特性</th>
+        </tr></thead><tbody><tr><td style="width:284px;">串行（Serial）回收器</td>
+            <td style="width:685px;">单线程的一个回收器，简单、易实现、效率高。</td>
+        </tr><tr><td style="width:284px;">并行（ParNew）回收器</td>
+            <td style="width:685px;">Serial的多线程版，可以充分的利用CPU资源，减少回收的时间。</td>
+        </tr><tr><td style="width:284px;">吞吐量优先（Parallel Scavenge）回收器</td>
+            <td style="width:685px;">侧重于吞吐量的控制</td>
+        </tr><tr><td style="width:284px;">并发标记清除（CMS，Concurrent Mark Sweep）回收器</td>
+            <td style="width:685px;">以获取最短回收停顿时间为目标的回收器，该回收器是基于“标记-清除”算法实现的。</td>
+        </tr><tr><td style="width:284px;">Serial Old</td>
+            <td style="width:685px;">Serial Old是Serial的老年代版本。同Serial一样， 它也是<strong>单线程</strong>收集器。用的是“<strong>标记——整理</strong>”算法。</td>
+        </tr><tr><td style="width:284px;">Parallel Old</td>
+            <td style="width:685px;">Parallel Old 是 Parallel Scavenge 的老年代版本，使用<strong>多线程</strong>和“<strong>标记——整理算法</strong>”。</td>
+        </tr><tr><td style="width:284px;"><strong>G1（Garbage-First）</strong>收集器</td>
+            <td style="width:685px;">G1 能充分利用多CPU的硬件优势，使用多个CPU来缩短“Stop The World”停顿时间，部分其他收集器原本需要停顿Java线程执行的GC动作，G1收集器仍然可以通过并发的方式让Java程序继续执行。G1从整体来看是基于<strong>“标记-整理”</strong>算法实现的收集器，从局部（两个Region之间）上来看是基于<strong>“复制”</strong>算法实现的，这意味着G1运行期间不会产生内存空间碎片。</td>
+        </tr></tbody></table>
+
+
+<h4 id="6-指针压缩"><a href="#6-指针压缩" class="headerlink" title="6.指针压缩"></a>6.指针压缩</h4><p>从JDK1.6开始，在64位的操作系统中，JVM支持指针压缩，启用指针压缩：-XX:+UseCompressedOops；禁止指针压缩：-XX:-UseCompressedOops</p>
+<p><strong>触发条件</strong>：在堆大小在【4-32】G的时候，会被触发；在堆内存小于4G时，不需要启用指针压缩，JVM会直接去除高32位地址，使用低虚拟地址空间。</p>
+<p><strong>为什么要启用指针压缩</strong>：首先是提高了堆内存的可配置空间（32位最大堆空间为4G）；其次在64位操作系统中使用大指针在主内存和缓存之间移动数据，占用较大带宽，GC也会承受较大的压力，启用指针压缩可以减少消耗。</p>
+<p><strong>压缩的是哪些信息</strong>：</p>
+<ul>
+<li><p>对象的全局静态变量(即类属性)</p>
+</li>
+<li><p>对象头信息:64位平台下，原生对象头大小为16字节，压缩后为12字节</p>
+</li>
+<li><p>对象的引用类型:64位平台下，引用类型本身大小为8字节，压缩后为4字节</p>
+</li>
+<li><p>对象数组类型:64位平台下，数组类型本身大小为24字节，压缩后16字节</p>
+</li>
+<li><p>以下信息不会被压缩：</p>
+<ul>
+<li>指向非Heap的对象指针</li>
+<li>局部变量、传参、返回值、NULL指针</li>
+</ul>
+</li>
+</ul>
+<h2 id="网络协议篇"><a href="#网络协议篇" class="headerlink" title="网络协议篇"></a>网络协议篇</h2><p><img src="C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1594720933210.png" alt="1594720933210"></p>
+<h4 id="1-TCP的三次握手和四次挥手"><a href="#1-TCP的三次握手和四次挥手" class="headerlink" title="1.TCP的三次握手和四次挥手"></a>1.TCP的三次握手和四次挥手</h4><ul>
+<li><p>建立连接</p>
+<img src="https://user-gold-cdn.xitu.io/2017/11/9/d8bf92c7906718271fdb8b0d2d5fe5b4?imageslim" alt="img" style="zoom: 80%;" /></li>
+<li><p>断开连接</p>
+</li>
+</ul>
+<img src="https://user-gold-cdn.xitu.io/2017/11/9/8c7874fafe233c9278509e40e906055c?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img" style="zoom:80%;" />
+
+<p>问：为什么握手是三次而挥手是四次？</p>
+<p>首先是客户端发送Fin报文告知服务端，我已发送数据完毕了，服务端收到报文后会立刻给客户端发送一个确认码，但是有可能服务端还有数据发送，所以需要等待发送完后才能发送Fin报文给客户端，当客户端收到Fin的回复，才能确认双方都发送完数据了，然后发送ack报文给服务端，至此，双方完成挥手操作。</p>
+<h4 id="2-HTTP和HTTPS有什么区别"><a href="#2-HTTP和HTTPS有什么区别" class="headerlink" title="2.HTTP和HTTPS有什么区别"></a>2.HTTP和HTTPS有什么区别</h4><p>http监听的是22端口，HTTPS监听的是443接口，HTTPS是在http的基础上增加了一个ssl的验证。</p>
+<h4 id="3-网络模型"><a href="#3-网络模型" class="headerlink" title="3.网络模型"></a>3.网络模型</h4><ul>
+<li>OSI  7层网络模型———只是一个标准，并非实现。</li>
+<li>TCP/IP 4层网络模型———-是一个实现的应用模型，由7层模型简化而来。</li>
+</ul>
+<p><img src="https://user-gold-cdn.xitu.io/2017/8/25/3fe5c91aafa1173c22b944e0ed8746c8?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="file"></p>
+<p>TCP/IP 协议中每层技术举例：</p>
+<p>网络访问层：ARP、RARP</p>
+<p>互联网层：ICMP、IP</p>
+<p>传输层：TCP、UDP</p>
+<p>应用层：DNS、FTP、HTTP、SMTP、TELNET、IRC、WHOIS</p>
+<h4 id="4-TCP是如何保证传输的可靠性"><a href="#4-TCP是如何保证传输的可靠性" class="headerlink" title="4.TCP是如何保证传输的可靠性"></a>4.TCP是如何保证传输的可靠性</h4><ul>
+<li><p>三次握手、四次挥手是保证可靠传输的前提</p>
+</li>
+<li><p>传输数据的切分为合适的数据块</p>
+</li>
+<li><p><strong>序列号和确认应答机制</strong>：传输时将每个报文的数据都进行了编号，这就是序列号；每次接收方收到数据都需要进行应答(就是发送ACK报文)，如果接收端通过校验序列号来判断有没有丢包，在ACK里面返回下一次需要发送的序列号。</p>
+</li>
+<li><p><strong>超时重传</strong>：发送过程中全体丢包或者收不到接收端发过来的ACK，选择动态计算时间来进行重传。</p>
+</li>
+<li><p><strong>使用滑动窗口进行流量控制</strong></p>
+</li>
+<li><p><strong>拥塞窗口</strong>：不是一开始就发送大量数据，而是慢慢增大达到阈值后窗口重置为1</p>
+</li>
+</ul>
+<h4 id="10-聊聊SSL和TLS"><a href="#10-聊聊SSL和TLS" class="headerlink" title="10.聊聊SSL和TLS"></a>10.聊聊SSL和TLS</h4><p><img src="C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1594720668312.png" alt="1594720668312"></p>
+<h2 id="Mysql"><a href="#Mysql" class="headerlink" title="Mysql"></a>Mysql</h2><h4 id="1-数据库引擎"><a href="#1-数据库引擎" class="headerlink" title="1.数据库引擎"></a>1.数据库引擎</h4><ul>
+<li>MYISAM：只支持表锁，不支持事务，不支持外键。非聚集索引，使用B+Tree作为索引结构。</li>
+<li>INNODB：支持行锁和表锁，支持事务，支持外键。聚集索引，使用B+Tree作为索引结构。</li>
+</ul>
+<h4 id="2-索引"><a href="#2-索引" class="headerlink" title="2.索引"></a>2.索引</h4><blockquote>
+<p>索引是一种数据结构。</p>
+</blockquote>
+<ul>
+<li>创建索引的原则<ul>
+<li>最左前缀匹配原则，在索引列上进行函数操作、范围查询、使用不等于!=，或者like ‘%tmp’，均会导致索引失效。</li>
+<li>频繁作为查询条件的字段才需要建立索引。</li>
+<li>更新频繁，或者散列值很小（就是重复度很高）的字段不能建索引。</li>
+<li>字段值太长的不能建索引。</li>
+</ul>
+</li>
+<li>聚集索引和非聚集索引<ul>
+<li>聚集索引：将数据存储与索引放到了一块，找到索引也就找到了数据。</li>
+<li>非聚集索引：将数据存储于索引分开结构，索引结构的叶子节点指向了数据的对应行，myisam通过key_buffer把索引先缓存到内存中，当需要访问数据时（通过索引访问数据），在内存中直接搜索索引，然后通过索引找到磁盘相应数据。</li>
+</ul>
+</li>
+<li>三种常用的索引结构：Hash，B Tree ，B+ Tree（最好）<ul>
+<li>Hash：hash索引底层就是hash表，进行查找时，调用hash函数就可以得到键值，然后进行回表查询。所以使用等值查询很快，但是无法进行范围查询。当某个键值大量重复时，会发生hash碰撞，效率很低。</li>
+<li>Btree：可以存储在内部节点存储键和值。只适合进行随机检索。</li>
+<li>B+Tree：内部节点只存储键，叶子结点存储值。支持随机检索和顺序检索。在使用了聚集索引的前提下，不需要再次进行回表查询。</li>
+</ul>
+</li>
+</ul>
+<h4 id="3-事务的四大特性-ACID"><a href="#3-事务的四大特性-ACID" class="headerlink" title="3.事务的四大特性(ACID)"></a>3.事务的四大特性(ACID)</h4><ul>
+<li>原子性(Atomic)</li>
+<li>一致性(Consitentcy)</li>
+<li>隔离性(Isolation)</li>
+<li>持久性(Durability)</li>
+</ul>
+<h4 id="4-标准的隔离级别"><a href="#4-标准的隔离级别" class="headerlink" title="4.标准的隔离级别"></a>4.标准的隔离级别</h4><ul>
+<li>READ-UNCOMMITTED(读取未提交)： 最低的隔离级别，允许读取尚未提交的数据变更，可能会导致脏读、幻读或不可重复读。</li>
+<li>READ-COMMITTED(读取已提交)： 允许读取并发事务已经提交的数据，可以阻止脏读，但是幻读或不可重复读仍有可能发生。</li>
+<li>REPEATABLE-READ(可重复读)： 对同一字段的多次读取结果都是一致的，除非数据是被本身事务自己所修改，可以阻止脏读和不可重复读，但幻读仍有可能发生。</li>
+<li>SERIALIZABLE(可串行化)： 最高的隔离级别，完全服从ACID的隔离级别。所有的事务依次逐个执行，这样事务之间就完全不可能产生干扰，也就是说，该级别可以防止脏读、不可重复读以及幻读。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>隔离级别</th>
+<th>脏读</th>
+<th>不可重复读</th>
+<th>幻读</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>读未提交</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>读已提交</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>可重复读</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>可串行化</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>Mysql 默认采用的 REPEATABLE_READ隔离级别 </p>
+<p>Oracle 默认采用的 READ_COMMITTED隔离级别</p>
+</blockquote>
+<h4 id="5-Mysql支持的锁"><a href="#5-Mysql支持的锁" class="headerlink" title="5.Mysql支持的锁"></a>5.Mysql支持的锁</h4><blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.ibm.com/developerworks/cn/opensource/os-mysql-transaction-isolation-levels-and-locks/index.html">https://www.ibm.com/developerworks/cn/opensource/os-mysql-transaction-isolation-levels-and-locks/index.html</a></p>
+</blockquote>
+<p>InnoDB 实现了两种类型的行级锁：</p>
+<ul>
+<li><p>共享锁</p>
+<p>（也称为 S 锁）：允许事务读取一行数据。</p>
+<p>可以使用 SQL 语句 <code>select * from tableName where … lock in share mode;</code> 手动加 S 锁。</p>
+</li>
+<li><p>独占锁</p>
+<p>（也称为 X 锁）：允许事务删除或更新一行数据。</p>
+<p>可以使用 SQL 语句 <code>select * from tableName where … for update</code>; 手动加 X 锁。</p>
+</li>
+</ul>
+<p>S 锁和 S 锁是<strong>兼容</strong>的，X 锁和其它锁都<strong>不兼容</strong>，举个例子，事务 T1 获取了一个行 r1 的 S 锁，另外事务 T2 可以立即获得行 r1 的 S 锁，此时 T1 和 T2 共同获得行 r1 的 S 锁，此种情况称为<strong>锁兼容</strong>，但是另外一个事务 T2 此时如果想获得行 r1 的 X 锁，则必须等待 T1 对行 r 锁的释放，此种情况也成为<strong>锁冲突</strong>。</p>
+<p>为了实现多粒度的锁机制，InnoDB 还有两种内部使用的<strong>意向锁</strong>，由 InnoDB 自动添加，且都是表级别的锁。</p>
+<ul>
+<li><strong>意向共享锁</strong>（IS）：事务即将给表中的各个行设置共享锁，事务给数据行加 S 锁前必须获得该表的 IS 锁。</li>
+<li><strong>意向排他锁</strong>（IX）：事务即将给表中的各个行设置排他锁，事务给数据行加 X 锁前必须获得该表 IX 锁。</li>
+</ul>
+<p>意向锁的主要目的是为了使得<strong>行锁</strong>和<strong>表锁</strong>共存。下面列出了行级锁和表级意向锁的兼容性。</p>
+<table>
+<thead>
+<tr>
+<th align="left"><strong>锁类型</strong></th>
+<th align="left"><strong>X</strong></th>
+<th align="left"><strong>IX</strong></th>
+<th align="left"><strong>S</strong></th>
+<th align="left"><strong>IS</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>X</strong></td>
+<td align="left">冲突</td>
+<td align="left">冲突</td>
+<td align="left">冲突</td>
+<td align="left">冲突</td>
+</tr>
+<tr>
+<td align="left"><strong>IX</strong></td>
+<td align="left">冲突</td>
+<td align="left">兼容</td>
+<td align="left">冲突</td>
+<td align="left">兼容</td>
+</tr>
+<tr>
+<td align="left"><strong>S</strong></td>
+<td align="left">冲突</td>
+<td align="left">冲突</td>
+<td align="left">兼容</td>
+<td align="left">兼容</td>
+</tr>
+<tr>
+<td align="left"><strong>IS</strong></td>
+<td align="left">冲突</td>
+<td align="left">兼容</td>
+<td align="left">兼容</td>
+<td align="left">兼容</td>
+</tr>
+</tbody></table>
+<h2 id="Spring"><a href="#Spring" class="headerlink" title="Spring"></a>Spring</h2><h4 id="1-IOC和AOP"><a href="#1-IOC和AOP" class="headerlink" title="1.IOC和AOP"></a>1.IOC和AOP</h4><p>IOC控制反转：也叫依赖注入(DI)，通过工厂模式来创建并管理Bean，并对其进行一个容器化管理。依赖注入的方式有两种，一个是构造器注入，另一种是通过调用setter方法注入。</p>
+<p>AOP切面编程：一般用于权限控制，事务管理，日志记录等。</p>
+<h4 id="2-IOC的初始化过程"><a href="#2-IOC的初始化过程" class="headerlink" title="2.IOC的初始化过程"></a>2.IOC的初始化过程</h4><ul>
+<li>首先是初始化上下文-得到一个ClassPathXmlApplicationContext或者AnnotationApplicationContext</li>
+<li>再获取resourcePatternResolver对象，将resources目录下的xml,properties文件解析生Resource对象</li>
+<li>利用前面得到的上下文context和resource进行初始化工厂BeanFactory，将resource解析成BeanDefinition，然后将BeanDefinition注册到BeanFactory</li>
+</ul>
+<h4 id="3-Bean的创建过程"><a href="#3-Bean的创建过程" class="headerlink" title="3.Bean的创建过程"></a>3.Bean的创建过程</h4><ul>
+<li>BeanDefinition解析：调用容器中InstantiationAwareBeanPostProcessor的postProcessBeforeInstantiation()方法，可以在Bean实例化前修改BeanDefinition。</li>
+<li>实例化：将指定的BeanDefinition转换成BeanWrapper，然后调用createBeanInstance创建Bean的实例。Bean的实例化有多种策略，如工厂方法、指定参数构造器和默认无参构造器等。总之，createBeanInstance()方法会返回一个刚实例化好的、属性未赋值的空Bean。</li>
+<li>属性填充：调用populateBean()方法，为Bean进行属性的赋值和依赖的注入。</li>
+<li>属性填充后置处理：调用容器中InstantiationAwareBeanPostProcessor的postProcessAfterInstantiation()方法，进行属性填充后处理。</li>
+<li>初始化前置处理：调用BeanPostProcessor的postProcessBeforeInitialization()方法进行初始化前置处理。</li>
+<li>初始化：调用Bean的初始化方法，顺序为：InitializingBean的afterPropertiesSet() -&gt; 注册的init-method。</li>
+<li>初始化后置处理：调用BeanPostProcessor的postProcessAfterInitialization()执行初始化后置处理。</li>
+<li>调用registerDisposableBeanIfNecessary()方法，注册Bean的销毁处理逻辑：将所有实现了DisposableBean接口的或者注册了destroy-method方法的Bean,封装成一个DisposableBean,将其销毁的回调注册到容器中。</li>
+</ul>
+<h4 id="4-如何解决Bean循环依赖的问题"><a href="#4-如何解决Bean循环依赖的问题" class="headerlink" title="4.如何解决Bean循环依赖的问题"></a>4.如何解决Bean循环依赖的问题</h4><p>解决循环依赖是在初始化的时候进行。Spring为了解决循环依赖的问题引入了<strong>三级缓存</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** Cache of singleton objects: bean name --&gt; bean instance：已经实例化并且初始化的对象 */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, Object&gt; singletonObjects = <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>&lt;String, Object&gt;(<span class="number">256</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/** Cache of early singleton objects: bean name --&gt; bean instance：已经实例化的对象 */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, Object&gt; earlySingletonObjects = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;String, Object&gt;(<span class="number">16</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/** Cache of singleton factories: bean name --&gt; ObjectFactory:对象的构造工厂 */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, ObjectFactory&lt;?&gt;&gt; singletonFactories = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;String, ObjectFactory&lt;?&gt;&gt;(<span class="number">16</span>);</span><br></pre></td></tr></table></figure>
+
+<p>下面是对源码的阅读解析</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> Object <span class="title function_">getSingleton</span><span class="params">(String beanName, <span class="type">boolean</span> allowEarlyReference)</span> &#123;</span><br><span class="line">    <span class="type">Object</span> <span class="variable">singletonObject</span> <span class="operator">=</span> <span class="built_in">this</span>.singletonObjects.get(beanName);</span><br><span class="line">    <span class="comment">//判断对象是否为空&amp;bean是否正在创建中</span></span><br><span class="line">    <span class="comment">//isSingletonCurrentlyInCreation:当前单例是否正在创建中，就是未完成初始化</span></span><br><span class="line">    <span class="keyword">if</span> (singletonObject == <span class="literal">null</span> &amp;&amp; isSingletonCurrentlyInCreation(beanName)) &#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="built_in">this</span>.singletonObjects) &#123;</span><br><span class="line">            singletonObject = <span class="built_in">this</span>.earlySingletonObjects.get(beanName);</span><br><span class="line">            <span class="comment">//allowEarlyReference:是否允许从singletonFactories中通过getObject拿到对象</span></span><br><span class="line">            <span class="keyword">if</span> (singletonObject == <span class="literal">null</span> &amp;&amp; allowEarlyReference) &#123;</span><br><span class="line">                ObjectFactory&lt;?&gt; singletonFactory = <span class="built_in">this</span>.singletonFactories.get(beanName);</span><br><span class="line">                <span class="keyword">if</span> (singletonFactory != <span class="literal">null</span>) &#123;</span><br><span class="line">                    singletonObject = singletonFactory.getObject();</span><br><span class="line">                    <span class="built_in">this</span>.earlySingletonObjects.put(beanName, singletonObject);</span><br><span class="line">                    <span class="built_in">this</span>.singletonFactories.remove(beanName);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> (singletonObject != NULL_OBJECT ? singletonObject : <span class="literal">null</span>);</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+<p>总：Spring首先从一级缓存singletonObjects中获取对象，获取不到并且对象正在创建中，再去二级缓存里面获取，如果还是获取不到，并且允许从从singletonFactories中通过getObject拿到对象，再去三级缓存singletonFactories里面获取，最后是一定能够获取到对象的，获取到之后，将对应的beanFactory从三级缓存移除，并将拿到的对象放入到二级缓存。</p>
+<p><em>ps：Spring不能解决使用构造器注入的循环依赖。</em></p>
+<h2 id="SpringMVC"><a href="#SpringMVC" class="headerlink" title="SpringMVC"></a>SpringMVC</h2><h4 id="1-处理请求的流程"><a href="#1-处理请求的流程" class="headerlink" title="1.处理请求的流程"></a>1.处理请求的流程</h4><ul>
+<li>所有的客户端请求都会被DispatcherServlet所拦截</li>
+<li>DispatcherServlet通过Handler Mappings来决定这个请求交给哪个Handler进行处理（我们可以理解为Controller）</li>
+<li>Handler处理之后会返回一个ModelAndView对象给DispatcherServlet</li>
+<li>DispatcherServlet将③的结果发送给View Resolver，经过解析后得到实际的View Page</li>
+<li>DispatcherServlet将Model渲染到View上面，得到最后用户所看到的的页面。</li>
+</ul>
+<p><img src="https://user-gold-cdn.xitu.io/2019/5/19/16ad044ca097b7d4?imageslim" alt="img"></p>
+<h2 id="分布式技术"><a href="#分布式技术" class="headerlink" title="分布式技术"></a>分布式技术</h2><h4 id="1-分布式锁和分布式事务"><a href="#1-分布式锁和分布式事务" class="headerlink" title="1.分布式锁和分布式事务"></a>1.分布式锁和分布式事务</h4><h2 id="RabbitMQ"><a href="#RabbitMQ" class="headerlink" title="RabbitMQ"></a>RabbitMQ</h2><h4 id="1-基础"><a href="#1-基础" class="headerlink" title="1.基础"></a>1.基础</h4><p><strong>使用的通信协议</strong>：AMQP，ActiveMQ使用的是JMS</p>
+<p><strong>角色</strong>：生产者、消费者、代理</p>
+<p><strong>重要的组件</strong>：</p>
+<ul>
+<li>ConnectionFactory：应用程序和RabbitMQ建立连接的管理器</li>
+<li>Channel：信道，用于消息传递的通道</li>
+<li>Exchange：交换机（也可称作路由），用于接收和分配消息。</li>
+<li>Queue：消息队列。</li>
+<li>RoutingKey：路由键，用于指定消息发送到交换机的规则。</li>
+<li>BindingKey：绑定键，用于交换机绑定消息队列。</li>
+</ul>
+<p><strong>广播的方式</strong>：</p>
+<ul>
+<li>fanout：扇出，所有绑定到该路由上面的消息队列都能收到消息。</li>
+<li>direct：通过routingKey和exchange决定哪个消息队列可以接收到消息。例如(direct-test-route-key)</li>
+<li>topic：所有符合routingkey绑定规则的消息队列都能收到消息(例如*-test-route-key)</li>
+</ul>
+<h4 id="2-如何避免消息丢失"><a href="#2-如何避免消息丢失" class="headerlink" title="2.如何避免消息丢失"></a>2.如何避免消息丢失</h4><ul>
+<li><p>发送端进行发送确认</p>
+</li>
+<li><p>消息持久化（将交换机和队列进行持久化，设置队列的durable为true）</p>
+</li>
+<li><p>消费端ACK确认机制</p>
+</li>
+</ul>
+<h4 id="3-如何实现延迟队列"><a href="#3-如何实现延迟队列" class="headerlink" title="3.如何实现延迟队列"></a>3.如何实现延迟队列</h4><p>首先必须要了解两个概念：</p>
+<p>消息的过期时间Time-To-Live(TTL)和死信队列Dead Letter Exchanges(DLX)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">argument.put(<span class="string">&quot;x-dead-letter-exchange&quot;</span>, <span class="string">&quot;your dlx name&quot;</span>)</span><br><span class="line">channel.queueDeclare(queueName, <span class="literal">true</span>, <span class="literal">false</span>, <span class="literal">false</span>, agruments);</span><br></pre></td></tr></table></figure>
+
+<p>消息变成死信的原因有：</p>
+<ul>
+<li>消息过期了TTL</li>
+<li>消息被拒绝了，并且reQueue = false</li>
+<li>队列达到最大长度</li>
+</ul>
+<p>实现原理：给需要延时的消息设置过期时间，并发送到队列上，当消息过期后，会再通过DLX发送到死信队列上面，客户端通过消费死信队列的消息，通过消息中指定的消费队列，来再次进行发送。</p>
+<h2 id="ElasticSearch"><a href="#ElasticSearch" class="headerlink" title="ElasticSearch"></a>ElasticSearch</h2><h4 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h4><p>ElasticSearch是一款基于Luncene高效的全文搜索引擎。</p>
+<ul>
+<li>index == Mysql中的数据库，库里面可以建很多的表</li>
+<li>type == 数据库表</li>
+<li>document == 相当于一行记录</li>
+<li>field == 相当于字段</li>
+</ul>
+<blockquote>
+<p>PS : 在7.0版本后，去掉了type这个mapping。</p>
+<p>具体原因可查看该文档<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html">https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html</a></p>
+</blockquote>
+<h4 id="2-关于IK分词器"><a href="#2-关于IK分词器" class="headerlink" title="2.关于IK分词器"></a>2.关于IK分词器</h4><p>ElasticSearch使用的是IK分词器，对中文的分词也比较好。如果需要自定义分词效果，可以在elasticsearch目下的\plugins\ik\config下新建custom.dic，添加自定义的词汇，使用换行符分隔，最后在同等级的配置文件IKAnalyzer.cfg.xml中的<properties>添加<entry key="ext_dict">custom.dic</entry></p>
+<h4 id="3-倒排索引"><a href="#3-倒排索引" class="headerlink" title="3.倒排索引"></a>3.倒排索引</h4><p>传统的通过关键字进行全文搜索，是遍历每篇文章是否包含改关键字；而倒排索引则恰恰相反，倒排索引在数据插入的时候，会先对文章进行分词，然后给所有词汇建立索引，格式为词汇 - &gt; 文章主键，形成词汇-文章的关系映射表，时间复杂度为O(1)。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/1/22/16874bae6bd24813?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<p>加分项：倒排索引底层是使用了FST（Finite State Tranducer）数据结构，它有两个优点：</p>
+<p>1.空间占用小，通过对词典中单词前缀和后缀的重复利用，压缩了存储空间。</p>
+<p>2.查询速度快。O(len(str))的查询时间复杂度。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%9D%A2%E8%AF%95/" rel="tag"># 面试</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/04/16/RocketMQ%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%B8%E5%85%B3/" rel="prev" title="RocketMQ面试题相关">
+                  <i class="fa fa-chevron-left"></i> RocketMQ面试题相关
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/04/27/Mysql%E7%9B%B8%E5%85%B3/" rel="next" title="Mysql相关">
+                  Mysql相关 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rifu</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">139k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">2:06</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/algoliasearch@4.12.1/dist/algoliasearch-lite.umd.js" integrity="sha256-gOvJ6W+j+t/cgnnl9iUU3cb6F1WFQGDdtTXhfPjU4bc=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.39.0/dist/instantsearch.production.min.js" integrity="sha256-+ZlQZK9m82XOYGFZCIRrPOFh2kDdAGB6e7TjWGvoaSY=" crossorigin="anonymous"></script><script src="/js/third-party/search/algolia-search.js"></script>
+
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdn.jsdelivr.net/npm/pdfobject@2.2.7/pdfobject.min.js","integrity":"sha256-ph3Dk89VmuTVXG6x/RDzk53SU9LPdAh1tpv0UvnDZ2I="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js"></script>
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false});</script></body>
+</html>

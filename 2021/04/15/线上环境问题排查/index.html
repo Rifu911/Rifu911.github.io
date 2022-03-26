@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"rifu520.gitee.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="本篇主要是介绍一些线上排查问题的指令和工具。 前提工欲善其事，必先利其器，此处列出一些常用的工具，具体情况大家可以自由选择，本文的问题都是使用这些工具来定位和分析的。 命令行终端 标准终端类：jps、jinfo、jstat、jstack、jmap 功能整合类：jcmd、vjtools、arthas、greys  可视化界面 简易：JConsole、JVisualvm、HA、GCHisto、GCVi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="线上环境问题排查">
+<meta property="og:url" content="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/index.html">
+<meta property="og:site_name" content="Single blog">
+<meta property="og:description" content="本篇主要是介绍一些线上排查问题的指令和工具。 前提工欲善其事，必先利其器，此处列出一些常用的工具，具体情况大家可以自由选择，本文的问题都是使用这些工具来定位和分析的。 命令行终端 标准终端类：jps、jinfo、jstat、jstack、jmap 功能整合类：jcmd、vjtools、arthas、greys  可视化界面 简易：JConsole、JVisualvm、HA、GCHisto、GCVi">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/image-20210415160611851.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/image-20210415160504342.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/image-20210415160918989.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/image-20210415161245417.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/image-20210415161406384.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/image-20210415161751600.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/image-20210415162408153.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/image-20210415163551814.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/image-20210415163702184.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/image-20210415164048784.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/image-20210415164150907.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/image-20210415164323897.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/image-20210415164537300.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/image-20210415164922657.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/image-20210415165040780.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/image-20210415172625652.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/image-20210415172929515.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/image-20210415173005165.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/image-20210415173041630.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/image-20210415173103066.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/image-20210415174037743.png">
+<meta property="article:published_time" content="2021-04-15T07:44:42.000Z">
+<meta property="article:modified_time" content="2022-03-24T15:22:21.614Z">
+<meta property="article:author" content="Rifu">
+<meta property="article:tag" content="JVM">
+<meta property="article:tag" content="问题排查">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/image-20210415160611851.png">
+
+
+<link rel="canonical" href="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/","path":"2021/04/15/线上环境问题排查/","title":"线上环境问题排查"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>线上环境问题排查 | Single blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Single blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">One bat dream</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container"></div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="algolia-stats"><hr></div>
+  <div class="algolia-hits"></div>
+  <div class="algolia-pagination"></div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E6%8F%90"><span class="nav-number">1.</span> <span class="nav-text">前提</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%BB%88%E7%AB%AF"><span class="nav-number">1.0.1.</span> <span class="nav-text">命令行终端</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8F%AF%E8%A7%86%E5%8C%96%E7%95%8C%E9%9D%A2"><span class="nav-number">1.0.2.</span> <span class="nav-text">可视化界面</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%80%E8%83%83%E5%B0%8F%E8%8F%9C"><span class="nav-number">2.</span> <span class="nav-text">开胃小菜</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%80%E5%8D%95%E6%8C%87%E4%BB%A4"><span class="nav-number">2.1.</span> <span class="nav-text">简单指令</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#jps"><span class="nav-number">2.1.1.</span> <span class="nav-text">jps</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#jinfo"><span class="nav-number">2.1.2.</span> <span class="nav-text">jinfo</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#jstat"><span class="nav-number">2.1.3.</span> <span class="nav-text">jstat</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#jmap"><span class="nav-number">2.1.4.</span> <span class="nav-text">jmap</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E9%A4%90"><span class="nav-number">3.</span> <span class="nav-text">正餐</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#arthas"><span class="nav-number">3.1.</span> <span class="nav-text">arthas</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E6%AD%A5%E9%AA%A4"><span class="nav-number">3.1.1.</span> <span class="nav-text">操作步骤</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#jvm%E6%8C%87%E4%BB%A4%E7%9B%B8%E5%85%B3"><span class="nav-number">3.1.2.</span> <span class="nav-text">jvm指令相关</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#dashboard"><span class="nav-number">3.1.2.1.</span> <span class="nav-text">dashboard</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#thread"><span class="nav-number">3.1.2.2.</span> <span class="nav-text">thread</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#jvm"><span class="nav-number">3.1.2.3.</span> <span class="nav-text">jvm</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#sysprop"><span class="nav-number">3.1.2.4.</span> <span class="nav-text">sysprop</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#sysenv"><span class="nav-number">3.1.2.5.</span> <span class="nav-text">sysenv</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#vmoption"><span class="nav-number">3.1.2.6.</span> <span class="nav-text">vmoption</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#heapdump"><span class="nav-number">3.1.2.7.</span> <span class="nav-text">heapdump</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#class-classloader%E6%8C%87%E4%BB%A4%E7%9B%B8%E5%85%B3"><span class="nav-number">3.1.3.</span> <span class="nav-text">class&#x2F;classloader指令相关</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#sc"><span class="nav-number">3.1.3.1.</span> <span class="nav-text">sc</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#sm"><span class="nav-number">3.1.3.2.</span> <span class="nav-text">sm</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#jad"><span class="nav-number">3.1.3.3.</span> <span class="nav-text">jad</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#mc"><span class="nav-number">3.1.3.4.</span> <span class="nav-text">mc</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#retransform"><span class="nav-number">3.1.3.5.</span> <span class="nav-text">retransform</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%9C%A8docker%E4%B8%AD%E4%BD%BF%E7%94%A8Arthas"><span class="nav-number">3.1.4.</span> <span class="nav-text">在docker中使用Arthas</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MAT"><span class="nav-number">3.2.</span> <span class="nav-text">MAT</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%99%E5%9C%A8%E6%9C%80%E5%90%8E"><span class="nav-number">4.</span> <span class="nav-text">写在最后</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Rifu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Rifu</p>
+  <div class="site-description" itemprop="description">临时停车</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">62</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rifu520.gitee.io/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Rifu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Single blog">
+      <meta itemprop="description" content="临时停车">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="线上环境问题排查 | Single blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          线上环境问题排查
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-04-15 15:44:42" itemprop="dateCreated datePublished" datetime="2021-04-15T15:44:42+08:00">2021-04-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.1k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>3 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>本篇主要是介绍一些线上排查问题的指令和工具。</p>
+<h3 id="前提"><a href="#前提" class="headerlink" title="前提"></a>前提</h3><p>工欲善其事，必先利其器，此处列出一些常用的工具，具体情况大家可以自由选择，本文的问题都是使用这些工具来定位和分析的。</p>
+<h5 id="命令行终端"><a href="#命令行终端" class="headerlink" title="命令行终端"></a>命令行终端</h5><ul>
+<li>标准终端类：jps、jinfo、jstat、jstack、jmap</li>
+<li>功能整合类：jcmd、vjtools、arthas、greys</li>
+</ul>
+<h5 id="可视化界面"><a href="#可视化界面" class="headerlink" title="可视化界面"></a>可视化界面</h5><ul>
+<li>简易：JConsole、JVisualvm、HA、GCHisto、GCViewer</li>
+<li>进阶：MAT、JProfiler</li>
+</ul>
+<p>命令行推荐 arthas ，可视化界面推荐 JProfiler，此外还有一些在线的平台 <a target="_blank" rel="noopener" href="https://gceasy.io/">gceasy</a>、<a target="_blank" rel="noopener" href="https://heaphero.io/">heaphero</a>、<a target="_blank" rel="noopener" href="https://fastthread.io/">fastthread</a> 也比较好用。</p>
+<span id="more"></span>
+
+<h3 id="开胃小菜"><a href="#开胃小菜" class="headerlink" title="开胃小菜"></a>开胃小菜</h3><p>开始之前先来一到小菜，循序渐进。</p>
+<h4 id="简单指令"><a href="#简单指令" class="headerlink" title="简单指令"></a>简单指令</h4><h5 id="jps"><a href="#jps" class="headerlink" title="jps"></a>jps</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">jps  一般使用这个指令来查看当前运行的java进程,-l查看所有</span></span><br><span class="line">jps -l</span><br></pre></td></tr></table></figure>
+
+<p><img src="image-20210415160611851.png" alt="image-20210415160611851"></p>
+<h5 id="jinfo"><a href="#jinfo" class="headerlink" title="jinfo"></a>jinfo</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">jinfo 一般用来查看某个java进程使用的jvm参数和系统属性</span></span><br><span class="line">jinfo -sysprops pid</span><br></pre></td></tr></table></figure>
+
+<p><img src="image-20210415160504342.png" alt="image-20210415160504342"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">查看所有jvm参数</span></span><br><span class="line">jinfo -flags pid</span><br></pre></td></tr></table></figure>
+
+<p><img src="image-20210415160918989.png" alt="image-20210415160918989"></p>
+<h5 id="jstat"><a href="#jstat" class="headerlink" title="jstat"></a>jstat</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">一般我们使用该命令来查看jvm加载的类，gc统计</span></span><br><span class="line">jstat -class pid</span><br></pre></td></tr></table></figure>
+
+<p><img src="image-20210415161245417.png" alt="image-20210415161245417"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">垃圾回收统计</span></span><br><span class="line">jstat -gc pid</span><br><span class="line">/*</span><br><span class="line">S0C：第一个幸存区的大小</span><br><span class="line">S1C：第二个幸存区的大小</span><br><span class="line">S0U：第一个幸存区的使用大小</span><br><span class="line">S1U：第二个幸存区的使用大小</span><br><span class="line">EC：伊甸园区的大小</span><br><span class="line">EU：伊甸园区的使用大小</span><br><span class="line">OC：老年代大小</span><br><span class="line">OU：老年代使用大小</span><br><span class="line">MC：方法区大小</span><br><span class="line">MU：方法区使用大小</span><br><span class="line">CCSC:压缩类空间大小</span><br><span class="line">CCSU:压缩类空间使用大小</span><br><span class="line">YGC：年轻代垃圾回收次数</span><br><span class="line">YGCT：年轻代垃圾回收消耗时间</span><br><span class="line">FGC：老年代垃圾回收次数</span><br><span class="line">FGCT：老年代垃圾回收消耗时间</span><br><span class="line">GCT：垃圾回收消耗总时间</span><br><span class="line">*/</span><br></pre></td></tr></table></figure>
+
+<p><img src="image-20210415161406384.png" alt="image-20210415161406384"></p>
+<h5 id="jmap"><a href="#jmap" class="headerlink" title="jmap"></a>jmap</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">可以使用该命令来查看某个java进程的内存情况，还可以导出对应的堆栈信息</span></span><br><span class="line">jmap -heap pid</span><br></pre></td></tr></table></figure>
+
+<p><img src="image-20210415161751600.png" alt="image-20210415161751600"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">查看某个java进程中存活的实例数和总大小， &gt; temp_file.txt 并输出到temp_file.txt文件里面</span></span><br><span class="line">jmap -histo:live pid &gt; temp_file.txt</span><br></pre></td></tr></table></figure>
+
+<p><img src="image-20210415162408153.png" alt="image-20210415162408153"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">导出某个java进程的堆栈信息到.hprof文件，该文件可以利用MAT等工具查看</span></span><br><span class="line">jmap -dump:live,format=b,file=temp_file.hprof pid</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="正餐"><a href="#正餐" class="headerlink" title="正餐"></a>正餐</h3><p>接下来是我们的正餐，这部分主要讲述arthas 和mat的使用，包括一些线上GC的排查。</p>
+<h4 id="arthas"><a href="#arthas" class="headerlink" title="arthas"></a>arthas</h4><p>arthas相信我们都不陌生，这是阿里开源的，现在才听说过的赶紧去下载用一次，附上 <a target="_blank" rel="noopener" href="http://arthas.gitee.io/">arthas</a> 官网，这里的教程堪称完美，我这里就不多说了，只有几张图，方便后面我复习。</p>
+<h5 id="操作步骤"><a href="#操作步骤" class="headerlink" title="操作步骤"></a>操作步骤</h5><p>step 1：到官网下载对应jar，使用上传命令rz上传到对应的服务器，也可以在服务器上直接使用curl下载</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -O https://arthas.aliyun.com/arthas-boot.jar</span><br></pre></td></tr></table></figure>
+
+<p>step 2:  运行阿尔萨斯</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar arthas-boot.jar</span><br></pre></td></tr></table></figure>
+
+<p><img src="image-20210415163551814.png" alt="image-20210415163551814"></p>
+<p>step 3: 选择要依附的java进程，输入数字，出现下面红框表示成功</p>
+<p><img src="image-20210415163702184.png" alt="image-20210415163702184"></p>
+<h5 id="jvm指令相关"><a href="#jvm指令相关" class="headerlink" title="jvm指令相关"></a>jvm指令相关</h5><h6 id="dashboard"><a href="#dashboard" class="headerlink" title="dashboard"></a>dashboard</h6><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">查看控制台，ctrl+c停止输出</span></span><br><span class="line">dashboard</span><br></pre></td></tr></table></figure>
+
+<p><img src="image-20210415164048784.png" alt="image-20210415164048784"></p>
+<h6 id="thread"><a href="#thread" class="headerlink" title="thread"></a>thread</h6><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">查看当前有哪些线程</span></span><br><span class="line">thread </span><br></pre></td></tr></table></figure>
+
+<p><img src="image-20210415164150907.png" alt="image-20210415164150907"></p>
+<h6 id="jvm"><a href="#jvm" class="headerlink" title="jvm"></a>jvm</h6><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">查看当前的jvm信息</span></span><br><span class="line">jvm</span><br></pre></td></tr></table></figure>
+
+<p><img src="image-20210415164323897.png" alt="image-20210415164323897"></p>
+<h6 id="sysprop"><a href="#sysprop" class="headerlink" title="sysprop"></a>sysprop</h6><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">查看和修改JVM的系统属性</span></span><br><span class="line">sysprop</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">查看某个系统属性</span></span><br><span class="line">sysprop prop-name</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">修改某个系统属性</span></span><br><span class="line">sysprop prop-name newValue</span><br></pre></td></tr></table></figure>
+
+<p><img src="image-20210415164537300.png" alt="image-20210415164537300"></p>
+<h6 id="sysenv"><a href="#sysenv" class="headerlink" title="sysenv"></a>sysenv</h6><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">查看JVM的环境变量</span></span><br><span class="line">sysenv</span><br></pre></td></tr></table></figure>
+
+<p><img src="image-20210415164922657.png" alt="image-20210415164922657"></p>
+<h6 id="vmoption"><a href="#vmoption" class="headerlink" title="vmoption"></a>vmoption</h6><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">查看和修改JVM里诊断相关的option</span></span><br><span class="line">vmoption</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">查看指定的option</span></span><br><span class="line">vmoption option</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">修改某个option的配置，一般都是用来开启PrintGCDetails等</span></span><br><span class="line">vmoption option value</span><br></pre></td></tr></table></figure>
+
+<p><img src="image-20210415165040780.png" alt="image-20210415165040780"></p>
+<h6 id="heapdump"><a href="#heapdump" class="headerlink" title="heapdump"></a>heapdump</h6><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">dump java heap, 类似jmap命令的heap dump功能</span></span><br><span class="line">heapdump /tempfile.hprof</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">只dump还存活的对象</span></span><br><span class="line">heapdump --live /tmpfile.hprof</span><br></pre></td></tr></table></figure>
+
+<h5 id="class-classloader指令相关"><a href="#class-classloader指令相关" class="headerlink" title="class/classloader指令相关"></a>class/classloader指令相关</h5><h6 id="sc"><a href="#sc" class="headerlink" title="sc"></a>sc</h6><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">模糊搜索类</span></span><br><span class="line">sc test.*</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">输出某个类的详细信息</span></span><br><span class="line">sc -d test.Demo</span><br></pre></td></tr></table></figure>
+
+<h6 id="sm"><a href="#sm" class="headerlink" title="sm"></a>sm</h6><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">查看已加载类的方法信息</span></span><br><span class="line">sm java.lang.String</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">查看某个方法的详细</span></span><br><span class="line">sm -d java.lang.String toString</span><br></pre></td></tr></table></figure>
+
+<h6 id="jad"><a href="#jad" class="headerlink" title="jad"></a>jad</h6><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">反编译指定的类，只显示源码，并输出到文件Demo.java</span></span><br><span class="line">jad --source-only test.Demo &gt; /temp/Demo.java</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">反编译指定的方法</span></span><br><span class="line">jad test.Demo methodTest</span><br></pre></td></tr></table></figure>
+
+<h6 id="mc"><a href="#mc" class="headerlink" title="mc"></a>mc</h6><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">内存编译java文件为class</span></span><br><span class="line">mc /temp/Test.java</span><br></pre></td></tr></table></figure>
+
+<h6 id="retransform"><a href="#retransform" class="headerlink" title="retransform"></a>retransform</h6><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">热加载class进jvm</span></span><br><span class="line">retransform /temp/Test.class</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">每加载一个.class文件，会记录一个entry，-l命令查看所有entry</span></span><br><span class="line">retransform -l</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">删除指定<span class="built_in">id</span>的entry</span></span><br><span class="line">retransform -d id</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">显式触发，让这个类立刻起作用</span></span><br><span class="line">retransform --classPattern test.Demo</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">如果是想消除这个类的影响，需要清除这个类对应的所有entry，然后重新显式触发</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="在docker中使用Arthas"><a href="#在docker中使用Arthas" class="headerlink" title="在docker中使用Arthas"></a>在docker中使用Arthas</h5><p>​    现在很多公司都是使用Docker来部署项目，使用jps命令查看不到当前哪些java进程，这样就使用不了Arthas，接下来进行一些小调整，使得能够在Docker容器里面使用Arthas。</p>
+<p>​    首先是调整一下Dockerfile，我们一般使用的是如下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">仅包含java运行环境，没有java自带的一些工具</span></span><br><span class="line">FROM java:8-jre</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">需要调整为如下</span></span><br><span class="line">FROM openjdk:8-jdk</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">或者</span></span><br><span class="line">FROM openjdk:8-jdk-alpine</span><br></pre></td></tr></table></figure>
+
+<p>进入容器内部，下载Arthas并执行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it arthas-demo /bin/sh -c &quot;java -jar /opt/arthas/arthas-boot.jar&quot;</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">或者把下载好的arthas复制到容器内部，再使用java -jar来运行</span></span><br><span class="line">docker cp arthas-bott.jar containerId:/dir</span><br></pre></td></tr></table></figure>
+
+<p>这里需要注意，之前我们一般都是使用/bin/bash来进入命令行，这里是没有了，需要修改为/bin/sh</p>
+<h4 id="MAT"><a href="#MAT" class="headerlink" title="MAT"></a>MAT</h4><p>指令有点多，写的累，看得也累，接下来还是看图片吧，这里主要讲述通过导出的hprof也就是堆栈文件，拿到MAT进行解析。我们主要是看堆栈解析里面的是否存在内存泄漏和对象实例的使用空间分析，这里看的还是很清晰明了的，我们用的最多就是这个Leak supect report和Histogram。</p>
+<p>一打开某个堆栈文件，他就会问你是不是需要看是否存在内存泄漏分析，的确这个就是我们都需要看的。</p>
+<p><img src="image-20210415172625652.png" alt="image-20210415172625652"></p>
+<p><img src="image-20210415172929515.png" alt="image-20210415172929515"></p>
+<p><img src="image-20210415173005165.png" alt="image-20210415173005165"></p>
+<p><img src="image-20210415173041630.png" alt="image-20210415173041630"></p>
+<p><img src="image-20210415173103066.png" alt="image-20210415173103066"></p>
+<h3 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h3><p>相信我们大部分公司都是用的JDK8，JDK8默认使用的垃圾回收器是Parallel Scavenge +ParallelOld，如下图，现在主流的垃圾回收器基本都是CMS+ParNew或者G1，也有少部分已经用上了ZGC，它们的好不言而喻，感兴趣的话可以自行去了解下，那你清楚怎么切换CMS或者G1吗？本来还想写一次线上GC问题排查的过程，但是有点困了，下次一定。</p>
+<p><img src="image-20210415174037743.png" alt="image-20210415174037743"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/JVM/" rel="tag"># JVM</a>
+              <a href="/tags/%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/" rel="tag"># 问题排查</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/04/15/JMM%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" rel="prev" title="JMM内存模型">
+                  <i class="fa fa-chevron-left"></i> JMM内存模型
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/04/16/RocketMQ%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%B8%E5%85%B3/" rel="next" title="RocketMQ面试题相关">
+                  RocketMQ面试题相关 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rifu</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">139k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">2:06</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/algoliasearch@4.12.1/dist/algoliasearch-lite.umd.js" integrity="sha256-gOvJ6W+j+t/cgnnl9iUU3cb6F1WFQGDdtTXhfPjU4bc=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.39.0/dist/instantsearch.production.min.js" integrity="sha256-+ZlQZK9m82XOYGFZCIRrPOFh2kDdAGB6e7TjWGvoaSY=" crossorigin="anonymous"></script><script src="/js/third-party/search/algolia-search.js"></script>
+
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdn.jsdelivr.net/npm/pdfobject@2.2.7/pdfobject.min.js","integrity":"sha256-ph3Dk89VmuTVXG6x/RDzk53SU9LPdAh1tpv0UvnDZ2I="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js"></script>
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false});</script></body>
+</html>

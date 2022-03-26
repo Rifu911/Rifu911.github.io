@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"rifu520.gitee.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Eureka是Netflix组件的一个子模块，也是核心模块之一。云端服务发现，一个基于 REST 的服务，用于定位服务，以实现云端中间层服务发现和故障转移。下图总结了Eureka服务端（以下简称服务端）与Eureka客户端（以下简称客户端）之间协同工作的流程：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Eureka面试题集合">
+<meta property="og:url" content="https://rifu520.gitee.io/2020/09/17/Eureka%E9%9D%A2%E8%AF%95%E9%A2%98%E9%9B%86%E5%90%88/index.html">
+<meta property="og:site_name" content="Single blog">
+<meta property="og:description" content="Eureka是Netflix组件的一个子模块，也是核心模块之一。云端服务发现，一个基于 REST 的服务，用于定位服务，以实现云端中间层服务发现和故障转移。下图总结了Eureka服务端（以下简称服务端）与Eureka客户端（以下简称客户端）之间协同工作的流程：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly91cGxvYWRlci5zaGltby5pbS9mL2hHbzNZNXBDT3VZeG5POE4ucG5nIXRodW1ibmFpbA?x-oss-process=image/format,png">
+<meta property="article:published_time" content="2020-09-17T13:42:34.000Z">
+<meta property="article:modified_time" content="2022-03-24T15:22:21.569Z">
+<meta property="article:author" content="Rifu">
+<meta property="article:tag" content="Eureka">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly91cGxvYWRlci5zaGltby5pbS9mL2hHbzNZNXBDT3VZeG5POE4ucG5nIXRodW1ibmFpbA?x-oss-process=image/format,png">
+
+
+<link rel="canonical" href="https://rifu520.gitee.io/2020/09/17/Eureka%E9%9D%A2%E8%AF%95%E9%A2%98%E9%9B%86%E5%90%88/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://rifu520.gitee.io/2020/09/17/Eureka%E9%9D%A2%E8%AF%95%E9%A2%98%E9%9B%86%E5%90%88/","path":"2020/09/17/Eureka面试题集合/","title":"Eureka面试题集合"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Eureka面试题集合 | Single blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Single blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">One bat dream</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container"></div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="algolia-stats"><hr></div>
+  <div class="algolia-hits"></div>
+  <div class="algolia-pagination"></div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1%E3%80%81%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%90%AF%E5%8A%A8%E6%97%B6%E5%A6%82%E4%BD%95%E6%B3%A8%E5%86%8C%E5%88%B0%E6%9C%8D%E5%8A%A1%E7%AB%AF"><span class="nav-number">1.</span> <span class="nav-text">1、客户端启动时如何注册到服务端</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1%E3%80%81%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">1.1.</span> <span class="nav-text">1.1、源码分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">1.2.</span> <span class="nav-text">1.2、总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2%E3%80%81%E6%9C%8D%E5%8A%A1%E7%AB%AF%E5%A6%82%E4%BD%95%E4%BF%9D%E5%AD%98%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%9C%8D%E5%8A%A1%E4%BF%A1%E6%81%AF"><span class="nav-number">2.</span> <span class="nav-text">2、服务端如何保存客户端服务信息</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1%E3%80%81%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">2.1.</span> <span class="nav-text">2.1、源码分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">2.2.</span> <span class="nav-text">2.2、总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3%E3%80%81%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%A6%82%E4%BD%95%E6%8B%89%E5%8F%96%E6%9C%8D%E5%8A%A1%E7%AB%AF%E5%B7%B2%E4%BF%9D%E5%AD%98%E7%9A%84%E6%9C%8D%E5%8A%A1%E4%BF%A1%E6%81%AF"><span class="nav-number">3.</span> <span class="nav-text">3、客户端如何拉取服务端已保存的服务信息</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1%E3%80%81%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">3.1.</span> <span class="nav-text">3.1、源码分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">3.2.</span> <span class="nav-text">3.2、总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4%E3%80%81%E5%A6%82%E4%BD%95%E6%9E%84%E5%BB%BA%E9%AB%98%E5%8F%AF%E7%94%A8%E7%9A%84Eureka%E9%9B%86%E7%BE%A4"><span class="nav-number">4.</span> <span class="nav-text">4、如何构建高可用的Eureka集群</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1%E3%80%81%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90"><span class="nav-number">4.1.</span> <span class="nav-text">4.1、源码解析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">4.2.</span> <span class="nav-text">4.2、总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5%E3%80%81%E5%BF%83%E8%B7%B3%E5%92%8C%E6%9C%8D%E5%8A%A1%E5%89%94%E9%99%A4%E6%9C%BA%E5%88%B6%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">5.</span> <span class="nav-text">5、心跳和服务剔除机制是什么</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#5-1%E3%80%81%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">5.1.</span> <span class="nav-text">5.1、源码分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-2%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">5.2.</span> <span class="nav-text">5.2、总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6%E3%80%81Eureka%E8%87%AA%E6%88%91%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">6.</span> <span class="nav-text">6、Eureka自我保护机制是什么</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Rifu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Rifu</p>
+  <div class="site-description" itemprop="description">临时停车</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">62</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rifu520.gitee.io/2020/09/17/Eureka%E9%9D%A2%E8%AF%95%E9%A2%98%E9%9B%86%E5%90%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Rifu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Single blog">
+      <meta itemprop="description" content="临时停车">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Eureka面试题集合 | Single blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Eureka面试题集合
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-09-17 21:42:34" itemprop="dateCreated datePublished" datetime="2020-09-17T21:42:34+08:00">2020-09-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E7%AF%87/" itemprop="url" rel="index"><span itemprop="name">面试篇</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>13k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>11 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>Eureka是Netflix组件的一个子模块，也是核心模块之一。云端服务发现，一个基于 REST 的服务，用于定位服务，以实现云端中间层服务发现和故障转移。下图总结了Eureka服务端（以下简称服务端）与Eureka客户端（以下简称客户端）之间协同工作的流程：</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly91cGxvYWRlci5zaGltby5pbS9mL2hHbzNZNXBDT3VZeG5POE4ucG5nIXRodW1ibmFpbA?x-oss-process=image/format,png" alt="img"> <span id="more"></span></p>
+<p>流程说明：</p>
+<ul>
+<li>Eureka客户端（以下简称客户端）启动后，定时向Eureka服务端（以下简称服务端）注册自己的服务信息（服务名、IP、端口等）；</li>
+<li>客户端启动后，定时拉取服务端以保存的服务注册信息；</li>
+<li>拉取服务端保存的服务注册信息后，就可调用消费其他服务提供者提供的服务。</li>
+</ul>
+<p>虽然流程比较简单，但是在这样的简单流程下，Eureak究竟做了哪些工作，我们会有如下问题：</p>
+<ol>
+<li>客户端启动时如何注册到服务端？</li>
+<li>服务端如何保存客户端服务信息？</li>
+<li>客户端如何拉取服务端已保存的服务信息（是需要使用的时候再去拉取，还是先拉取保存本地，使用的时候直接从本地获取）？</li>
+<li>如何构建高可用的Eureka集群？</li>
+<li>心跳和服务剔除机制是什么？</li>
+<li>Eureka自我保护机制是什么？</li>
+</ol>
+<p>要彻底搞清楚Eureka的工作流程，必须需要弄清楚这些问题，也是面试中常遇到的问题，接下来我将结合源码的方式对这些问题一一解答，源码版本说明：</p>
+<ul>
+<li>springboot：2.2.1.RELEASE</li>
+<li>springcloud：Hoxton.SR1</li>
+<li>Eureka:1.9.13</li>
+</ul>
+<h1 id="1、客户端启动时如何注册到服务端"><a href="#1、客户端启动时如何注册到服务端" class="headerlink" title="1、客户端启动时如何注册到服务端"></a>1、客户端启动时如何注册到服务端</h1><h2 id="1-1、源码分析"><a href="#1-1、源码分析" class="headerlink" title="1.1、源码分析"></a>1.1、源码分析</h2><p>Eureka客户端在启动后，会创建一些定时任务，其中就有一个任务heartbeatExecutor就是就是处理心跳的线程池，部分源码（源码位置：com.netflix.discovery.DiscoveryClient）如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">heartbeatExecutor = <span class="keyword">new</span> <span class="title class_">ThreadPoolExecutor</span>(</span><br><span class="line">        <span class="number">1</span>, clientConfig.getHeartbeatExecutorThreadPoolSize(), <span class="number">0</span>, TimeUnit.SECONDS,</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">SynchronousQueue</span>&lt;Runnable&gt;(),</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">ThreadFactoryBuilder</span>()</span><br><span class="line">                .setNameFormat(<span class="string">&quot;DiscoveryClient-HeartbeatExecutor-%d&quot;</span>)</span><br><span class="line">                .setDaemon(<span class="literal">true</span>)</span><br><span class="line">                .build()</span><br><span class="line">);  <span class="comment">// use direct handoff</span></span><br><span class="line"> </span><br><span class="line">...此处省略其他代码</span><br><span class="line"> </span><br><span class="line"> <span class="comment">//finally, init the schedule tasks (e.g. cluster resolvers, heartbeat, instanceInfo replicator, fetch</span></span><br><span class="line">initScheduledTasks();</span><br></pre></td></tr></table></figure>
+
+<p>查看方法initScheduledTasks以及注释，可知该方法是初始化所有的任务（schedule tasks）。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Initializes all scheduled tasks.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">initScheduledTasks</span><span class="params">()</span> &#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="comment">// Heartbeat timer</span></span><br><span class="line">  scheduler.schedule(</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">TimedSupervisorTask</span>(</span><br><span class="line">                <span class="string">&quot;heartbeat&quot;</span>,</span><br><span class="line">                scheduler,</span><br><span class="line">                heartbeatExecutor,</span><br><span class="line">                renewalIntervalInSecs,</span><br><span class="line">                TimeUnit.SECONDS,</span><br><span class="line">                expBackOffBound,</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">HeartbeatThread</span>()</span><br><span class="line">        ),</span><br><span class="line">        renewalIntervalInSecs, TimeUnit.SECONDS);</span><br><span class="line">   ...   </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在上述方法中，第15行创建了一个线程HeartbeatThread，该线程就是处理心跳任务：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * The heartbeat task that renews the lease in the given intervals.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">class</span> <span class="title class_">HeartbeatThread</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span> &#123;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (renew()) &#123;</span><br><span class="line">            lastSuccessfulHeartbeatTimestamp = System.currentTimeMillis();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Renew with the eureka service by making the appropriate REST call</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">boolean</span> <span class="title function_">renew</span><span class="params">()</span> &#123;</span><br><span class="line">    EurekaHttpResponse&lt;InstanceInfo&gt; httpResponse;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        httpResponse = eurekaTransport.registrationClient.sendHeartBeat(instanceInfo.getAppName(), instanceInfo.getId(), instanceInfo, <span class="literal">null</span>);</span><br><span class="line">        logger.debug(PREFIX + <span class="string">&quot;&#123;&#125; - Heartbeat status: &#123;&#125;&quot;</span>, appPathIdentifier, httpResponse.getStatusCode());</span><br><span class="line">        <span class="keyword">if</span> (httpResponse.getStatusCode() == Status.NOT_FOUND.getStatusCode()) &#123;</span><br><span class="line">            REREGISTER_COUNTER.increment();</span><br><span class="line">            logger.info(PREFIX + <span class="string">&quot;&#123;&#125; - Re-registering apps/&#123;&#125;&quot;</span>, appPathIdentifier, instanceInfo.getAppName());</span><br><span class="line">            <span class="type">long</span> <span class="variable">timestamp</span> <span class="operator">=</span> instanceInfo.setIsDirtyWithTime();</span><br><span class="line">            <span class="type">boolean</span> <span class="variable">success</span> <span class="operator">=</span> register();</span><br><span class="line">            <span class="keyword">if</span> (success) &#123;</span><br><span class="line">                instanceInfo.unsetIsDirty(timestamp);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> success;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> httpResponse.getStatusCode() == Status.OK.getStatusCode();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable e) &#123;</span><br><span class="line">        logger.error(PREFIX + <span class="string">&quot;&#123;&#125; - was unable to send heartbeat!&quot;</span>, appPathIdentifier, e);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在renew方法中，首先会发送一个心跳数据到服务端，服务端返回一个状态码，如果是NOT_FOUND（即404），表示Eureka服务端不存在该客户端的服务信息，那么就会向服务端发起注册请求（上面代码25行调用register方法）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">boolean</span> <span class="title function_">register</span><span class="params">()</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">    logger.info(PREFIX + <span class="string">&quot;&#123;&#125;: registering service...&quot;</span>, appPathIdentifier);</span><br><span class="line">    EurekaHttpResponse&lt;Void&gt; httpResponse;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        httpResponse = eurekaTransport.registrationClient.register(instanceInfo);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        logger.warn(PREFIX + <span class="string">&quot;&#123;&#125; - registration failed &#123;&#125;&quot;</span>, appPathIdentifier, e.getMessage(), e);</span><br><span class="line">        <span class="keyword">throw</span> e;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (logger.isInfoEnabled()) &#123;</span><br><span class="line">        logger.info(PREFIX + <span class="string">&quot;&#123;&#125; - registration status: &#123;&#125;&quot;</span>, appPathIdentifier, httpResponse.getStatusCode());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> httpResponse.getStatusCode() == Status.NO_CONTENT.getStatusCode();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在register方法中，向服务端的注册信息instanceInfo，它是com.netflix.appinfo.InstanceInfo，包括服务名、ip、端口、唯一实例ID等信息。</p>
+<h2 id="1-2、总结"><a href="#1-2、总结" class="headerlink" title="1.2、总结"></a>1.2、总结</h2><p>Eureka客户端在启动时，首先会创建一个心跳的定时任务，定时向服务端发送心跳信息，服务端会对客户端心跳做出响应，如果响应状态码为404时，表示服务端没有该客户端的服务信息，那么客户端则会向服务端发送注册请求，注册信息包括服务名、ip、端口、唯一实例ID等信息。</p>
+<h1 id="2、服务端如何保存客户端服务信息"><a href="#2、服务端如何保存客户端服务信息" class="headerlink" title="2、服务端如何保存客户端服务信息"></a>2、服务端如何保存客户端服务信息</h1><h2 id="2-1、源码分析"><a href="#2-1、源码分析" class="headerlink" title="2.1、源码分析"></a>2.1、源码分析</h2><p>服务端注册源码（com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl.class的方法register）如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">register</span><span class="params">(<span class="keyword">final</span> InstanceInfo info, <span class="keyword">final</span> <span class="type">boolean</span> isReplication)</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">leaseDuration</span> <span class="operator">=</span> Lease.DEFAULT_DURATION_IN_SECS;</span><br><span class="line">    <span class="keyword">if</span> (info.getLeaseInfo() != <span class="literal">null</span> &amp;&amp; info.getLeaseInfo().getDurationInSecs() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        leaseDuration = info.getLeaseInfo().getDurationInSecs();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">super</span>.register(info, leaseDuration, isReplication);</span><br><span class="line">    replicateToPeers(Action.Register, info.getAppName(), info.getId(), info, <span class="literal">null</span>, isReplication);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第7行调用了父类（com.netflix.eureka.registry.AbstractInstanceRegistry）register方法，源码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">AbstractInstanceRegistry</span> <span class="keyword">implements</span> <span class="title class_">InstanceRegistry</span> &#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> ConcurrentHashMap&lt;String, Map&lt;String, Lease&lt;InstanceInfo&gt;&gt;&gt; registry</span><br><span class="line">        = <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>&lt;String, Map&lt;String, Lease&lt;InstanceInfo&gt;&gt;&gt;();</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">register</span><span class="params">(InstanceInfo registrant, <span class="type">int</span> leaseDuration, <span class="type">boolean</span> isReplication)</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        read.lock();</span><br><span class="line">        Map&lt;String, Lease&lt;InstanceInfo&gt;&gt; gMap = registry.get(registrant.getAppName());</span><br><span class="line">        REGISTER.increment(isReplication);</span><br><span class="line">        <span class="keyword">if</span> (gMap == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">final</span> ConcurrentHashMap&lt;String, Lease&lt;InstanceInfo&gt;&gt; gNewMap = <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>&lt;String, Lease&lt;InstanceInfo&gt;&gt;();</span><br><span class="line">            gMap = registry.putIfAbsent(registrant.getAppName(), gNewMap);</span><br><span class="line">            <span class="keyword">if</span> (gMap == <span class="literal">null</span>) &#123;</span><br><span class="line">                gMap = gNewMap;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在register方法中，我们可以看到将服务实例信息InstanceInfo注册到了register变量中，它其实就是一个ConcurrentHashMap。</p>
+<h2 id="2-2、总结"><a href="#2-2、总结" class="headerlink" title="2.2、总结"></a>2.2、总结</h2><p>客户端通过Jersey框架（亚马逊的一个http框架）将服务实例信息发送到服务端，服务端将客户端信息放在一个ConcurrentHashMap对象中。</p>
+<h1 id="3、客户端如何拉取服务端已保存的服务信息"><a href="#3、客户端如何拉取服务端已保存的服务信息" class="headerlink" title="3、客户端如何拉取服务端已保存的服务信息"></a>3、客户端如何拉取服务端已保存的服务信息</h1><p>在知道客户端是如何拉取服务端信息的同时，也需要清楚以下问题：</p>
+<blockquote>
+<p>是需要时才去服务端拉取，还是先拉取到本地，需要用的时候直接从本地获取？</p>
+</blockquote>
+<h2 id="3-1、源码分析"><a href="#3-1、源码分析" class="headerlink" title="3.1、源码分析"></a>3.1、源码分析</h2><p>我们回到问题1的1.1节的initScheduledTasks方法中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">initScheduledTasks</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (clientConfig.shouldFetchRegistry()) &#123;</span><br><span class="line">        <span class="comment">// registry cache refresh timer</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">registryFetchIntervalSeconds</span> <span class="operator">=</span> clientConfig.getRegistryFetchIntervalSeconds();</span><br><span class="line">        <span class="type">int</span> <span class="variable">expBackOffBound</span> <span class="operator">=</span> clientConfig.getCacheRefreshExecutorExponentialBackOffBound();</span><br><span class="line">        scheduler.schedule(</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">TimedSupervisorTask</span>(</span><br><span class="line">                        <span class="string">&quot;cacheRefresh&quot;</span>,</span><br><span class="line">                        scheduler,</span><br><span class="line">                        cacheRefreshExecutor,</span><br><span class="line">                        registryFetchIntervalSeconds,</span><br><span class="line">                        TimeUnit.SECONDS,</span><br><span class="line">                        expBackOffBound,</span><br><span class="line">                        <span class="keyword">new</span> <span class="title class_">CacheRefreshThread</span>()</span><br><span class="line">                ),</span><br><span class="line">                registryFetchIntervalSeconds, TimeUnit.SECONDS);</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述代码中初始化了一个刷新缓存的定时任务，我们看到第14行的新建了一个线程CacheRefreshThread（源码不再列出），既是用来定时刷新服务端已保存的服务信息。</p>
+<h2 id="3-2、总结"><a href="#3-2、总结" class="headerlink" title="3.2、总结"></a>3.2、总结</h2><p>通过3.1节源码总结：客户端拉取服务端服务信息是通过一个定时任务定时拉取的，每次拉取后刷新本地已保存的信息，需要使用时直接从本地直接获取。</p>
+<h1 id="4、如何构建高可用的Eureka集群"><a href="#4、如何构建高可用的Eureka集群" class="headerlink" title="4、如何构建高可用的Eureka集群"></a>4、如何构建高可用的Eureka集群</h1><p>首先，搭建一个高可用的Eureka集群，只需要在每个注册中心（服务端）通过配置：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eureka.client.service-url.defaultZone</span><br></pre></td></tr></table></figure>
+
+<p>指定其他服务端的地址，多个使用逗号隔开，如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eureka.client.service-url.defaultZone=http:<span class="comment">//localhost:10000/eureka/,http://localhost:10001/eureka/,http://localhost:10002/eureka/</span></span><br></pre></td></tr></table></figure>
+
+<p>在eureka的高可用状态下，这些注册中心是对等的，他们会互相将注册在自己的实例同步给其他的注册中心，同样是通过问题1的方式将注册在自己上的实例注册到其他注册中心去。</p>
+<p>那么问题来了，一旦 其中一个eureka收到一个客户端注册实例时，既然eureka注册中心将注册在自己的实例同步到其他注册中心中的方式和客户端注册的方式相同，那么在接收的eureka注册中心一端，会不会再同步回给注册中心（或者其他注册中心），从而导致死循环。</p>
+<h2 id="4-1、源码解析"><a href="#4-1、源码解析" class="headerlink" title="4.1、源码解析"></a>4.1、源码解析</h2><p>我们回到2.1节的PeerAwareInstanceRegistryImpl类的register方法，在该方法中的最后一行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">replicateToPeers(Action.Register, info.getAppName(), info.getId(), info, null, isReplication);</span><br></pre></td></tr></table></figure>
+
+<p>replicateToPeers方法字面意思是同步或者复制到同事（即其他对等的注册中心），最后一个参数为isReplication，是一个boolean值，表示是否同步（复制），如果是客户端注册的，那么为false,如果是其他注册中心同步的则为true，replicateToPeers方法中，如果isReplication=false时，将会发起同步（第19行）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">replicateToPeers</span><span class="params">(Action action, String appName, String id,</span></span><br><span class="line"><span class="params">                              InstanceInfo info <span class="comment">/* optional */</span>,</span></span><br><span class="line"><span class="params">                              InstanceStatus newStatus <span class="comment">/* optional */</span>, <span class="type">boolean</span> isReplication)</span> &#123;</span><br><span class="line">    <span class="type">Stopwatch</span> <span class="variable">tracer</span> <span class="operator">=</span> action.getTimer().start();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (isReplication) &#123;</span><br><span class="line">            numberOfReplicationsLastMin.increment();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// If it is a replication already, do not replicate again as this will create a poison replication</span></span><br><span class="line">        <span class="keyword">if</span> (peerEurekaNodes == Collections.EMPTY_LIST || isReplication) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">final</span> PeerEurekaNode node : peerEurekaNodes.getPeerEurekaNodes()) &#123;</span><br><span class="line">            <span class="comment">// If the url represents this host, do not replicate to yourself.</span></span><br><span class="line">            <span class="keyword">if</span> (peerEurekaNodes.isThisMyUrl(node.getServiceUrl())) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            replicateInstanceActionsToPeers(action, appName, id, info, newStatus, node);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        tracer.stop();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-2、总结"><a href="#4-2、总结" class="headerlink" title="4.2、总结"></a>4.2、总结</h2><ul>
+<li><p>搭建高可用的Eureka集群，只需要在注册中心的配置文件中配置其他注册中心的地址，配置属性如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eureka.client.service-url.defaultZone</span><br></pre></td></tr></table></figure>
+
+</li>
+<li><p>注册中心收到注册信息后会判断是否是其他注册中心同步的信息还是客户端注册的信息，如果是客户端注册的信息，那么他将会将该客户端信息同步到其他注册中心去；否则收到信息后不作任何操作。通过此机制避免集群中信息同步的死循环。</p>
+</li>
+</ul>
+<h1 id="5、心跳和服务剔除机制是什么"><a href="#5、心跳和服务剔除机制是什么" class="headerlink" title="5、心跳和服务剔除机制是什么"></a>5、心跳和服务剔除机制是什么</h1><h2 id="5-1、源码分析"><a href="#5-1、源码分析" class="headerlink" title="5.1、源码分析"></a>5.1、源码分析</h2><p>在eureka源码中，有个evict（剔除，驱逐，源码位置：com.netflix.eureka.registry.AbstractInstanceRegistry，代码清单5.1）的方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">evict</span><span class="params">(<span class="type">long</span> additionalLeaseMs)</span> &#123;</span><br><span class="line">    logger.debug(<span class="string">&quot;Running the evict task&quot;</span>);</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">if</span> (!isLeaseExpirationEnabled()) &#123;</span><br><span class="line">        logger.debug(<span class="string">&quot;DS: lease expiration is currently disabled.&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">// We collect first all expired items, to evict them in random order. For large eviction sets,</span></span><br><span class="line">    <span class="comment">// if we do not that, we might wipe out whole apps before self preservation kicks in. By randomizing it,</span></span><br><span class="line">    <span class="comment">// the impact should be evenly distributed across all applications.</span></span><br><span class="line">    List&lt;Lease&lt;InstanceInfo&gt;&gt; expiredLeases = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">    <span class="keyword">for</span> (Entry&lt;String, Map&lt;String, Lease&lt;InstanceInfo&gt;&gt;&gt; groupEntry : registry.entrySet()) &#123;</span><br><span class="line">        Map&lt;String, Lease&lt;InstanceInfo&gt;&gt; leaseMap = groupEntry.getValue();</span><br><span class="line">        <span class="keyword">if</span> (leaseMap != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (Entry&lt;String, Lease&lt;InstanceInfo&gt;&gt; leaseEntry : leaseMap.entrySet()) &#123;</span><br><span class="line">                Lease&lt;InstanceInfo&gt; lease = leaseEntry.getValue();</span><br><span class="line">                <span class="keyword">if</span> (lease.isExpired(additionalLeaseMs) &amp;&amp; lease.getHolder() != <span class="literal">null</span>) &#123;</span><br><span class="line">                    expiredLeases.add(lease);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">// To compensate for GC pauses or drifting local time, we need to use current registry size as a base for</span></span><br><span class="line">    <span class="comment">// triggering self-preservation. Without that we would wipe out full registry.</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">registrySize</span> <span class="operator">=</span> (<span class="type">int</span>) getLocalRegistrySize();</span><br><span class="line">    <span class="type">int</span> <span class="variable">registrySizeThreshold</span> <span class="operator">=</span> (<span class="type">int</span>) (registrySize * serverConfig.getRenewalPercentThreshold());</span><br><span class="line">    <span class="type">int</span> <span class="variable">evictionLimit</span> <span class="operator">=</span> registrySize - registrySizeThreshold;</span><br><span class="line"> </span><br><span class="line">    <span class="type">int</span> <span class="variable">toEvict</span> <span class="operator">=</span> Math.min(expiredLeases.size(), evictionLimit);</span><br><span class="line">    <span class="keyword">if</span> (toEvict &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        logger.info(<span class="string">&quot;Evicting &#123;&#125; items (expired=&#123;&#125;, evictionLimit=&#123;&#125;)&quot;</span>, toEvict, expiredLeases.size(), evictionLimit);</span><br><span class="line"> </span><br><span class="line">        <span class="type">Random</span> <span class="variable">random</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Random</span>(System.currentTimeMillis());</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; toEvict; i++) &#123;</span><br><span class="line">            <span class="comment">// Pick a random item (Knuth shuffle algorithm)</span></span><br><span class="line">            <span class="type">int</span> <span class="variable">next</span> <span class="operator">=</span> i + random.nextInt(expiredLeases.size() - i);</span><br><span class="line">            Collections.swap(expiredLeases, i, next);</span><br><span class="line">            Lease&lt;InstanceInfo&gt; lease = expiredLeases.get(i);</span><br><span class="line"> </span><br><span class="line">            <span class="type">String</span> <span class="variable">appName</span> <span class="operator">=</span> lease.getHolder().getAppName();</span><br><span class="line">            <span class="type">String</span> <span class="variable">id</span> <span class="operator">=</span> lease.getHolder().getId();</span><br><span class="line">            EXPIRED.increment();</span><br><span class="line">            logger.warn(<span class="string">&quot;DS: Registry: expired lease for &#123;&#125;/&#123;&#125;&quot;</span>, appName, id);</span><br><span class="line">            internalCancel(appName, id, <span class="literal">false</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在上述代码第4行，做了isLeaseExpirationEnabled（字面意思：是否启用租约到期，即是否开启了服务过期超时机制，开启之后就会将过期的服务进行剔除）的if判断，源码（com.netflix.eureka.registry</p>
+<p>.PeerAwareInstanceRegistryImpl实现类中，代码清单5.2）如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">isLeaseExpirationEnabled</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (!isSelfPreservationModeEnabled()) &#123;</span><br><span class="line">        <span class="comment">// The self preservation mode is disabled, hence allowing the instances to expire.</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> numberOfRenewsPerMinThreshold &gt; <span class="number">0</span> &amp;&amp; getNumOfRenewsInLastMin() &gt; numberOfRenewsPerMinThreshold;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>同样在上述方法开始的第3行也做了isSelfPreservationModeEnabled方法的判断，该方法是判断是否开启了自我保护机制（有关自我保护机制有关说明在第6节），接下来看到第4行的注释翻译如下：</p>
+<blockquote>
+<p>自保存模式被禁用，因此允许实例过期</p>
+</blockquote>
+<p>也就是说如果关闭了自我保护机制，那么直接就允许实例过期，也就是说可以将过期的服务实例剔除。那如果开启了自我保护机制，会做如下判断（代码清单5.3）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">numberOfRenewsPerMinThreshold &gt; <span class="number">0</span> &amp;&amp; getNumOfRenewsInLastMin() &gt; numberOfRenewsPerMinThreshold</span><br></pre></td></tr></table></figure>
+
+<p>getNumOfRenewsInLastMin即最后一分钟接收到的心跳总数，numberOfRenewsPerMinThreshold 表示收到一分钟内收到服务心跳数临界值（后简称临界值），也就是说当临界值大于0，且最后一分钟接收到的心跳总数大于临界值时，允许实例过期，他的计算方式源码如下（代码清单5.4）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">updateRenewsPerMinThreshold</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="built_in">this</span>.numberOfRenewsPerMinThreshold = (<span class="type">int</span>) (<span class="built_in">this</span>.expectedNumberOfClientsSendingRenews</span><br><span class="line">            * (<span class="number">60.0</span> / serverConfig.getExpectedClientRenewalIntervalSeconds())</span><br><span class="line">            * serverConfig.getRenewalPercentThreshold());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中：</p>
+<ul>
+<li>this.expectedNumberOfClientsSendingRenews：接收到的客户端数量</li>
+<li>serverConfig.getExpectedClientRenewalIntervalSeconds()：客户端发送心跳时间的间隔，默认是30秒</li>
+<li>serverConfig.getRenewalPercentThreshold()：一个百分比率阈值，默认是0.85，可以通过配置修改</li>
+</ul>
+<p>从上述代码的计算方法可以看出：</p>
+<blockquote>
+<p>一分钟内收到服务心跳数临界值 = 客户端数量 * （60/心跳时间间隔） * 比率</p>
+</blockquote>
+<p>带入默认值：</p>
+<blockquote>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">一分钟内收到服务心跳数临界值 = 客户端数量 * （60/30） * 0.85</span><br><span class="line">                       = 客户端数量 * 1.7</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>所以假如有总共有10个客户端，那么表示一分钟至少需要收到17次心跳。</p>
+<p>所以代码清单5.3的解析就是，如果开启只我保护机制，那么一分钟内收到的心跳数大于一分钟内收到服务心跳数临界值时，则启用租约到期机制，即服务剔除机制。</p>
+<p>那么最终回到代码清单5.1的第4行的if判断，即如果没有启用服务剔除机制（即开启了自我保护机制或者一分钟收到的心跳数小于临界值），那么直接return结束，不做任何操作。否则代码继续运行，从代码的第9行注释到最后，可以看出先跳出已过期的服务实例，然后通过随机数的方式将这些已过期的实例进行剔除。</p>
+<h2 id="5-2、总结"><a href="#5-2、总结" class="headerlink" title="5.2、总结"></a>5.2、总结</h2><p>心跳机制：</p>
+<ul>
+<li>客户端启动后，就会启动一个定时任务，定时向服务端发送心跳数据，告知服务端自己还活着，默认的心跳时间间隔是30秒。</li>
+</ul>
+<p>服务剔除机制：</p>
+<ul>
+<li>如果开启了自我保护机制，那么所有的服务，包括长时间没有收到心跳的服务（即已过期的服务）都不会被剔除；</li>
+<li>如果未开启自我保护机制，那么将判断最后一分钟收到的心跳数与一分钟收到心跳数临界值（计算方法参考5.1节）比较，如果前者大于后者，且后者大于0的话，则启用服务剔除机制；</li>
+<li>一旦服务剔除机制开启，则Eureka服务端并不会直接剔除所有已过期的服务，而是通过随机数的方式进行剔除，避免自我保护开启之前将所有的服务（包括正常的服务）给剔除。</li>
+</ul>
+<h1 id="6、Eureka自我保护机制是什么"><a href="#6、Eureka自我保护机制是什么" class="headerlink" title="6、Eureka自我保护机制是什么"></a>6、Eureka自我保护机制是什么</h1><p>由于在第5节中已经提到了有关Eureka自我保护机制的用途以及它在服务剔除机制中起到的作用，这里不再结合源码分析，这里分析Eureka为什么要采用自我保护机制。</p>
+<p>在分布式系统的CAP理论中，Eureka采用的AP，也就是Eureak保证了服务的可用性（A），而舍弃了数据的一致性（C）。当网络发生分区时，客户端和服务端的通讯将会终止，那么服务端在一定的时间内将收不到大部分的客户端的一个心跳，如果这个时候将这些收不到心跳的服务剔除，那可能会将可用的客户端剔除了，这就不符合AP理论。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Eureka/" rel="tag"># Eureka</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/04/13/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%9A%84%E6%AD%A3%E7%A1%AE%E4%BD%BF%E7%94%A8%E5%A7%BF%E5%8A%BF/" rel="prev" title="Java线程池的正确使用姿势">
+                  <i class="fa fa-chevron-left"></i> Java线程池的正确使用姿势
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/10/17/Mybatis%E9%9D%A2%E8%AF%95%E9%A2%98%E9%9B%86%E5%90%88/" rel="next" title="Mybatis面试题集合">
+                  Mybatis面试题集合 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rifu</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">139k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">2:06</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/algoliasearch@4.12.1/dist/algoliasearch-lite.umd.js" integrity="sha256-gOvJ6W+j+t/cgnnl9iUU3cb6F1WFQGDdtTXhfPjU4bc=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.39.0/dist/instantsearch.production.min.js" integrity="sha256-+ZlQZK9m82XOYGFZCIRrPOFh2kDdAGB6e7TjWGvoaSY=" crossorigin="anonymous"></script><script src="/js/third-party/search/algolia-search.js"></script>
+
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdn.jsdelivr.net/npm/pdfobject@2.2.7/pdfobject.min.js","integrity":"sha256-ph3Dk89VmuTVXG6x/RDzk53SU9LPdAh1tpv0UvnDZ2I="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js"></script>
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false});</script></body>
+</html>

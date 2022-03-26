@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"rifu520.gitee.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="微服务实战：如何做好服务拆分服务拆分的前提说到微服务，服务拆分是绕不过去的话题，但是微服务不是说拆就能拆的，有很多的前提条件，需要完成前面几节所论述的部分。 首先要有一个持续集成的平台，使得服务在拆分的过程中，功能的一致性，这种一致性不能通过人的经验来，而需要经过大量的回归测试集，并且持续的拆分，持续的演进，持续的集成，从而保证系统时刻处于可以验证交付的状态，而非闭门拆分一段时间，最终谁也不知道功">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何做好微服务的拆分">
+<meta property="og:url" content="https://rifu520.gitee.io/2021/04/13/%E5%A6%82%E4%BD%95%E5%81%9A%E5%A5%BD%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%9A%84%E6%8B%86%E5%88%86/index.html">
+<meta property="og:site_name" content="Single blog">
+<meta property="og:description" content="微服务实战：如何做好服务拆分服务拆分的前提说到微服务，服务拆分是绕不过去的话题，但是微服务不是说拆就能拆的，有很多的前提条件，需要完成前面几节所论述的部分。 首先要有一个持续集成的平台，使得服务在拆分的过程中，功能的一致性，这种一致性不能通过人的经验来，而需要经过大量的回归测试集，并且持续的拆分，持续的演进，持续的集成，从而保证系统时刻处于可以验证交付的状态，而非闭门拆分一段时间，最终谁也不知道功">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/9dc906ad06fbe90a3314b65d1b8daeac.png">
+<meta property="og:image" content="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/186d761f4a80253b37a87299cbcb3413.png">
+<meta property="og:image" content="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/4079c1503fe4e1eb7b8e4a45d9636463.png">
+<meta property="og:image" content="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/807abfcefc8a1d48363a823f9174dca6.png">
+<meta property="og:image" content="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/a5a2b647a8039f3f825454b62f140440.png">
+<meta property="og:image" content="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/047e0f05d19a71dd4187b93c5c497b47.png">
+<meta property="og:image" content="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==">
+<meta property="article:published_time" content="2021-04-13T08:28:21.000Z">
+<meta property="article:modified_time" content="2022-03-24T15:22:21.613Z">
+<meta property="article:author" content="Rifu">
+<meta property="article:tag" content="微服务">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/img_convert/9dc906ad06fbe90a3314b65d1b8daeac.png">
+
+
+<link rel="canonical" href="https://rifu520.gitee.io/2021/04/13/%E5%A6%82%E4%BD%95%E5%81%9A%E5%A5%BD%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%9A%84%E6%8B%86%E5%88%86/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://rifu520.gitee.io/2021/04/13/%E5%A6%82%E4%BD%95%E5%81%9A%E5%A5%BD%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%9A%84%E6%8B%86%E5%88%86/","path":"2021/04/13/如何做好微服务的拆分/","title":"如何做好微服务的拆分"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>如何做好微服务的拆分 | Single blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Single blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">One bat dream</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container"></div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="algolia-stats"><hr></div>
+  <div class="algolia-hits"></div>
+  <div class="algolia-pagination"></div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%AE%9E%E6%88%98%EF%BC%9A%E5%A6%82%E4%BD%95%E5%81%9A%E5%A5%BD%E6%9C%8D%E5%8A%A1%E6%8B%86%E5%88%86"><span class="nav-number">1.</span> <span class="nav-text">微服务实战：如何做好服务拆分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E6%8B%86%E5%88%86%E7%9A%84%E5%89%8D%E6%8F%90"><span class="nav-number">2.</span> <span class="nav-text">服务拆分的前提</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E6%8B%86%E5%88%86%E7%9A%84%E6%97%B6%E6%9C%BA"><span class="nav-number">3.</span> <span class="nav-text">服务拆分的时机</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E6%8B%86%E5%88%86%E7%9A%84%E6%96%B9%E6%B3%95"><span class="nav-number">4.</span> <span class="nav-text">服务拆分的方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E6%8B%86%E5%88%86%E7%9A%84%E8%A7%84%E8%8C%83"><span class="nav-number">5.</span> <span class="nav-text">服务拆分的规范</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0%E7%9A%84%E9%80%89%E5%9E%8B"><span class="nav-number">6.</span> <span class="nav-text">服务发现的选型</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Rifu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Rifu</p>
+  <div class="site-description" itemprop="description">临时停车</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">62</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rifu520.gitee.io/2021/04/13/%E5%A6%82%E4%BD%95%E5%81%9A%E5%A5%BD%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%9A%84%E6%8B%86%E5%88%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Rifu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Single blog">
+      <meta itemprop="description" content="临时停车">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="如何做好微服务的拆分 | Single blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          如何做好微服务的拆分
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-04-13 16:28:21" itemprop="dateCreated datePublished" datetime="2021-04-13T16:28:21+08:00">2021-04-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9E%B6%E6%9E%84%E7%AF%87/" itemprop="url" rel="index"><span itemprop="name">架构篇</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>6.4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>6 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h3 id="微服务实战：如何做好服务拆分"><a href="#微服务实战：如何做好服务拆分" class="headerlink" title="微服务实战：如何做好服务拆分"></a>微服务实战：如何做好服务拆分</h3><h3 id="服务拆分的前提"><a href="#服务拆分的前提" class="headerlink" title="服务拆分的前提"></a>服务拆分的前提</h3><p>说到微服务，服务拆分是绕不过去的话题，但是微服务不是说拆就能拆的，有很多的前提条件，需要完成前面几节所论述的部分。</p>
+<p>首先要有一个持续集成的平台，使得服务在拆分的过程中，功能的一致性，这种一致性不能通过人的经验来，而需要经过大量的回归测试集，并且持续的拆分，持续的演进，持续的集成，从而保证系统时刻处于可以验证交付的状态，而非闭门拆分一段时间，最终谁也不知道功能最终究竟有没有bug，因而需要另外一个月的时间专门修改bug。<span id="more"></span></p>
+<p>其次在接入层，API和UI要动静分离，API由API网关统一的管理，这样后端无论如何拆分，可以保证对于前端来讲，统一的入口，而且可以实现拆分过程中的灰度发布，路由分发，流量切分，从而保证拆分的平滑进行。而且拆分后的微服务之间，为了高性能，是不建议每次调用都进行认证鉴权的，而是在API网关上做统一的认证鉴权，一旦进入网关，服务之间的调用就是可信的。</p>
+<p>其三对于数据库，需要进行良好的设计，不应该有大量的联合查询，而是将数据库当成一个简单的key-value查询，复杂的联合查询通过应用层，或者通过Elasticsearch进行。如果数据库表之间耦合的非常严重，其实服务拆分是拆不出来的。</p>
+<p>其四要做应用的无状态化，只有无状态的应用，才能横向扩展，这样拆分才有意义。</p>
+<h3 id="服务拆分的时机"><a href="#服务拆分的时机" class="headerlink" title="服务拆分的时机"></a>服务拆分的时机</h3><p>满足了服务拆分的前提之后，那先拆哪个模块，后拆哪个模块呢？什么情况下一个模块应该拆分出来呢？</p>
+<p>微服务拆分绝非一个大跃进运动，由高层发起，把一个应用拆分的七零八落的，最终大大增加运维成本，但是并不会带来收益。</p>
+<p>微服务拆分的过程，应该是一个由痛点驱动的，是业务真正遇到了快速迭代和高并发的问题，如果不拆分，将对于业务的发展带来影响，只有这个时候，微服务的拆分是有确定收益的，增加的运维成本才是值得的。</p>
+<p><strong>微服务解决的问题之一，就是快速迭代</strong>。</p>
+<p>互联网产品的特点就是迭代速度快，一般一年半就能决出胜负，第一一统天下，第二被第一收购，其他死翘翘。所以快速上线，快速迭代，就是生命线，而且一旦成功就是百亿身家，所以无论付出多大运维成本，使用微服务架构都是值得的。</p>
+<p>这也就是为什么大部分使用微服务架构的都是互联网企业，因为对于这些企业来讲收益明显。而对于很多传统的应用，半年更新一次，企业运营相对平稳，IT系统的好坏对于业务没有关键性影响，在他们眼中，微服务化改造带来的效果，还不如开发多加几次班。</p>
+<p>微服务拆分时机一：提交代码频繁出现大量冲突</p>
+<p>微服务对于快速迭代的效果，首先是开发独立，如果是一单体应用，几百人开发一个模块，如果使用Git做代码管理，则经常会遇到的事情就是代码提交冲突。</p>
+<p>同样一个模块，你也改，他也改，几百人根本没办法沟通。所以当你想提交一个代码的时候，发现和别人提交的冲突了，于是因为你是后提交的人，你有责任去merge代码，好不容易merge成功了，等再次提交的时候，发现又冲突了，你是不是很恼火。随着团队规模越大，冲突概率越大。</p>
+<p>所以应该拆分成不同的模块，每十个人左右维护一个模块，也即一个工程，首先代码冲突的概率小多了，而且有了冲突，一个小组一吼，基本上问题就解决了。</p>
+<p>每个模块对外提供接口，其他依赖模块可以不用关注具体的实现细节，只需要保证接口正确就可以。</p>
+<p>微服务拆分时机二：小功能要积累到大版本才能上线，上线开总监级别大会</p>
+<p>微服务对于快速迭代的效果，首先是上线独立。如果没有拆分微服务，每次上线都是一件很痛苦的事情。当你修改了一个边角的小功能，但是你不敢马上上线，因为你依赖的其他模块才开发了一半，你要等他，等他好了，也不敢马上上线，因为另一个被依赖的模块也开发了一半，当所有的模块都耦合在一起，互相依赖，谁也没办法独立上线，而是需要总监协调各个团队，大家开大会，约定一个时间点，无论大小功能，死活都要这天上线。</p>
+<p>这种模式导致上线的时候，单次上线的需求列表非常长，这样风险比较大，可能小功能的错误会导致大功能的上线不正常，将如此长的功能，需要一点点check，非常小心，这样上线时间长，影响范围大。因而这种的迭代速度快不了，顶多一个月一次就不错了。</p>
+<p>服务拆分后，在接口稳定的情况下，不同的模块可以独立上线。这样上线的次数增多，单次上线的需求列表变小，可以随时回滚，风险变小，时间变短，影响面小，从而迭代速度加快。</p>
+<p>对于接口要升级部分，保证灰度，先做接口新增，而非原接口变更，当注册中心中监控到的调用情况，发现接口已经不用了，再删除。</p>
+<p><strong>微服务解决的问题之二，就是高并发</strong>。</p>
+<p>互联网一个产品的特点就是在短期内要积累大量的用户，这甚至比营收和利润还重要，如果没有大量的用户基数，融资都会有问题。</p>
+<p>因而对于并发量不大的系统，进行微服务化的驱动力差一些，如果只有不多的用户在线，多线程就能解决问题，最多做好无状态化，前面部署个负载均衡，单体应用部署多份。</p>
+<p>微服务拆分时机三：横向扩展流程复杂，主要业务和次要业务耦合</p>
+<p>单体应用无状态化之后，虽然通过部署多份，可以承载一定的并发量，但是资源非常浪费。因为有的业务是需要扩容的，例如下单和支付，有的业务是不需要扩容的，例如注册。如果一起扩容，消耗的资源可能是拆分后的几倍，成本可能多出几个亿。而且由于配置复杂，在同一个工程里面，往往在配置文件中是这样组织的，这一块是这个模块的，下一块是另一个模块的，这样扩容的时候，一些边角的业务，也是需要对配置进行详细审核，否则不敢贸然扩容。</p>
+<p>微服务拆分时机四：熔断降级全靠if-else</p>
+<p>在高并发场景下，我们希望一个请求如果不成功，不要占用资源，应该尽快失败，尽快返回，而且希望当一些边角的业务不正常的情况下，主要业务流程不受影响。这就需要熔断策略，也即当A调用B，而B总是不正常的时候，为了让B不要波及到A，可以对B的调用进行熔断，也即A不调用B，而是返回暂时的fallback数据，当B正常的时候，再放开熔断，进行正常的调用。</p>
+<p>有时候为了保证核心业务流程，边角的业务流程，如评论，库存数目等，人工设置为降级的状态，也即默认不调用，将所有的资源用于大促的下单和支付流程。</p>
+<p>如果核心业务流程和边角业务流程在同一个进程中，就需要使用大量的if-else语句，根据下发的配置来判断是否熔断或者降级，这会使得配置异常复杂，难以维护。</p>
+<p>如果核心业务和边角业务分成两个进程，就可以使用标准的熔断降级策略，配置在某种情况下，放弃对另一个进程的调用，可以进行统一的维护。</p>
+<h3 id="服务拆分的方法"><a href="#服务拆分的方法" class="headerlink" title="服务拆分的方法"></a>服务拆分的方法</h3><p>好了，当你觉得要将一个程序的某个部分拆分出来的时候，有什么方法可以保障平滑吗？</p>
+<p>首先要做的，就是原有工程代码的标准化，我们常称为“任何人接手任何一个模块都能看到熟悉的面孔”</p>
+<p>例如打开一个Java工程，应该有以下的package：</p>
+<ul>
+<li>API接口包：所有的接口定义都在这里，对于内部的调用，也要实现接口，这样一旦要拆分出去，对于本地的接口调用，就可以变为远程的接口调用。</li>
+<li>访问外部服务包：如果这个进程要访问其他进程，对于外部访问的封装都在这里，对于单元测试来讲，对于这部分的Mock，可以使得不用依赖第三方，就能进行功能测试。对于服务拆分，调用其他的服务，也是在这里。</li>
+<li>数据库DTO：如果要访问数据库，在这里定义原子的数据结构。</li>
+<li>访问数据库包：访问数据库的逻辑全部在这个包里面。</li>
+<li>服务与商务逻辑：这里实现主要的商业逻辑，拆分也是从这里拆分出来。</li>
+<li>外部服务：对外提供服务的逻辑在这里，对于接口的提供方，要实现在这里。</li>
+</ul>
+<p>另外是测试文件夹，每个类都应该有单元测试，要审核单元测试覆盖率，模块内部应该通过Mock的方法实现集成测试。</p>
+<p>接下来是配置文件夹，配置profile，配置分为几类：</p>
+<ul>
+<li>内部配置项（启动后不变，改变需要重启）</li>
+<li>集中配置项（配置中心，可动态下发）</li>
+<li>外部配置项（外部依赖，和环境相关）</li>
+</ul>
+<p>当一个工程的结构非常标准化之后，接下来在原有服务中，先独立功能模块 ，规范输入输出，形成服务内部的分离。在分离出新的进程之前，先分离出新的jar，只要能够分离出新的jar，基本也就实现了松耦合。</p>
+<p>接下来，应该新建工程，新启动一个进程，尽早的注册到注册中心，开始提供服务，这个时候，新的工程中的代码逻辑可以先没有，只是转调用原来的进程接口。</p>
+<p>为什么要越早独立越好呢？哪怕还没实现逻辑先独立呢？因为服务拆分的过程是渐进的，伴随着新功能的开发，新需求的引入，这个时候，对于原来的接口，也会有新的需求进行修改，如果你想把业务逻辑独立出来，独立了一半，新需求来了，改旧的，改新的都不合适，新的还没独立提供服务，旧的如果改了，会造成从旧工程迁移到新工程，边迁移边改变，合并更加困难。如果尽早独立，所有的新需求都进入新的工程，所有调用方更新的时候，都改为调用新的进程，对于老进程的调用会越来越少，最终新进程将老进程全部代理。</p>
+<p>接下来就可以将老工程中的逻辑逐渐迁移到新工程，由于代码迁移不能保证逻辑的完全正确，因而需要持续集成，灰度发布，微服务框架能够在新老接口之间切换。</p>
+<p>最终当新工程稳定运行，并且在调用监控中，已经没有对于老工程的调用的时候，就可以将老工程下线了。</p>
+<h3 id="服务拆分的规范"><a href="#服务拆分的规范" class="headerlink" title="服务拆分的规范"></a>服务拆分的规范</h3><p>微服务拆分之后，工程会比较的多，如果没有一定的规范，将会非常混乱，难以维护。</p>
+<p>首先人们经常问的一个问题是，服务拆分之后，原来都在一个进程里面的函数调用，现在变成了A调用B调用C调用D调用E，会不会因为调用链路过长而使得相应变慢呢？</p>
+<p>服务拆分的规范一：服务拆分最多三层，两次调用</p>
+<p>服务拆分是为了横向扩展，因而应该横向拆分，而非纵向拆成一串的。也即应该将商品和订单拆分，而非下单的十个步骤拆分，然后一个调用一个。</p>
+<p>纵向的拆分最多三层：</p>
+<ul>
+<li>基础服务层：用于屏蔽数据库，缓存层，提供原子的对象查询接口，有这一层，为了数据层做一定改变的时候，例如分库分表，数据库扩容，缓存替换等，对于上层透明，上层仅仅调用这一层的接口，不直接访问数据库和缓存。</li>
+<li>组合服务层：这一层调用基础服务层，完成较为复杂的业务逻辑，实现分布式事务也多在这一层</li>
+<li>Controller层：接口层，调用组合服务层对外</li>
+</ul>
+<p>服务拆分的规范二：仅仅单向调用，严禁循环调用</p>
+<p>微服务拆分后，服务之间的依赖关系复杂，如果循环调用，升级的时候就很头疼，不知道应该先升级哪个，后升级哪个，难以维护。</p>
+<p>因而层次之间的调用规定如下：</p>
+<ul>
+<li>基础服务层主要做数据库的操作和一些简单的业务逻辑，不允许调用其他任何服务。</li>
+<li>组合服务层，可以调用基础服务层，完成复杂的业务逻辑，可以调用组合服务层，不允许循环调用，不允许调用Controller层服务</li>
+<li>Controller层，可以调用组合业务层服务，不允许被其他服务调用</li>
+</ul>
+<p>如果出现循环调用，例如A调用B，B也调用A，则分成Controller层和组合服务层两层，A调用B的下层，B调用A的下层。也可以使用消息队列，将同步调用，改为异步调用。</p>
+<p>服务拆分的规范三：将串行调用改为并行调用，或者异步化</p>
+<p>如果有的组合服务处理流程的确很长，需要调用多个外部服务，应该考虑如何通过消息队列，实现异步化和解耦。</p>
+<p>例如下单之后，要刷新缓存，要通知仓库等，这些都不需要再下单成功的时候就要做完，而是可以发一个消息给消息队列，异步通知其他服务。</p>
+<p>而且使用消息队列的好处是，你只要发送一个消息，无论下游依赖方有一个，还是有十个，都是一条消息搞定，只不过多几个下游监听消息即可。</p>
+<p>对于下单必须同时做完的，例如扣减库存和优惠券等，可以进行并行调用，这样处理时间会大大缩短，不是多次调用的时间之和，而是最长的那个系统调用时间。</p>
+<p>服务拆分的规范四：接口应该实现幂等</p>
+<p>微服务拆分之后，服务之间的调用当出现错误的时候，一定会重试，但是为了不要下两次单，支付两次，需要所有的接口实现幂等。</p>
+<p>幂等一般需要设计一个幂等表来实现，幂等表中的主键或者唯一键可以是transaction id，或者business id，可以通过这个id的唯一性标识一个唯一的操作。</p>
+<p>也有幂等操作使用状态机，当一个调用到来的时候，往往触发一个状态的变化，当下次调用到来的时候，发现已经不是这个状态，就说明上次已经调用过了。</p>
+<p>状态的变化需要是一个原子操作，也即并发调用的时候，只有一次可以执行。可以使用分布式锁，或者乐观锁CAS操作实现。</p>
+<p>服务拆分的规范五：接口数据定义严禁内嵌，透传</p>
+<p>微服务接口之间传递数据，往往通过数据结构，如果数据结构透传，从底层一直到上层使用同一个数据结构，或者上层的数据结构内嵌底层的数据结构，当数据结构中添加或者删除一个字段的时候，波及的面会非常大。</p>
+<p>因而接口数据定义，在每两个接口之间约定，严禁内嵌和透传，即便差不多，也应该重新定义，这样接口数据定义的改变，影响面仅仅在调用方和被调用方，当接口需要更新的时候，比较可控，也容易升级。</p>
+<p>服务拆分的规范六：规范化工程名</p>
+<p>微服务拆分后，工程名非常多，开发人员，开发团队也非常多，如何让一个开发人员看到一个工程名，或者jar的名称，就大概知道是干什么的，需要一个规范化的约定。</p>
+<p>例如出现pay就是支付，出现order就是下单，出现account就是用户。</p>
+<p>再如出现compose就是组合层，controller就是接口层，basic就是基础服务层。</p>
+<p>出现api就是接口定义，impl就是实现。</p>
+<p>pay-compose-api就是支付组合层接口定义。</p>
+<p>account-basic-impl就是用户基础服务层的实现。</p>
+<h3 id="服务发现的选型"><a href="#服务发现的选型" class="headerlink" title="服务发现的选型"></a>服务发现的选型</h3><p>微服务拆分后，服务之间的调用需要服务发现和注册中心进行维护。也能主流的有几种方法。</p>
+<p>第一是Dubbo，Dubbo是SOA架构的微服务框架的标准，已经被大量使用，虽然中间中断维护过一段时间，但是随着微服务的兴起，重新进行了维护，是很多熟悉Dubbo RPC开发人员的首选。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/9dc906ad06fbe90a3314b65d1b8daeac.png" alt="1.jpg"><img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==" alt="点击并拖拽以移动"></p>
+<p>第二种是Spring Cloud，Spring Cloud为微服务而生，在Dubbo已经没有人维护的情况下，推出了支撑微服务的成熟框架。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/186d761f4a80253b37a87299cbcb3413.png" alt="2.jpg"><img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==" alt="点击并拖拽以移动"></p>
+<p>Dubbo vs. Spring Cloud的对比，Dubbo更加注重服务治理，原生功能不够全面，而Spring Cloud注重整个微服务生态，工具链非常全面。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/4079c1503fe4e1eb7b8e4a45d9636463.png" alt="3.jpg"><img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==" alt="点击并拖拽以移动"></p>
+<p>Spring Cloud可定制性强，通过各种组件满足各种微服务场景，使用Spring Boot统一编程模型，能够快速构建应用，基于注解，使用方便，但是学习门槛比较高。</p>
+<p>Dubbo注册到ZooKeeper里面的是接口，而Spring Cloud注册到Eureka或者Consul里面的是实例，在规模比较小的情况下没有分别，但是规模一旦大了，例如实例数目万级别，接口数据就算十万级别，对于ZooKeeper中的树规模比较大，而且ZooKeeper是强一致性的，当一个节点挂了的时候，节点之间的数据同步会影响线上使用，而Spring Cloud就好很多，实例级别少一个量级，另外Consul也非强一致的。</p>
+<p>第三是Kubernetes，Kubernetes虽然是容器平台，但是他设计出来，就是为了跑微服务的，因而提供了微服务运行的很多组件。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/807abfcefc8a1d48363a823f9174dca6.png" alt="4.jpg"><img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==" alt="点击并拖拽以移动"><br>很多Spring Cloud可以做的事情，Kubernetes也有相应的机制，而且由于是容器平台，相对比较通用，可以支持多语言，对于业务无侵入，但是也正因为是容器平台，对于微服务的运行生命周期的维护比较全面，对于服务之间的调用和治理，比较弱，Service只能满足最最基本的服务发现需求。</p>
+<p>因而实践中使用的时候，往往是Kubernetes和Spring Cloud结合使用，Kubernetes负责提供微服务的运行环境，服务之间的调用和治理，由Spring Cloud搞定。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/a5a2b647a8039f3f825454b62f140440.png" alt="5.jpg"><img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==" alt="点击并拖拽以移动"></p>
+<p>第四是Service Mesh，Service Mesh一定程度上弥补了kubernetes对于服务治理方面的不足，对业务代码0侵入，将服务治理下沉到平台层，是服务治理的一个趋势。</p>
+<p>然而Service Mesh需要使用单独的进程进行请求转发，性能还不能让人满意，另外社区比较新，成熟度不足，暂时没有达到大规模生产使用的标准。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/047e0f05d19a71dd4187b93c5c497b47.png" alt="6.png"><img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==" alt="点击并拖拽以移动"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag"># 微服务</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/04/13/Dubbo%E9%9D%A2%E8%AF%95%E9%A2%98%E9%9B%86%E5%90%88/" rel="prev" title="Dubbo面试题集合">
+                  <i class="fa fa-chevron-left"></i> Dubbo面试题集合
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/04/14/21-04-14/" rel="next" title="21-04-14">
+                  21-04-14 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rifu</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">139k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">2:06</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/algoliasearch@4.12.1/dist/algoliasearch-lite.umd.js" integrity="sha256-gOvJ6W+j+t/cgnnl9iUU3cb6F1WFQGDdtTXhfPjU4bc=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.39.0/dist/instantsearch.production.min.js" integrity="sha256-+ZlQZK9m82XOYGFZCIRrPOFh2kDdAGB6e7TjWGvoaSY=" crossorigin="anonymous"></script><script src="/js/third-party/search/algolia-search.js"></script>
+
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdn.jsdelivr.net/npm/pdfobject@2.2.7/pdfobject.min.js","integrity":"sha256-ph3Dk89VmuTVXG6x/RDzk53SU9LPdAh1tpv0UvnDZ2I="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js"></script>
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false});</script></body>
+</html>

@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"rifu520.gitee.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="G1这个被问的太多了，先来聊这个吧。栽过… 前言 G1 GC，全称Garbage-First Garbage Collector，通过-XX:+UseG1GC参数来启用，作为体验版随着JDK 6u14版本面世，在JDK 7u4版本发行时被正式推出，相信熟悉JVM的同学们都不会对它感到陌生。在JDK 9中，G1被提议设置为默认垃圾收集器（JEP 248）。 从官网的描述中，我们知道G1是一种服务器端">
+<meta property="og:type" content="article">
+<meta property="og:title" content="各种JVM垃圾回收器详解">
+<meta property="og:url" content="https://rifu520.gitee.io/2021/05/19/%E5%90%84%E7%A7%8DJVM%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="Single blog">
+<meta property="og:description" content="G1这个被问的太多了，先来聊这个吧。栽过… 前言 G1 GC，全称Garbage-First Garbage Collector，通过-XX:+UseG1GC参数来启用，作为体验版随着JDK 6u14版本面世，在JDK 7u4版本发行时被正式推出，相信熟悉JVM的同学们都不会对它感到陌生。在JDK 9中，G1被提议设置为默认垃圾收集器（JEP 248）。 从官网的描述中，我们知道G1是一种服务器端">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/05/19/%E5%90%84%E7%A7%8DJVM%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8%E8%AF%A6%E8%A7%A3/image-20210519172400375.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/05/19/%E5%90%84%E7%A7%8DJVM%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8%E8%AF%A6%E8%A7%A3/image-20210519172611759.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/05/19/%E5%90%84%E7%A7%8DJVM%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8%E8%AF%A6%E8%A7%A3/8f235085005aac233ae71be06350eb07.gif">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/05/19/%E5%90%84%E7%A7%8DJVM%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8%E8%AF%A6%E8%A7%A3/20201010095749684.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/05/19/%E5%90%84%E7%A7%8DJVM%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8%E8%AF%A6%E8%A7%A3/20201019214650906.png">
+<meta property="article:published_time" content="2021-05-19T09:02:13.000Z">
+<meta property="article:modified_time" content="2022-03-24T15:22:21.595Z">
+<meta property="article:author" content="Rifu">
+<meta property="article:tag" content="JVM，垃圾收集器">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rifu520.gitee.io/2021/05/19/%E5%90%84%E7%A7%8DJVM%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8%E8%AF%A6%E8%A7%A3/image-20210519172400375.png">
+
+
+<link rel="canonical" href="https://rifu520.gitee.io/2021/05/19/%E5%90%84%E7%A7%8DJVM%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8%E8%AF%A6%E8%A7%A3/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://rifu520.gitee.io/2021/05/19/%E5%90%84%E7%A7%8DJVM%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8%E8%AF%A6%E8%A7%A3/","path":"2021/05/19/各种JVM垃圾回收器详解/","title":"各种JVM垃圾回收器详解"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>各种JVM垃圾回收器详解 | Single blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Single blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">One bat dream</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container"></div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="algolia-stats"><hr></div>
+  <div class="algolia-hits"></div>
+  <div class="algolia-pagination"></div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#G1"><span class="nav-number">1.</span> <span class="nav-text">G1</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#G1%E4%B8%AD%E7%9A%84%E5%87%A0%E4%B8%AA%E6%A6%82%E5%BF%B5"><span class="nav-number">1.2.</span> <span class="nav-text">G1中的几个概念</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#Region"><span class="nav-number">1.2.1.</span> <span class="nav-text">Region</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#SATB"><span class="nav-number">1.2.2.</span> <span class="nav-text">SATB</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#RSet"><span class="nav-number">1.2.3.</span> <span class="nav-text">RSet</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#G1-%E7%9A%84GC%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.3.</span> <span class="nav-text">G1 的GC模式</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CMS"><span class="nav-number">2.</span> <span class="nav-text">CMS</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="nav-number">2.1.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#GC%E6%89%A7%E8%A1%8C%E6%AD%A5%E9%AA%A4"><span class="nav-number">2.2.</span> <span class="nav-text">GC执行步骤</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9%E5%88%86%E6%9E%90"><span class="nav-number">2.3.</span> <span class="nav-text">优缺点分析</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%89%E8%89%B2%E6%A0%87%E8%AE%B0%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">三色标记法</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Rifu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Rifu</p>
+  <div class="site-description" itemprop="description">临时停车</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">62</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rifu520.gitee.io/2021/05/19/%E5%90%84%E7%A7%8DJVM%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8%E8%AF%A6%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Rifu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Single blog">
+      <meta itemprop="description" content="临时停车">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="各种JVM垃圾回收器详解 | Single blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          各种JVM垃圾回收器详解
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-05-19 17:02:13" itemprop="dateCreated datePublished" datetime="2021-05-19T17:02:13+08:00">2021-05-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>5.1k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>5 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h4 id="G1"><a href="#G1" class="headerlink" title="G1"></a>G1</h4><p>这个被问的太多了，先来聊这个吧。栽过…</p>
+<h5 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h5><blockquote>
+<p>G1 GC，全称Garbage-First Garbage Collector，通过-XX:+UseG1GC参数来启用，作为体验版随着JDK 6u14版本面世，在JDK 7u4版本发行时被正式推出，相信熟悉JVM的同学们都不会对它感到陌生。在JDK 9中，G1被提议设置为默认垃圾收集器（JEP 248）。</p>
+<p>从官网的描述中，我们知道G1是一种服务器端的垃圾收集器，应用在多处理器和大容量内存环境中，在实现高吞吐量的同时，尽可能的满足垃圾收集暂停时间的要求。它是专门针对以下应用场景设计的: </p>
+<ul>
+<li>像CMS收集器一样，能与应用程序线程并发执行。</li>
+<li>整理空闲空间更快。</li>
+<li>需要GC停顿时间更好预测。</li>
+<li>不希望牺牲大量的吞吐性能。</li>
+<li>不需要更大的Java Heap。</li>
+</ul>
+</blockquote>
+<span id="more"></span>
+
+<h5 id="G1中的几个概念"><a href="#G1中的几个概念" class="headerlink" title="G1中的几个概念"></a>G1中的几个概念</h5><h6 id="Region"><a href="#Region" class="headerlink" title="Region"></a>Region</h6><p>传统的垃圾收集器，分为了新生代、老年代、和永久代(方法区的实现)，他们是连续的内存区域，如下图。</p>
+<p><img src="image-20210519172400375.png" alt="内存区域"></p>
+<p>而G1的各代储存地址不是连续的，每一代都被分成了n个大小一致的region（总2048个），每个Region的内存区域是连续的，单个Region的大小可通过参数-XX:G1HeapRegionSize设定，取值范围从1M到32M，且是2的指数。如果不设定，那么G1会根据Heap大小自动决定，如下图。</p>
+<p><img src="image-20210519172611759.png" alt="Region"></p>
+<h6 id="SATB"><a href="#SATB" class="headerlink" title="SATB"></a>SATB</h6><p>全称是Snapshot-At-The-Beginning，字面理解就是gc开始之前的存活对象的快照。它是通过Root Tracing得到的，作用是维持并发GC的正确性。 那么它是怎么维持并发GC的正确性的呢？根据三色标记算法，我们知道对象存在三种状态： </p>
+<ul>
+<li>白：对象没有被标记到，标记阶段结束后，会被当做垃圾回收掉。 </li>
+<li>灰：对象被标记了，但是它的field还没有被标记或标记完。</li>
+<li>黑：对象被标记了，且它的所有field也被标记完了。</li>
+</ul>
+<p>由于并发阶段的存在，Mutator和Garbage Collector线程同时对对象进行修改，就会出现白对象漏标的情况，这种情况发生的前提是：</p>
+<ul>
+<li>Mutator赋予一个黑对象该白对象的引用。 </li>
+<li>Mutator删除了所有从灰对象到该白对象的直接或者间接引用。</li>
+</ul>
+<p>对于第一个条件，在并发标记阶段，如果该白对象是new出来的，并没有被灰对象持有，那么它会不会被漏标呢？Region中有两个top-at-mark-start（TAMS）指针，分别为prevTAMS和nextTAMS。在TAMS以上的对象是新分配的，这是一种隐式的标记。对于在GC时已经存在的白对象，如果它是活着的，它必然会被另一个对象引用，即条件二中的灰对象。如果灰对象到白对象的直接引用或者间接引用被替换了，或者删除了，白对象就会被漏标，从而导致被回收掉，这是非常严重的错误，所以SATB破坏了第二个条件。也就是说，一个对象的引用被替换时，可以通过write barrier 将旧引用记录下来。</p>
+<h6 id="RSet"><a href="#RSet" class="headerlink" title="RSet"></a>RSet</h6><p>全称是Remembered Set，是辅助GC过程的一种结构，典型的空间换时间工具，和Card Table有些类似。还有一种数据结构也是辅助GC的：Collection Set（CSet），它记录了GC要收集的Region集合，集合里的Region可以是任意年代的。在GC的时候，对于old-&gt;young和old-&gt;old的跨代对象引用，只要扫描对应的CSet中的RSet即可。 逻辑上说每个Region都有一个RSet，RSet记录了其他Region中的对象引用本Region中对象的关系，属于points-into结构（谁引用了我的对象）。而Card Table则是一种points-out（我引用了谁的对象）的结构，每个Card 覆盖一定范围的Heap（一般为512Bytes）。G1的RSet是在Card Table的基础上实现的：每个Region会记录下别的Region有指向自己的指针，并标记这些指针分别在哪些Card的范围内。 这个RSet其实是一个Hash Table，Key是别的Region的起始地址，Value是一个集合，里面的元素是Card Table的Index。</p>
+<p> RSet究竟是怎么辅助GC的呢？在做YGC的时候，只需要选定young generation region的RSet作为根集，这些RSet记录了old-&gt;young的跨代引用，避免了扫描整个old generation。 而mixed gc的时候，old generation中记录了old-&gt;old的RSet，young-&gt;old的引用由扫描全部young generation region得到，这样也不用扫描全部old generation region。所以RSet的引入大大减少了GC的工作量。</p>
+<h5 id="G1-的GC模式"><a href="#G1-的GC模式" class="headerlink" title="G1 的GC模式"></a>G1 的GC模式</h5><p>G1提供了两种GC模式，Young GC和Mixed GC，两种都是完全Stop The World的。 </p>
+<ul>
+<li>Young GC：选定所有年轻代里的Region。通过控制年轻代的region个数，即年轻代内存大小，来控制young GC的时间开销。 </li>
+<li>Mixed GC：选定所有年轻代里的Region，外加根据global concurrent marking统计得出收集收益高的若干老年代Region。在用户指定的开销目标范围内尽可能选择收益高的老年代Region。</li>
+</ul>
+<p>由上面的描述可知，Mixed GC不是full GC，它只能回收部分老年代的Region，如果mixed GC实在无法跟上程序分配内存的速度，导致老年代填满无法继续进行Mixed GC，就会使用serial old GC（full GC）来收集整个GC heap。所以我们可以知道，G1是不提供full GC的。</p>
+<p>上文中，多次提到了global concurrent marking，它的执行过程类似CMS，但是不同的是，在G1 GC中，它主要是为Mixed GC提供标记服务的，并不是一次GC过程的一个必须环节。global concurrent marking的执行过程分为四个步骤：</p>
+<ul>
+<li>初始标记（initial mark，STW）。它标记了从GC Root开始直接可达的对象。</li>
+<li>并发标记（Concurrent Marking）。这个阶段从GC Root开始对heap中的对象标记，标记线程与应用程序线程并行执行，并且收集各个Region的存活对象信息。</li>
+<li>最终标记（Remark，STW）。标记那些在并发标记阶段发生变化的对象，将被回收。 </li>
+<li>清除垃圾（Cleanup）。清除空Region（没有存活对象的），加入到free list。</li>
+</ul>
+<p>第一阶段initial mark是共用了Young GC的暂停，这是因为他们可以复用root scan操作，所以可以说global concurrent marking是伴随Young GC而发生的。第四阶段Cleanup只是回收了没有存活对象的Region，所以它并不需要STW。</p>
+<p>Young GC发生的时机大家都知道，那什么时候发生Mixed GC呢？其实是由一些参数控制着的，另外也控制着哪些老年代Region会被选入CSet。 </p>
+<ul>
+<li>G1HeapWastePercent：在global concurrent marking结束之后，我们可以知道old gen regions中有多少空间要被回收，在每次YGC之后和再次发生Mixed GC之前，会检查垃圾占比是否达到此参数，只有达到了，下次才会发生Mixed GC。</li>
+<li>G1MixedGCLiveThresholdPercent：old generation region中的存活对象的占比，只有在此参数之下，才会被选入CSet。</li>
+<li>G1MixedGCCountTarget：一次global concurrent marking之后，最多执行Mixed GC的次数。 </li>
+<li>G1OldCSetRegionThresholdPercent：一次Mixed GC中能被选入CSet的最多old generation region数量。</li>
+</ul>
+<p>除了以上的参数，G1 GC相关的其他主要的参数有：</p>
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">-XX:G1HeapRegionSize=n</td>
+<td align="left">设置Region大小，并非最终值</td>
+</tr>
+<tr>
+<td align="left">-XX:MaxGCPauseMillis</td>
+<td align="left">设置G1收集过程目标时间，默认值200ms，不是硬性条件</td>
+</tr>
+<tr>
+<td align="left">-XX:G1NewSizePercent</td>
+<td align="left">新生代最小值，默认值5%</td>
+</tr>
+<tr>
+<td align="left">-XX:G1MaxNewSizePercent</td>
+<td align="left">新生代最大值，默认值60%</td>
+</tr>
+<tr>
+<td align="left">-XX:ParallelGCThreads</td>
+<td align="left">STW期间，并行GC线程数</td>
+</tr>
+<tr>
+<td align="left">-XX:ConcGCThreads=n</td>
+<td align="left">并发标记阶段，并行执行的线程数</td>
+</tr>
+<tr>
+<td align="left">-XX:InitiatingHeapOccupancyPercent</td>
+<td align="left">设置触发标记周期的 Java 堆占用率阈值。默认值是45%。这里的java堆占比指的是non_young_capacity_bytes，包括old+humongous</td>
+</tr>
+</tbody></table>
+<img src="8f235085005aac233ae71be06350eb07.gif" alt="memo" style="zoom:125%;" />
+
+<h4 id="CMS"><a href="#CMS" class="headerlink" title="CMS"></a>CMS</h4><h5 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h5><p>一般我们都是使用CMS+ParNew进行搭配，这是一款以缩短停顿时间为目的的垃圾收集器，而G1和ZGC也都是以这个为优化和调整的方向。</p>
+<p>常用参数：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">-XX:+UseConcMarkSweepGC：启用cms</span><br><span class="line">-XX:ConcGCThreads：并发的GC线程数</span><br><span class="line">-XX:+UseCMSCompactAtFullCollection：FullGC 之后做压缩整理（减少碎片）</span><br><span class="line">-XX:CMSFullGCsBeforeCompaction：间隔多少次 FullGC 之后压缩整理一次，默认是0，代表间隔 0 次 FullGC 后会进行压缩整理，即每次 FullGC 后都会进行整理</span><br><span class="line">-XX:CMSInitiatingOccupancyFraction: 当老年代使用达到该比例时会触发 FullGC（默认是92，这是百分比）</span><br><span class="line">-XX:+UseCMSInitiatingOccupancyOnly：只使用设定的回收阈值(-XX:CMSInitiatingOccupancyFraction设定的值)，如果不指定，JVM仅在第一次使用设定值，后续则会自动调整</span><br><span class="line">-XX:+CMSScavengeBeforeRemark：在CMS GC 标记前启动一次 minor gc，目的在于减少老年代对年轻代的引用，降低CMS GC的标记阶段时的开销，一般CMS的GC耗时 80%都在标记阶段</span><br><span class="line">-XX:+CMSParallellnitialMarkEnabled：表示在初始标记的时候多线程执行，缩短STW</span><br><span class="line">-XX:+CMSParallelRemarkEnabled：在重新标记的时候多线程执行，缩短STW;</span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="GC执行步骤"><a href="#GC执行步骤" class="headerlink" title="GC执行步骤"></a>GC执行步骤</h5><p><img src="20201010095749684.png" alt="GC过程"></p>
+<ul>
+<li>初始标记。该过程是需要STW的，仅标记和GC Roots 直接关联的对象，这个过程在JDK7之前是单线程，8之后为多线程并行(没有用户线程在运行)，过程很快。</li>
+<li>并发标记。该过程是和用户线程一起运行的，不会发生STW，主要是在【初始标记】的基础上，标记剩余的所有引用对象。由于该过程是和用户线程并行的，所以可能会产生误判或者漏标记的情况，后面通过三色标记法解决了这个问题。</li>
+<li>重新标记。主要是整理在过程【并发标记】中已经被标记为可回收的对象重新被引用，会发生STW。</li>
+<li>并发清理。这个过程如果有新的对象进来会被标记为黑色，不再处理，不会发生STW。</li>
+</ul>
+<h5 id="优缺点分析"><a href="#优缺点分析" class="headerlink" title="优缺点分析"></a>优缺点分析</h5><p><strong>优点</strong></p>
+<p>低停顿，并发收集。</p>
+<p><strong>缺点</strong></p>
+<ul>
+<li>对 cpu 资源敏感，会与服务争抢 cpu 资源</li>
+<li>无法处理浮动垃圾，在并发标记和并发清理阶段产生的浮动垃圾只能留到下次 gc 清理</li>
+<li>因为使用的是标记清除算法，所以会产生大量的内存碎片</li>
+<li>垃圾回收过程的不确定性，即在并标记和并发清理阶段产生了大量的对象导致本次 gc 没有进行完却又出发了回收即 concurrent mode failure，此时会 STW 并转换为使用 Serial Old 进行串行收集</li>
+</ul>
+<h4 id="三色标记法"><a href="#三色标记法" class="headerlink" title="三色标记法"></a>三色标记法</h4><p>所谓三色标记，即垃圾收集器在标记过程中将对象分别标记为三种颜色：<br>黑色：通过 GC ROOT 扫描到且所有直接引用都扫描到的对象标记为黑色<br>灰色：通过 GC ROOT 扫描到但未扫描完所有直接引用对象标记为灰色<br>白色：为被扫描的的对象为白色<br>在回收时会回收所有标记为白色对象</p>
+<p><img src="20201019214650906.png" alt="三色标记法"></p>
+<p>对于多标和漏标的情况垃圾回收器基于三色标记法和对象的读写屏障提供了两种解决方案，增量更新和原始快照 CMS 使用的是增量更新，而 G1 使用的是原始快照。<br>增量更新：增量更新即为在并发标记过程中在黑色对象成员变量在更新引用时会将该引用记录下来，在重新标记的时候重新对该对象进行扫描标记。也可以理解为如果对象写入了新值就将该对象的状态标记为灰色。<br>原始快照：原始快照顾名思义即保留原始的信息，在灰色对象成员变量引用更新的时候记录下老对象的引用，在重新标记过程中将这些老对象全都标记为黑色不进行回收，这样可能会产生浮动垃圾，但同时也减少了从新扫描的时间，与增量更新各有利弊。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/JVM%EF%BC%8C%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/" rel="tag"># JVM，垃圾收集器</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/05/16/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E9%AB%98%E5%8F%AF%E7%94%A8%E6%9E%B6%E6%9E%84/" rel="prev" title="如何设计高可用架构">
+                  <i class="fa fa-chevron-left"></i> 如何设计高可用架构
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/05/23/HashMap%E5%92%8CConcurrentHashMap%E8%AF%A6%E8%A7%A3/" rel="next" title="HashMap和ConcurrentHashMap详解">
+                  HashMap和ConcurrentHashMap详解 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rifu</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">139k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">2:06</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/algoliasearch@4.12.1/dist/algoliasearch-lite.umd.js" integrity="sha256-gOvJ6W+j+t/cgnnl9iUU3cb6F1WFQGDdtTXhfPjU4bc=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.39.0/dist/instantsearch.production.min.js" integrity="sha256-+ZlQZK9m82XOYGFZCIRrPOFh2kDdAGB6e7TjWGvoaSY=" crossorigin="anonymous"></script><script src="/js/third-party/search/algolia-search.js"></script>
+
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdn.jsdelivr.net/npm/pdfobject@2.2.7/pdfobject.min.js","integrity":"sha256-ph3Dk89VmuTVXG6x/RDzk53SU9LPdAh1tpv0UvnDZ2I="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js"></script>
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false});</script></body>
+</html>

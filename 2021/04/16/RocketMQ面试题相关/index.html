@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"rifu520.gitee.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="图为自己画的，错误之处请指出，在线图  点我 。该文档持续更新…">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RocketMQ面试题相关">
+<meta property="og:url" content="https://rifu520.gitee.io/2021/04/16/RocketMQ%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%B8%E5%85%B3/index.html">
+<meta property="og:site_name" content="Single blog">
+<meta property="og:description" content="图为自己画的，错误之处请指出，在线图  点我 。该文档持续更新…">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/16/RocketMQ%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%B8%E5%85%B3/image-20210416171452462.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/16/RocketMQ%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%B8%E5%85%B3/image-20210417105606013.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/16/RocketMQ%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%B8%E5%85%B3/890b041845970ff38244f677e51eb441.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/16/RocketMQ%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%B8%E5%85%B3/7c8eb3d9a6024e90346a88d7618757fd.png">
+<meta property="og:image" content="https://rifu520.gitee.io/2021/04/16/RocketMQ%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%B8%E5%85%B3/5daa5e005b9ae74b51ea67756a97f9fc.png">
+<meta property="article:published_time" content="2021-04-16T07:46:33.000Z">
+<meta property="article:modified_time" content="2022-03-24T15:22:21.577Z">
+<meta property="article:author" content="Rifu">
+<meta property="article:tag" content="RocketMQ">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rifu520.gitee.io/2021/04/16/RocketMQ%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%B8%E5%85%B3/image-20210416171452462.png">
+
+
+<link rel="canonical" href="https://rifu520.gitee.io/2021/04/16/RocketMQ%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%B8%E5%85%B3/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://rifu520.gitee.io/2021/04/16/RocketMQ%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%B8%E5%85%B3/","path":"2021/04/16/RocketMQ面试题相关/","title":"RocketMQ面试题相关"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>RocketMQ面试题相关 | Single blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Single blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">One bat dream</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container"></div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="algolia-stats"><hr></div>
+  <div class="algolia-hits"></div>
+  <div class="algolia-pagination"></div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A0%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%B6%88%E6%81%AF%E5%8F%AF%E9%9D%A0%E6%80%A7%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">①如何保证消息可靠性？</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%94%9F%E4%BA%A7%E8%80%85%E4%B8%A2%E5%A4%B1"><span class="nav-number">1.1.</span> <span class="nav-text">生产者丢失</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#MQ%E4%B8%A2%E5%A4%B1"><span class="nav-number">1.2.</span> <span class="nav-text">MQ丢失</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%B6%88%E8%B4%B9%E8%80%85%E4%B8%A2%E5%A4%B1"><span class="nav-number">1.3.</span> <span class="nav-text">消费者丢失</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A1RocketMQ%E6%98%AF%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E9%AB%98%E5%8F%AF%E9%9D%A0%E5%92%8C%E9%AB%98%E5%8F%AF%E7%94%A8%E7%9A%84%EF%BC%9F"><span class="nav-number">2.</span> <span class="nav-text">②RocketMQ是如何保证高可靠和高可用的？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A2Broker%E6%98%AF%E5%A6%82%E4%BD%95%E4%BF%9D%E5%AD%98%E6%95%B0%E6%8D%AE%E7%9A%84%E5%91%A2%EF%BC%9F"><span class="nav-number">3.</span> <span class="nav-text">③Broker是如何保存数据的呢？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A3%E6%95%B0%E6%8D%AE%E5%88%B7%E7%9B%98%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="nav-number">4.</span> <span class="nav-text">④数据刷盘的方式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A4%E6%B6%88%E6%81%AF%E5%A0%86%E7%A7%AF%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3%EF%BC%9F"><span class="nav-number">5.</span> <span class="nav-text">⑤消息堆积如何解决？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A5RocketMQ-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9%EF%BC%9F%E8%AE%B2%E4%B8%8B-RocketMQ-%E9%80%A0%E6%88%90%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9%E7%9A%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86%EF%BC%9F"><span class="nav-number">6.</span> <span class="nav-text">⑥RocketMQ 为什么会重复消费？讲下 RocketMQ 造成重复消费的底层实现原理？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A6%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9%E7%9A%84%E9%A1%BA%E5%BA%8F%E6%80%A7%EF%BC%9F"><span class="nav-number">7.</span> <span class="nav-text">⑦如何保证消息消费的顺序性？</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Rifu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Rifu</p>
+  <div class="site-description" itemprop="description">临时停车</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">62</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rifu520.gitee.io/2021/04/16/RocketMQ%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%B8%E5%85%B3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Rifu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Single blog">
+      <meta itemprop="description" content="临时停车">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="RocketMQ面试题相关 | Single blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          RocketMQ面试题相关
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-04-16 15:46:33" itemprop="dateCreated datePublished" datetime="2021-04-16T15:46:33+08:00">2021-04-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E9%9D%A2%E8%AF%95%E7%AF%87/" itemprop="url" rel="index"><span itemprop="name">面试篇</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.1k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>3 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>图为自己画的，错误之处请指出，在线图  <a target="_blank" rel="noopener" href="https://www.processon.com/view/link/607952ccf346fb647a5702f3?pw=rifu">点我</a> 。该文档持续更新…<span id="more"></span></p>
+<p><img src="image-20210416171452462.png" alt="image-20210416171452462"></p>
+<h4 id="①如何保证消息可靠性？"><a href="#①如何保证消息可靠性？" class="headerlink" title="①如何保证消息可靠性？"></a>①如何保证消息可靠性？</h4><p>这里可分为三个方面来回答，这里主要考察的是消息传递的可靠性，不会发生消息丢失的情况。RabbitMQ的回答也是如此。</p>
+<h5 id="生产者丢失"><a href="#生产者丢失" class="headerlink" title="生产者丢失"></a>生产者丢失</h5><p>消息发送也分为同步发送和异步发送，由于同步发送不会发生丢失的问题，这里主要讲异步发送。</p>
+<p>异步发送分为两个方式：异步有回调和异步无回调，无回调的方式，生产者发送完后不管结果可能就会造成消息丢失，而通过异步发送+回调通知+本地消息表的形式我们就可以做出一个解决方案。以下单的场景举例。</p>
+<p>1.下单后先保存本地数据和MQ消息表，这时候消息的状态是发送中，如果本地事务失败，那么下单失败，事务回滚。</p>
+<p>2.下单成功，直接返回客户端成功，异步发送MQ消息</p>
+<p>3.MQ回调通知消息发送结果，对应更新数据库MQ发送状态</p>
+<p>4.JOB轮询超过一定时间（时间根据业务配置）还未发送成功的消息去重试</p>
+<p>5.在监控平台配置或者JOB程序处理超过一定次数一直发送不成功的消息，告警，人工介入。</p>
+<h5 id="MQ丢失"><a href="#MQ丢失" class="headerlink" title="MQ丢失"></a>MQ丢失</h5><p>就是Master收到了消息，此时数据还在内存中，但是还没同步消息到Slave时候发生了宕机，导致的数据不同步。</p>
+<p>RocketMQ分为同步刷盘和异步刷盘两种方式，默认的是异步刷盘，就有可能导致消息还未刷到硬盘上就丢失了，可以通过设置为同步刷盘的方式来保证消息可靠性，这样即使MQ挂了，恢复的时候也可以从磁盘中去恢复消息，这个需要考察业务需要。</p>
+<h5 id="消费者丢失"><a href="#消费者丢失" class="headerlink" title="消费者丢失"></a>消费者丢失</h5><p>消费者刚收到消息，但是还没消费发生宕机，MQ认为该消息已经消费不会重发。消费端需要设置消息回调，就是消费成功需要回传ack给MQ，让其更新消息的消费状态，在RocketMQ里面，消费者会更新offset给MQ，告知当前的消费位置。</p>
+<h4 id="②RocketMQ是如何保证高可靠和高可用的？"><a href="#②RocketMQ是如何保证高可靠和高可用的？" class="headerlink" title="②RocketMQ是如何保证高可靠和高可用的？"></a>②RocketMQ是如何保证高可靠和高可用的？</h4><p>我们知道 RocketMQ 是一款高性能、高可靠的分布式消息中间件，高性能和高可靠是很难兼得的。因为要保证高可靠，那么数据就必须持久化到磁盘上，将数据持久化到磁盘，那么可能就不能保证高性能了。</p>
+<p>RocketMQ 在兼容这两方面做的不错，先从磁盘说起，<strong>「现代的磁盘都是高性能的，写速度并不一定比网络的数据传输速度慢」</strong>。比如 SSD 固态硬盘在 M.2 NVMe协议下，顺序写的速度可以达到 1500 MB/s，就算是普通磁盘，如果性能比较高的话，顺序写的速度可以达到 450MB/s~600MB/s。</p>
+<p>在顺序写的情况下是这速度，但是不人为控制的话，磁盘采用的是随机写，在随机写的情况下，磁盘的写入速度急速下降，<strong>「磁盘的随机写速度可能只有几百KB/s，这远远要慢于网络传输速度，所以它并不能满足高性能的要求」</strong>。</p>
+<p>RocketMQ 在持久化的设计上，采取的是<strong>「消息顺序写、随机读的策略」</strong>，利用磁盘顺序写的速度，让磁盘的写速度不会成为系统的瓶颈。并且采用 MMPP 这种“零拷贝”技术，提高消息存盘和网络发送的速度。极力满足 RocketMQ 的高性能、高可靠要求。</p>
+<h4 id="③Broker是如何保存数据的呢？"><a href="#③Broker是如何保存数据的呢？" class="headerlink" title="③Broker是如何保存数据的呢？"></a>③Broker是如何保存数据的呢？</h4><p>RocketMQ主要的存储文件包括commitlog文件、consumequeue文件、indexfile文件。</p>
+<p><img src="image-20210417105606013.png" alt="image-20210417105606013"></p>
+<p>Broker在收到消息之后，会把消息保存到commitlog的文件当中，而同时在分布式的存储当中，每个broker都会保存一部分topic的数据，同时，每个topic对应的messagequeue下都会生成consumequeue文件用于保存commitlog的物理位置偏移量offset，indexfile中会保存key和offset的对应关系。</p>
+<p><img src="890b041845970ff38244f677e51eb441.png" alt="890b041845970ff38244f677e51eb441"></p>
+<p>CommitLog文件保存于${Rocket_Home}/store/commitlog目录中，从图中我们可以明显看出来文件名的偏移量，每个文件默认1G，写满后自动生成一个新的文件。</p>
+<p><img src="7c8eb3d9a6024e90346a88d7618757fd.png" alt="7c8eb3d9a6024e90346a88d7618757fd"></p>
+<p>由于同一个topic的消息并不是连续的存储在commitlog中，消费者如果直接从commitlog获取消息效率非常低，所以通过consumequeue保存commitlog中消息的偏移量的物理地址，这样消费者在消费的时候先从consumequeue中根据偏移量定位到具体的commitlog物理文件，然后根据一定的规则（offset和文件大小取模）在commitlog中快速定位。<br><img src="5daa5e005b9ae74b51ea67756a97f9fc.png" alt="图片"></p>
+<h4 id="④数据刷盘的方式"><a href="#④数据刷盘的方式" class="headerlink" title="④数据刷盘的方式"></a>④数据刷盘的方式</h4><p>因为操作系统 PAGECACHE 的存在，PageCache是OS对文件的缓存，用于加速对文件的读写，所以一般都是先写入到 PAGECACHE 中，然后再持久化到磁盘上。我们熟悉的其他组件，MySQL、Redis 等都是如此。RocketMQ 也不列外。</p>
+<p>在 RocketMQ 中提供了<strong>「同步刷盘」</strong>和<strong>「异步刷盘」</strong>两种刷盘方式，可以通过 Broker 配置文中中的 flushDiskType 参数来设置（SYNC_FLUSH、ASYNC_FLUSH）。</p>
+<p><strong>「异步刷盘方式（默认）」</strong>：消息写入到内存的 PAGECACHE中，就立刻给客户端返回写操作成功，当 PAGECACHE 中的消息积累到一定的量时，触发一次写操作，将 PAGECACHE 中的消息写入到磁盘中。这种方式<strong>「吞吐量大，性能高，但是 PAGECACHE 中的数据可能丢失，不能保证数据绝对的安全」</strong>。</p>
+<p><strong>「同步刷盘方式」</strong>：消息写入内存的 PAGECACHE 后，立刻通知刷盘线程刷盘，然后等待刷盘完成，刷盘线程执行完成后唤醒等待的线程，返回消息写成功的状态。这种方式<strong>「可以保证数据绝对安全，但是吞吐量不大」</strong>。</p>
+<h4 id="⑤消息堆积如何解决？"><a href="#⑤消息堆积如何解决？" class="headerlink" title="⑤消息堆积如何解决？"></a>⑤消息堆积如何解决？</h4><ul>
+<li>生产者端：生产消息的速度过快，限制生产消息的频率。</li>
+<li>消费者端：消息太多，消费不过来，可以考虑扩容来提高消费效率。</li>
+<li>Broker:内存是否足够大？如果Page Cache够大的话，可以考虑提高Consumer拉取消息的频率。</li>
+</ul>
+<h4 id="⑥RocketMQ-为什么会重复消费？讲下-RocketMQ-造成重复消费的底层实现原理？"><a href="#⑥RocketMQ-为什么会重复消费？讲下-RocketMQ-造成重复消费的底层实现原理？" class="headerlink" title="⑥RocketMQ 为什么会重复消费？讲下 RocketMQ 造成重复消费的底层实现原理？"></a>⑥RocketMQ 为什么会重复消费？讲下 RocketMQ 造成重复消费的底层实现原理？</h4><h4 id="⑦如何保证消息消费的顺序性？"><a href="#⑦如何保证消息消费的顺序性？" class="headerlink" title="⑦如何保证消息消费的顺序性？"></a>⑦如何保证消息消费的顺序性？</h4><p>首先多个queue只能保证一个queue消费的顺序性，而且是队列结构，天然的顺序性FIFO，我们可以在发送消息的时候把需要顺序消费的消息发送到一个queue，在消费端也只开一个消费者。</p>
+<p>如何保证消息都发送到同一个queue，在使用producer发送消息的时候重写MessageQueueSelector接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Message</span> <span class="variable">message</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Message</span>(<span class="string">&quot;orderTopic&quot;</span>, (<span class="string">&quot;hello!&quot;</span> + i).getBytes());</span><br><span class="line">producer.send(</span><br><span class="line">    <span class="comment">// 要发的那条消息</span></span><br><span class="line">    message,</span><br><span class="line">    <span class="comment">// queue 选择器 ，向 topic中的哪个queue去写消息</span></span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">MessageQueueSelector</span>() &#123;</span><br><span class="line">        <span class="comment">// 手动 选择一个queue</span></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> MessageQueue <span class="title function_">select</span><span class="params">(</span></span><br><span class="line"><span class="params">            // 当前topic 里面包含的所有queue</span></span><br><span class="line"><span class="params">            List&lt;MessageQueue&gt; mqs,</span></span><br><span class="line"><span class="params">            // 具体要发的那条消息</span></span><br><span class="line"><span class="params">            Message msg,</span></span><br><span class="line"><span class="params">            // 对应到 send（） 里的 args，也就是<span class="number">2000</span>前面的那个<span class="number">0</span></span></span><br><span class="line"><span class="params">            Object arg)</span> &#123;</span><br><span class="line">            <span class="comment">// 向固定的一个queue里写消息，比如这里就是向第一个queue里写消息</span></span><br><span class="line">            <span class="keyword">if</span> (Integer.parseInt(arg.toString()) % <span class="number">2</span> == <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> mqs.get(<span class="number">0</span>);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> mqs.get(<span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="comment">// 自定义参数：0</span></span><br><span class="line">    <span class="comment">// 2000代表2000毫秒超时时间</span></span><br><span class="line">    <span class="number">0</span>, <span class="number">2000</span>);</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/RocketMQ/" rel="tag"># RocketMQ</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/04/15/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/" rel="prev" title="线上环境问题排查">
+                  <i class="fa fa-chevron-left"></i> 线上环境问题排查
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/04/17/Interview/" rel="next" title="Interview">
+                  Interview <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rifu</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">139k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">2:06</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/algoliasearch@4.12.1/dist/algoliasearch-lite.umd.js" integrity="sha256-gOvJ6W+j+t/cgnnl9iUU3cb6F1WFQGDdtTXhfPjU4bc=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.39.0/dist/instantsearch.production.min.js" integrity="sha256-+ZlQZK9m82XOYGFZCIRrPOFh2kDdAGB6e7TjWGvoaSY=" crossorigin="anonymous"></script><script src="/js/third-party/search/algolia-search.js"></script>
+
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdn.jsdelivr.net/npm/pdfobject@2.2.7/pdfobject.min.js","integrity":"sha256-ph3Dk89VmuTVXG6x/RDzk53SU9LPdAh1tpv0UvnDZ2I="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js"></script>
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false});</script></body>
+</html>
