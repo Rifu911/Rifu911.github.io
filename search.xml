@@ -1035,89 +1035,15 @@
       </tags>
   </entry>
   <entry>
-    <title>Java线程池的正确使用姿势</title>
-    <url>/2020/04/13/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%9A%84%E6%AD%A3%E7%A1%AE%E4%BD%BF%E7%94%A8%E5%A7%BF%E5%8A%BF/</url>
-    <content><![CDATA[<p>Executor框架是从JKD1.5之后开始引入，位于java.util.concurrent包下，其内部使用了线程池机制，控制线程的创建、执行和关闭，简化了并发变成的操作。</p>
-<p><img src="https://img-blog.csdnimg.cn/20190921152211773.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2h1YW5nbGlmdTUyMA==,size_16,color_FFFFFF,t_70" alt="img"><img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==" alt="点击并拖拽以移动"></p>
-<span id="more"></span>
-
-<p>Executor</p>
-<p>Executor是一个接口，其定义了一个接收Runnable对象的方法executor，其方法签名为executor(Runnable command),该方法接收一个Runable实例，它用来执行一个任务，任务即一个实现了Runnable接口的类，一般来说，Runnable任务开辟在新线程中的使用方法为：new Thread(new RunnableTask())).start()，但在Executor中，可以使用Executor而不用显示地创建线程：executor.execute(new RunnableTask()); // 异步执行</p>
-<p>ExecutorService</p>
-<p>ExecutorService是一个使用比Executor更加广泛的子类接口，提供了对生命周期的管理方法，可跟踪一个或者多个异步任务的执行状况返回Future。可调用本身的shutdown()来平滑关闭ExecutorService(拒绝接受新的任务，已提交的任务会继续执行完毕)。</p>
-<p>通过ExecutorService.submit()方法，可以得到Future,可以通过future.isDone()来判断当前任务是否已执行完成;也可以用future.get()来直接获取执行完成返回的结果。</p>
-<p>Executors</p>
-<p>Executors提供了一系列的工厂方法来创建线程池，返回的线程池都实现了ExecutorService接口。</p>
-<ul>
-<li><p>public static ExecutorService newFixedThreadPool(int Threads) 创建固定数目线程的线程池。</p>
-</li>
-<li><p>public static ExecutorService newCachedThreadPool()：创建一个可缓存的线程池，调用execute 将重用以前构造的线程（如果线程可用）。如果没有可用的线程，则创建一个新线程并添加到池中。终止并从缓存中移除那些已有 60 秒钟未被使用的线程。</p>
-</li>
-<li><p><em>public static ExecutorService newSingleThreadExecutor()：</em>创建一个单线程化的Executor。</p>
-</li>
-<li><p><em>public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize)</em></p>
-<p>创建一个支持定时及周期性的任务执行的线程池，多数情况下可用来替代Timer类。</p>
-</li>
-</ul>
-<h3 id="线程池的正确使用"><a href="#线程池的正确使用" class="headerlink" title="线程池的正确使用"></a>线程池的正确使用</h3><p>以下是阿里编程规范的一段话：</p>
-<p>线程池不允许使用Executors来创建，而是通过ThreadPoolExecutor的方式，这样的处理方式让写的同学更加清楚线程池的运行规则，规避资源耗尽的风险。</p>
-<p>Executors的各个方法的弊端：</p>
-<p>newFixedThreadPool和newSingleThreadExecutor:</p>
-<p>  堆积的处理请求队列可能会耗费非常大的内存，甚至造成OOM</p>
-<p>newCachedThreadPool和newScheduledThreadPool:</p>
-<p> 线程的最大数是Integer.MAX_VALUE,可能会创建数量非常大的线程，甚至OOM</p>
-<p>正确的使用方式：</p>
-<p>手动创建线程池</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">ThreadPoolExecutor</span><span class="params">(<span class="type">int</span> paramInt1, <span class="type">int</span> paramInt2, <span class="type">long</span> paramLong, TimeUnit paramTimeUnit,</span></span><br><span class="line"><span class="params">            BlockingQueue&lt;Runnable&gt; paramBlockingQueue, ThreadFactory paramThreadFactory,</span></span><br><span class="line"><span class="params">            RejectedExecutionHandler paramRejectedExecutionHandler)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.ctl = <span class="keyword">new</span> <span class="title class_">AtomicInteger</span>(ctlOf(-<span class="number">536870912</span>, <span class="number">0</span>));</span><br><span class="line">        <span class="built_in">this</span>.mainLock = <span class="keyword">new</span> <span class="title class_">ReentrantLock</span>();</span><br><span class="line">        <span class="built_in">this</span>.workers = <span class="keyword">new</span> <span class="title class_">HashSet</span>();</span><br><span class="line">        <span class="built_in">this</span>.termination = <span class="built_in">this</span>.mainLock.newCondition();</span><br><span class="line">        <span class="keyword">if</span> ((paramInt1 &lt; <span class="number">0</span>) || (paramInt2 &lt;= <span class="number">0</span>) || (paramInt2 &lt; paramInt1) || (paramLong &lt; <span class="number">0L</span>))</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>();</span><br><span class="line">        <span class="keyword">if</span> ((paramBlockingQueue == <span class="literal">null</span>) || (paramThreadFactory == <span class="literal">null</span>) || (paramRejectedExecutionHandler == <span class="literal">null</span>))</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">NullPointerException</span>();</span><br><span class="line">        <span class="built_in">this</span>.corePoolSize = paramInt1;</span><br><span class="line">        <span class="built_in">this</span>.maximumPoolSize = paramInt2;</span><br><span class="line">        <span class="built_in">this</span>.workQueue = paramBlockingQueue;</span><br><span class="line">        <span class="built_in">this</span>.keepAliveTime = paramTimeUnit.toNanos(paramLong);</span><br><span class="line">        <span class="built_in">this</span>.threadFactory = paramThreadFactory;</span><br><span class="line">        <span class="built_in">this</span>.handler = paramRejectedExecutionHandler;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<p><img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==" alt="点击并拖拽以移动"></p>
-<ul>
-<li>corePoolSize :线程池的核心池大小，在创建线程池之后，线程池默认没有任何线程。当有任务过来的时候才会去创建创建线程执行任务。换个说法，线程池创建之后，线程池中的线程数为0，当任务过来就会创建一个线程去执行，直到线程数达到corePoolSize 之后，就会被到达的任务放在队列中。（注意是到达的任务）。换句更精炼的话：corePoolSize 表示允许线程池中允许同时运行的最大线程数。如果执行了线程池的prestartAllCoreThreads()方法，线程池会提前创建并启动所有核心线程。</li>
-<li>maximumPoolSize :线程池允许的最大线程数，他表示最大能创建多少个线程。maximumPoolSize肯定是大于等于corePoolSize。</li>
-<li>keepAliveTime :表示线程没有任务时最多保持多久然后停止。默认情况下，只有线程池中线程数大于corePoolSize 时，keepAliveTime 才会起作用。换句话说，当线程池中的线程数大于corePoolSize，并且一个线程空闲时间达到了keepAliveTime，那么就是shutdown。</li>
-<li>Unit:keepAliveTime 的单位。</li>
-<li>workQueue ：一个阻塞队列，用来存储等待执行的任务，当线程池中的线程数超过它的corePoolSize的时候，线程会进入阻塞队列进行阻塞等待。通过workQueue，线程池实现了阻塞功能。</li>
-<li>threadFactory ：线程工厂，用来创建线程。</li>
-<li>handler :表示当拒绝处理任务时的策略。</li>
-</ul>
-<h3 id="手动创建线程池应注意点"><a href="#手动创建线程池应注意点" class="headerlink" title="手动创建线程池应注意点"></a>手动创建线程池应注意点</h3><p>1.<strong>任务独立。</strong>如何任务依赖于其他任务，那么可能产生死锁。例如某个任务等待另一个任务的返回值或执行结果，那么除非线程池足够大，否则将发生线程饥饿死锁。</p>
-<p>2.<strong>合理配置阻塞时间过长的任务。</strong>如果任务阻塞时间过长，那么即使不出现死锁，线程池的性能也会变得很糟糕。在Java并发包里可阻塞方法都同时定义了限时方式和不限时方式。例如</p>
-<p>Thread.join,BlockingQueue.put,CountDownLatch.await等，如果任务超时，则标识任务失败，然后中止任务或者将任务放回队列以便随后执行，这样，无论任务的最终结果是否成功，这种办法都能够保证任务总能继续执行下去。</p>
-<p>3.<strong>设置合理的线程池大小。</strong>只需要避免过大或者过小的情况即可，上文的公式**线程池大小=NCPU *UCPU(1+W/C)**。</p>
-<p>4.<strong>选择合适的阻塞队列。</strong>newFixedThreadPool和newSingleThreadExecutor都使用了无界的阻塞队列，无界阻塞队列会有消耗很大的内存，如果使用了有界阻塞队列，它会规避内存占用过大的问题，但是当任务填满有界阻塞队列，新的任务该怎么办？在使用有界队列是，需要选择合适的拒绝策略，队列的大小和线程池的大小必须一起调节。对于非常大的或者无界的线程池，可以使用SynchronousQueue来避免任务排队，以直接将任务从生产者提交到工作者线程。</p>
-<h3 id="线程池大小设定"><a href="#线程池大小设定" class="headerlink" title="线程池大小设定"></a>线程池大小设定</h3><p><strong>线程池的大小决定着系统的性能，过大或者过小的线程池数量都无法发挥最优的系统性能。</strong></p>
-<p>当然线程池的大小也不需要做的太过于精确，只需要避免过大和过小的情况。一般来说，确定线程池的大小需要考虑CPU的数量，内存大小，任务是计算密集型还是IO密集型等因素</p>
-<p><strong>NCPU = CPU的数量</strong></p>
-<p><strong>UCPU = 期望对CPU的使用率 0 ≤ UCPU ≤ 1</strong></p>
-<p><strong>W/C = 等待时间与计算时间的比率</strong></p>
-<p><strong>如果希望处理器达到理想的使用率，那么线程池的最优大小为：</strong></p>
-<p><strong>线程池大小=NCPU *UCPU(1+W/C)</strong></p>
-<p>在Java中使用</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">ncpus</span> <span class="operator">=</span> Runtime.getRuntime().availableProcessors();</span><br></pre></td></tr></table></figure>
-
-<p><img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==" alt="点击并拖拽以移动"></p>
-<p>获取CPU的数量。</p>
-<h3 id="拒绝策略"><a href="#拒绝策略" class="headerlink" title="拒绝策略"></a>拒绝策略</h3><blockquote>
-<p>默认采用的是丢弃策略AbortPolicy</p>
-</blockquote>
-<ul>
-<li><p>AbortPolicy:丢弃任务并抛出RejectedExecutionException</p>
-</li>
-<li><p>CallerRunsPolicy：只要线程池未关闭，该策略直接在调用者线程中，运行当前被丢弃的任务。显然这样做不会真的丢弃任务，但是，任务提交线程的性能极有可能会急剧下降。</p>
-</li>
-<li><p>DiscardOldestPolicy：丢弃队列中最老的一个请求，也就是即将被执行的一个任务，并尝试再次提交当前任务。</p>
-</li>
-<li><p>DiscardPolicy：丢弃任务，不做任何处理。</p>
-</li>
-</ul>
-<p>如果当前线程池中的线程数目&gt;=corePoolSize，则每来一个任务，会尝试将其添加到任务缓存队列当中，若添加成功，则该任务会等待空闲线程将其取出去执行；若添加失败（一般来说是任务缓存队列已满），则会尝试创建新的线程去执行这个任务；如果当前线程池中的线程数目达到maximumPoolSize，则会采取任务<strong>拒绝策略</strong>进行处理；</p>
-]]></content>
+    <title>JMM内存模型</title>
+    <url>/2021/04/15/JMM%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/</url>
+    <content><![CDATA[]]></content>
       <categories>
-        <category>高并发</category>
+        <category>学习笔记</category>
       </categories>
       <tags>
-        <tag>线程池</tag>
-        <tag>JUC</tag>
+        <tag>高并发</tag>
+        <tag>内存模型</tag>
       </tags>
   </entry>
   <entry>
@@ -1896,6 +1822,92 @@
       </tags>
   </entry>
   <entry>
+    <title>Java线程池的正确使用姿势</title>
+    <url>/2020/04/13/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%9A%84%E6%AD%A3%E7%A1%AE%E4%BD%BF%E7%94%A8%E5%A7%BF%E5%8A%BF/</url>
+    <content><![CDATA[<p>Executor框架是从JKD1.5之后开始引入，位于java.util.concurrent包下，其内部使用了线程池机制，控制线程的创建、执行和关闭，简化了并发变成的操作。</p>
+<p><img src="https://img-blog.csdnimg.cn/20190921152211773.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2h1YW5nbGlmdTUyMA==,size_16,color_FFFFFF,t_70" alt="img"><img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==" alt="点击并拖拽以移动"></p>
+<span id="more"></span>
+
+<p>Executor</p>
+<p>Executor是一个接口，其定义了一个接收Runnable对象的方法executor，其方法签名为executor(Runnable command),该方法接收一个Runable实例，它用来执行一个任务，任务即一个实现了Runnable接口的类，一般来说，Runnable任务开辟在新线程中的使用方法为：new Thread(new RunnableTask())).start()，但在Executor中，可以使用Executor而不用显示地创建线程：executor.execute(new RunnableTask()); // 异步执行</p>
+<p>ExecutorService</p>
+<p>ExecutorService是一个使用比Executor更加广泛的子类接口，提供了对生命周期的管理方法，可跟踪一个或者多个异步任务的执行状况返回Future。可调用本身的shutdown()来平滑关闭ExecutorService(拒绝接受新的任务，已提交的任务会继续执行完毕)。</p>
+<p>通过ExecutorService.submit()方法，可以得到Future,可以通过future.isDone()来判断当前任务是否已执行完成;也可以用future.get()来直接获取执行完成返回的结果。</p>
+<p>Executors</p>
+<p>Executors提供了一系列的工厂方法来创建线程池，返回的线程池都实现了ExecutorService接口。</p>
+<ul>
+<li><p>public static ExecutorService newFixedThreadPool(int Threads) 创建固定数目线程的线程池。</p>
+</li>
+<li><p>public static ExecutorService newCachedThreadPool()：创建一个可缓存的线程池，调用execute 将重用以前构造的线程（如果线程可用）。如果没有可用的线程，则创建一个新线程并添加到池中。终止并从缓存中移除那些已有 60 秒钟未被使用的线程。</p>
+</li>
+<li><p><em>public static ExecutorService newSingleThreadExecutor()：</em>创建一个单线程化的Executor。</p>
+</li>
+<li><p><em>public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize)</em></p>
+<p>创建一个支持定时及周期性的任务执行的线程池，多数情况下可用来替代Timer类。</p>
+</li>
+</ul>
+<h3 id="线程池的正确使用"><a href="#线程池的正确使用" class="headerlink" title="线程池的正确使用"></a>线程池的正确使用</h3><p>以下是阿里编程规范的一段话：</p>
+<p>线程池不允许使用Executors来创建，而是通过ThreadPoolExecutor的方式，这样的处理方式让写的同学更加清楚线程池的运行规则，规避资源耗尽的风险。</p>
+<p>Executors的各个方法的弊端：</p>
+<p>newFixedThreadPool和newSingleThreadExecutor:</p>
+<p>  堆积的处理请求队列可能会耗费非常大的内存，甚至造成OOM</p>
+<p>newCachedThreadPool和newScheduledThreadPool:</p>
+<p> 线程的最大数是Integer.MAX_VALUE,可能会创建数量非常大的线程，甚至OOM</p>
+<p>正确的使用方式：</p>
+<p>手动创建线程池</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">ThreadPoolExecutor</span><span class="params">(<span class="type">int</span> paramInt1, <span class="type">int</span> paramInt2, <span class="type">long</span> paramLong, TimeUnit paramTimeUnit,</span></span><br><span class="line"><span class="params">            BlockingQueue&lt;Runnable&gt; paramBlockingQueue, ThreadFactory paramThreadFactory,</span></span><br><span class="line"><span class="params">            RejectedExecutionHandler paramRejectedExecutionHandler)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.ctl = <span class="keyword">new</span> <span class="title class_">AtomicInteger</span>(ctlOf(-<span class="number">536870912</span>, <span class="number">0</span>));</span><br><span class="line">        <span class="built_in">this</span>.mainLock = <span class="keyword">new</span> <span class="title class_">ReentrantLock</span>();</span><br><span class="line">        <span class="built_in">this</span>.workers = <span class="keyword">new</span> <span class="title class_">HashSet</span>();</span><br><span class="line">        <span class="built_in">this</span>.termination = <span class="built_in">this</span>.mainLock.newCondition();</span><br><span class="line">        <span class="keyword">if</span> ((paramInt1 &lt; <span class="number">0</span>) || (paramInt2 &lt;= <span class="number">0</span>) || (paramInt2 &lt; paramInt1) || (paramLong &lt; <span class="number">0L</span>))</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>();</span><br><span class="line">        <span class="keyword">if</span> ((paramBlockingQueue == <span class="literal">null</span>) || (paramThreadFactory == <span class="literal">null</span>) || (paramRejectedExecutionHandler == <span class="literal">null</span>))</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">NullPointerException</span>();</span><br><span class="line">        <span class="built_in">this</span>.corePoolSize = paramInt1;</span><br><span class="line">        <span class="built_in">this</span>.maximumPoolSize = paramInt2;</span><br><span class="line">        <span class="built_in">this</span>.workQueue = paramBlockingQueue;</span><br><span class="line">        <span class="built_in">this</span>.keepAliveTime = paramTimeUnit.toNanos(paramLong);</span><br><span class="line">        <span class="built_in">this</span>.threadFactory = paramThreadFactory;</span><br><span class="line">        <span class="built_in">this</span>.handler = paramRejectedExecutionHandler;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==" alt="点击并拖拽以移动"></p>
+<ul>
+<li>corePoolSize :线程池的核心池大小，在创建线程池之后，线程池默认没有任何线程。当有任务过来的时候才会去创建创建线程执行任务。换个说法，线程池创建之后，线程池中的线程数为0，当任务过来就会创建一个线程去执行，直到线程数达到corePoolSize 之后，就会被到达的任务放在队列中。（注意是到达的任务）。换句更精炼的话：corePoolSize 表示允许线程池中允许同时运行的最大线程数。如果执行了线程池的prestartAllCoreThreads()方法，线程池会提前创建并启动所有核心线程。</li>
+<li>maximumPoolSize :线程池允许的最大线程数，他表示最大能创建多少个线程。maximumPoolSize肯定是大于等于corePoolSize。</li>
+<li>keepAliveTime :表示线程没有任务时最多保持多久然后停止。默认情况下，只有线程池中线程数大于corePoolSize 时，keepAliveTime 才会起作用。换句话说，当线程池中的线程数大于corePoolSize，并且一个线程空闲时间达到了keepAliveTime，那么就是shutdown。</li>
+<li>Unit:keepAliveTime 的单位。</li>
+<li>workQueue ：一个阻塞队列，用来存储等待执行的任务，当线程池中的线程数超过它的corePoolSize的时候，线程会进入阻塞队列进行阻塞等待。通过workQueue，线程池实现了阻塞功能。</li>
+<li>threadFactory ：线程工厂，用来创建线程。</li>
+<li>handler :表示当拒绝处理任务时的策略。</li>
+</ul>
+<h3 id="手动创建线程池应注意点"><a href="#手动创建线程池应注意点" class="headerlink" title="手动创建线程池应注意点"></a>手动创建线程池应注意点</h3><p>1.<strong>任务独立。</strong>如何任务依赖于其他任务，那么可能产生死锁。例如某个任务等待另一个任务的返回值或执行结果，那么除非线程池足够大，否则将发生线程饥饿死锁。</p>
+<p>2.<strong>合理配置阻塞时间过长的任务。</strong>如果任务阻塞时间过长，那么即使不出现死锁，线程池的性能也会变得很糟糕。在Java并发包里可阻塞方法都同时定义了限时方式和不限时方式。例如</p>
+<p>Thread.join,BlockingQueue.put,CountDownLatch.await等，如果任务超时，则标识任务失败，然后中止任务或者将任务放回队列以便随后执行，这样，无论任务的最终结果是否成功，这种办法都能够保证任务总能继续执行下去。</p>
+<p>3.<strong>设置合理的线程池大小。</strong>只需要避免过大或者过小的情况即可，上文的公式**线程池大小=NCPU *UCPU(1+W/C)**。</p>
+<p>4.<strong>选择合适的阻塞队列。</strong>newFixedThreadPool和newSingleThreadExecutor都使用了无界的阻塞队列，无界阻塞队列会有消耗很大的内存，如果使用了有界阻塞队列，它会规避内存占用过大的问题，但是当任务填满有界阻塞队列，新的任务该怎么办？在使用有界队列是，需要选择合适的拒绝策略，队列的大小和线程池的大小必须一起调节。对于非常大的或者无界的线程池，可以使用SynchronousQueue来避免任务排队，以直接将任务从生产者提交到工作者线程。</p>
+<h3 id="线程池大小设定"><a href="#线程池大小设定" class="headerlink" title="线程池大小设定"></a>线程池大小设定</h3><p><strong>线程池的大小决定着系统的性能，过大或者过小的线程池数量都无法发挥最优的系统性能。</strong></p>
+<p>当然线程池的大小也不需要做的太过于精确，只需要避免过大和过小的情况。一般来说，确定线程池的大小需要考虑CPU的数量，内存大小，任务是计算密集型还是IO密集型等因素</p>
+<p><strong>NCPU = CPU的数量</strong></p>
+<p><strong>UCPU = 期望对CPU的使用率 0 ≤ UCPU ≤ 1</strong></p>
+<p><strong>W/C = 等待时间与计算时间的比率</strong></p>
+<p><strong>如果希望处理器达到理想的使用率，那么线程池的最优大小为：</strong></p>
+<p><strong>线程池大小=NCPU *UCPU(1+W/C)</strong></p>
+<p>在Java中使用</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">ncpus</span> <span class="operator">=</span> Runtime.getRuntime().availableProcessors();</span><br></pre></td></tr></table></figure>
+
+<p><img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==" alt="点击并拖拽以移动"></p>
+<p>获取CPU的数量。</p>
+<h3 id="拒绝策略"><a href="#拒绝策略" class="headerlink" title="拒绝策略"></a>拒绝策略</h3><blockquote>
+<p>默认采用的是丢弃策略AbortPolicy</p>
+</blockquote>
+<ul>
+<li><p>AbortPolicy:丢弃任务并抛出RejectedExecutionException</p>
+</li>
+<li><p>CallerRunsPolicy：只要线程池未关闭，该策略直接在调用者线程中，运行当前被丢弃的任务。显然这样做不会真的丢弃任务，但是，任务提交线程的性能极有可能会急剧下降。</p>
+</li>
+<li><p>DiscardOldestPolicy：丢弃队列中最老的一个请求，也就是即将被执行的一个任务，并尝试再次提交当前任务。</p>
+</li>
+<li><p>DiscardPolicy：丢弃任务，不做任何处理。</p>
+</li>
+</ul>
+<p>如果当前线程池中的线程数目&gt;=corePoolSize，则每来一个任务，会尝试将其添加到任务缓存队列当中，若添加成功，则该任务会等待空闲线程将其取出去执行；若添加失败（一般来说是任务缓存队列已满），则会尝试创建新的线程去执行这个任务；如果当前线程池中的线程数目达到maximumPoolSize，则会采取任务<strong>拒绝策略</strong>进行处理；</p>
+]]></content>
+      <categories>
+        <category>高并发</category>
+      </categories>
+      <tags>
+        <tag>线程池</tag>
+        <tag>JUC</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Linux 下安装 Nginx 教程</title>
     <url>/2019/04/12/Linux%20%E4%B8%8B%E5%AE%89%E8%A3%85Nginx%20%E6%95%99%E7%A8%8B/</url>
     <content><![CDATA[<h1 id=""><a href="#" class="headerlink" title=""></a></h1><h3 id="一、环境配置"><a href="#一、环境配置" class="headerlink" title="一、环境配置"></a>一、环境配置</h3><p>1.安装GCC</p>
@@ -2003,18 +2015,6 @@
       <tags>
         <tag>Jenkins</tag>
         <tag>持续化集成CI/CD</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JMM内存模型</title>
-    <url>/2021/04/15/JMM%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>学习笔记</category>
-      </categories>
-      <tags>
-        <tag>高并发</tag>
-        <tag>内存模型</tag>
       </tags>
   </entry>
   <entry>
@@ -2442,6 +2442,47 @@
       </tags>
   </entry>
   <entry>
+    <title>SpringBoot 发送邮件</title>
+    <url>/2018/10/18/SpringBoot-%E5%8F%91%E9%80%81%E9%82%AE%E4%BB%B6/</url>
+    <content><![CDATA[<h5 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h5><p>1.添加依赖包</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-mail<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<p>2.配置信息</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">spring.mail.username</span>=<span class="string">528428122@qq.com</span></span><br><span class="line"><span class="attr">spring.mail.password</span>=<span class="string">***</span></span><br><span class="line"><span class="attr">spring.mail.host</span>=<span class="string">smtp.qq.com</span></span><br><span class="line"><span class="attr">spring.mail.properties.mail.smtp.ssl.enable</span>=<span class="string">true</span></span><br></pre></td></tr></table></figure>
+
+<p>== 其中密码=授权码去自己的个人邮箱设置里面找 ==</p>
+<p>3.发送</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line">   JavaMailSenderImpl mailSender;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Test</span></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sendMail</span><span class="params">()</span>&#123;</span><br><span class="line">       <span class="type">SimpleMailMessage</span> <span class="variable">mail</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SimpleMailMessage</span>();</span><br><span class="line">       mail.setSubject(<span class="string">&quot;通知&quot;</span>);</span><br><span class="line">       mail.setText(<span class="string">&quot;今晚加班哦&quot;</span>);</span><br><span class="line"></span><br><span class="line">       mail.setTo(<span class="string">&quot;13071679487@163.com&quot;</span>);</span><br><span class="line">       mail.setFrom(<span class="string">&quot;528428122@qq.com&quot;</span>);</span><br><span class="line"></span><br><span class="line">       mailSender.send(mail);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Test</span></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sendMailWithHTMLAndFile</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">       <span class="type">MimeMessage</span> <span class="variable">mail</span> <span class="operator">=</span> mailSender.createMimeMessage();</span><br><span class="line"></span><br><span class="line">       <span class="type">MimeMessageHelper</span> <span class="variable">helper</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MimeMessageHelper</span>(mail, <span class="literal">true</span>);</span><br><span class="line">       helper.setSubject(<span class="string">&quot;通知，这个是可以发送html和文件的&quot;</span>);</span><br><span class="line"></span><br><span class="line">       helper.setText(<span class="string">&quot;&lt;b style=&#x27;color:blue&#x27;&gt; 带颜色的文本 &lt;/b&gt;&quot;</span>,<span class="literal">true</span>);   <span class="comment">//第二个参数为true,支持html</span></span><br><span class="line">       helper.addAttachment(<span class="string">&quot;test.png&quot;</span>,<span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;C:\\Users\\Lifu\\Desktop\\照片\\zava.png&quot;</span>));</span><br><span class="line">       helper.addAttachment(<span class="string">&quot;test.png&quot;</span>,<span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;C:\\Users\\Lifu\\Desktop\\照片\\rifu.png&quot;</span>));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">       helper.setTo(<span class="string">&quot;13071679487@163.com&quot;</span>);</span><br><span class="line">       helper.setFrom(<span class="string">&quot;528428122@qq.com&quot;</span>);</span><br><span class="line"></span><br><span class="line">       mailSender.send(mail);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>学习笔记</category>
+      </categories>
+      <tags>
+        <tag>SpringBoot</tag>
+        <tag>邮件</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SpringBoot 设置允许跨域访问</title>
+    <url>/2018/10/31/SpringBoot-%E8%AE%BE%E7%BD%AE%E5%85%81%E8%AE%B8%E8%B7%A8%E5%9F%9F%E8%AE%BF%E9%97%AE/</url>
+    <content><![CDATA[<p>在SpringBoot项目中设置允许跨域访问</p>
+<span id="more"></span>
+
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Author</span> Rifu</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Date</span> 2018/10/31  13:37</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CorsConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> CorsConfiguration <span class="title function_">buildConfig</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">CorsConfiguration</span> <span class="variable">corsConfiguration</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">CorsConfiguration</span>();</span><br><span class="line">        corsConfiguration.addAllowedOrigin(<span class="string">&quot;*&quot;</span>); <span class="comment">// 允许任何域名使用</span></span><br><span class="line">        corsConfiguration.addAllowedHeader(<span class="string">&quot;*&quot;</span>); <span class="comment">// 允许任何头</span></span><br><span class="line">        corsConfiguration.addAllowedMethod(<span class="string">&quot;*&quot;</span>); <span class="comment">// 允许任何方法（post、get等）</span></span><br><span class="line">        <span class="keyword">return</span> corsConfiguration;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> CorsFilter <span class="title function_">corsFilter</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">UrlBasedCorsConfigurationSource</span> <span class="variable">source</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UrlBasedCorsConfigurationSource</span>();</span><br><span class="line">        source.registerCorsConfiguration(<span class="string">&quot;/**&quot;</span>,buildConfig());</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">CorsFilter</span>(source);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>学习笔记</category>
+      </categories>
+      <tags>
+        <tag>SpringBoot</tag>
+        <tag>跨域访问</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Redis面试相关</title>
     <url>/2021/06/02/Redis%E9%9D%A2%E8%AF%95%E7%9B%B8%E5%85%B3/</url>
     <content><![CDATA[<h4 id="Redis的基本数据类型和使用场景"><a href="#Redis的基本数据类型和使用场景" class="headerlink" title="Redis的基本数据类型和使用场景"></a>Redis的基本数据类型和使用场景</h4><ul>
@@ -2651,27 +2692,82 @@
       </tags>
   </entry>
   <entry>
-    <title>SpringBoot 发送邮件</title>
-    <url>/2018/10/18/SpringBoot-%E5%8F%91%E9%80%81%E9%82%AE%E4%BB%B6/</url>
-    <content><![CDATA[<h5 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h5><p>1.添加依赖包</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-mail<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
+    <title>快速使用SpringBoot 和Redis</title>
+    <url>/2019/05/06/SpringBoot%E6%90%AD%E9%85%8DRedis%20%E4%BD%BF%E7%94%A8%E7%BC%93%E5%AD%98/</url>
+    <content><![CDATA[<h5 id="一、步骤"><a href="#一、步骤" class="headerlink" title="一、步骤"></a>一、步骤</h5><p>1.开启基于注解的缓存</p>
+<p>在Application上标注@EnableCaching</p>
+<p>2.在对应的serviceimpl方法上开启</p>
+<p>@Cacheable</p>
+<p>3.在配置文件里面配置Redis服务器的地址（默认端口为6379）</p>
+<p>4.在自定义的CustomRedisConfiguration类里面</p>
+<p>添加RedisCacheManager的bean</p>
 <span id="more"></span>
 
-<p>2.配置信息</p>
-<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">spring.mail.username</span>=<span class="string">528428122@qq.com</span></span><br><span class="line"><span class="attr">spring.mail.password</span>=<span class="string">***</span></span><br><span class="line"><span class="attr">spring.mail.host</span>=<span class="string">smtp.qq.com</span></span><br><span class="line"><span class="attr">spring.mail.properties.mail.smtp.ssl.enable</span>=<span class="string">true</span></span><br></pre></td></tr></table></figure>
+<h5 id="二、命令注解"><a href="#二、命令注解" class="headerlink" title="二、命令注解"></a>二、命令注解</h5><h6 id="Cacheable"><a href="#Cacheable" class="headerlink" title="@Cacheable"></a>@Cacheable</h6><h6 id="CachePut"><a href="#CachePut" class="headerlink" title="@CachePut"></a>@CachePut</h6><h6 id="CacheEvict"><a href="#CacheEvict" class="headerlink" title="@CacheEvict"></a>@CacheEvict</h6><p>key:指定要清除的key</p>
+<p>allEntries = true :指定清除这个缓存中的所有数据</p>
+<p>beforeInvocation = false :</p>
+<p>缓存的清除是否在方法之前执行，默认代表缓存清除操作是在方法执行之后执行，出现异常则不会清除缓存</p>
+<h6 id="Caching"><a href="#Caching" class="headerlink" title="@Caching"></a>@Caching</h6><p>组建复杂的缓存方式</p>
+<blockquote>
+<p>@Caching(</p>
+<pre><code>cacheable = &#123;
+   
+    @Cacheable(value=&quot;user&quot;,key=&quot;#id&quot;)
+   
+&#125;,
+   
+put = &#123;
+   
+    @CachePut(value=&quot;user&quot;,key=&quot;#result.lastName&quot;),
+   
+    @CachePut(value=&quot;user&quot;,key=&quot;#result.dId&quot;)
+   
+&#125;
+</code></pre>
+<p>)</p>
+</blockquote>
+<h6 id="CacheConfig"><a href="#CacheConfig" class="headerlink" title="@CacheConfig"></a>@CacheConfig</h6><p>作用：抽取一部分公共的配置属性</p>
+<blockquote>
+<p>@CacheConfig(cacheNames=”user”)</p>
+</blockquote>
+<h5 id="三、自定义KeyGenerator"><a href="#三、自定义KeyGenerator" class="headerlink" title="三、自定义KeyGenerator"></a>三、自定义KeyGenerator</h5><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> KeyGenerator <span class="title function_">customKeyGenerator</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">KeyGenerator</span>()&#123;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> Object <span class="title function_">generate</span><span class="params">(Object o, Method method, Object... objects)</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> method.getName()+<span class="string">&quot;[&quot;</span>+Arrays.asList(objects).toString()+<span class="string">&quot;]&quot;</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
-<p>== 其中密码=授权码去自己的个人邮箱设置里面找 ==</p>
-<p>3.发送</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line">   JavaMailSenderImpl mailSender;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Test</span></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sendMail</span><span class="params">()</span>&#123;</span><br><span class="line">       <span class="type">SimpleMailMessage</span> <span class="variable">mail</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SimpleMailMessage</span>();</span><br><span class="line">       mail.setSubject(<span class="string">&quot;通知&quot;</span>);</span><br><span class="line">       mail.setText(<span class="string">&quot;今晚加班哦&quot;</span>);</span><br><span class="line"></span><br><span class="line">       mail.setTo(<span class="string">&quot;13071679487@163.com&quot;</span>);</span><br><span class="line">       mail.setFrom(<span class="string">&quot;528428122@qq.com&quot;</span>);</span><br><span class="line"></span><br><span class="line">       mailSender.send(mail);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Test</span></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sendMailWithHTMLAndFile</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">       <span class="type">MimeMessage</span> <span class="variable">mail</span> <span class="operator">=</span> mailSender.createMimeMessage();</span><br><span class="line"></span><br><span class="line">       <span class="type">MimeMessageHelper</span> <span class="variable">helper</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MimeMessageHelper</span>(mail, <span class="literal">true</span>);</span><br><span class="line">       helper.setSubject(<span class="string">&quot;通知，这个是可以发送html和文件的&quot;</span>);</span><br><span class="line"></span><br><span class="line">       helper.setText(<span class="string">&quot;&lt;b style=&#x27;color:blue&#x27;&gt; 带颜色的文本 &lt;/b&gt;&quot;</span>,<span class="literal">true</span>);   <span class="comment">//第二个参数为true,支持html</span></span><br><span class="line">       helper.addAttachment(<span class="string">&quot;test.png&quot;</span>,<span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;C:\\Users\\Lifu\\Desktop\\照片\\zava.png&quot;</span>));</span><br><span class="line">       helper.addAttachment(<span class="string">&quot;test.png&quot;</span>,<span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;C:\\Users\\Lifu\\Desktop\\照片\\rifu.png&quot;</span>));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">       helper.setTo(<span class="string">&quot;13071679487@163.com&quot;</span>);</span><br><span class="line">       helper.setFrom(<span class="string">&quot;528428122@qq.com&quot;</span>);</span><br><span class="line"></span><br><span class="line">       mailSender.send(mail);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+
+<h5 id="四、自定义序列化器RedisTemplate"><a href="#四、自定义序列化器RedisTemplate" class="headerlink" title="四、自定义序列化器RedisTemplate"></a>四、自定义序列化器RedisTemplate</h5><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line">   <span class="keyword">public</span> RedisTemplate <span class="title function_">redisTemplate</span><span class="params">(RedisConnectionFactory redisConnectionFactory)</span>&#123;</span><br><span class="line">       Jackson2JsonRedisSerializer&lt;Object&gt; serializer = <span class="keyword">new</span> <span class="title class_">Jackson2JsonRedisSerializer</span>&lt;Object&gt;(Object.class);</span><br><span class="line">       <span class="type">ObjectMapper</span> <span class="variable">objectMapper</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectMapper</span>();</span><br><span class="line">       objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, <span class="literal">false</span>);					<span class="comment">//这行代码可以使得生成的json没有[]</span></span><br><span class="line">       objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);</span><br><span class="line">       objectMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);</span><br><span class="line">       serializer.setObjectMapper(objectMapper);</span><br><span class="line"></span><br><span class="line">       RedisTemplate&lt;String, Object&gt; redisTemplate = <span class="keyword">new</span> <span class="title class_">RedisTemplate</span>&lt;&gt;();</span><br><span class="line">       redisTemplate.setConnectionFactory(redisConnectionFactory);</span><br><span class="line">       redisTemplate.setKeySerializer(<span class="keyword">new</span> <span class="title class_">StringRedisSerializer</span>());</span><br><span class="line">       redisTemplate.setValueSerializer(serializer);</span><br><span class="line">       redisTemplate.setHashKeySerializer(<span class="keyword">new</span> <span class="title class_">StringRedisSerializer</span>());</span><br><span class="line">       redisTemplate.setHashValueSerializer(serializer);</span><br><span class="line">       redisTemplate.afterPropertiesSet();</span><br><span class="line"></span><br><span class="line">       <span class="keyword">return</span> redisTemplate;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="五、自定义CacheManager"><a href="#五、自定义CacheManager" class="headerlink" title="五、自定义CacheManager"></a>五、自定义CacheManager</h5><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line">   <span class="keyword">public</span> RedisCacheManager <span class="title function_">cacheManager</span><span class="params">(RedisTemplate redisTemplate)</span>&#123;</span><br><span class="line">       <span class="type">RedisCacheWriter</span> <span class="variable">redisCacheWriter</span> <span class="operator">=</span> RedisCacheWriter.nonLockingRedisCacheWriter(redisTemplate.getConnectionFactory());</span><br><span class="line">       <span class="type">RedisCacheConfiguration</span> <span class="variable">redisCacheConfiguration</span> <span class="operator">=</span> RedisCacheConfiguration.defaultCacheConfig()</span><br><span class="line">               .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(redisTemplate.getValueSerializer()));</span><br><span class="line">       <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">RedisCacheManager</span>(redisCacheWriter, redisCacheConfiguration);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
 
 ]]></content>
       <categories>
-        <category>学习笔记</category>
+        <category>学习工具</category>
       </categories>
       <tags>
         <tag>SpringBoot</tag>
-        <tag>邮件</tag>
+        <tag>Redis</tag>
+        <tag>缓存</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Springboot集成Mybatis下PageHelper不起作用</title>
+    <url>/2018/10/25/Springboot%E9%9B%86%E6%88%90Mybatis%E4%B8%8BPageHelper%E4%B8%8D%E8%B5%B7%E4%BD%9C%E7%94%A8/</url>
+    <content><![CDATA[<p>最近在项目中使用SpringBoot集成Mybatis，但是Pagehelper不去分页效果的作用</p>
+<p>在依赖文件中，去掉原本的pagehelper，改用集成的pagehelper：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!-- https://mvnrepository.com/artifact/com.github.pagehelper/pagehelper-spring-boot-starter --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.github.pagehelper<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>pagehelper-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>问题解决本</category>
+      </categories>
+      <tags>
+        <tag>SpringBoot</tag>
+        <tag>Mybatis</tag>
+        <tag>PageHelper</tag>
+        <tag>分页</tag>
       </tags>
   </entry>
   <entry>
@@ -2778,85 +2874,6 @@
       </tags>
   </entry>
   <entry>
-    <title>快速使用SpringBoot 和Redis</title>
-    <url>/2019/05/06/SpringBoot%E6%90%AD%E9%85%8DRedis%20%E4%BD%BF%E7%94%A8%E7%BC%93%E5%AD%98/</url>
-    <content><![CDATA[<h5 id="一、步骤"><a href="#一、步骤" class="headerlink" title="一、步骤"></a>一、步骤</h5><p>1.开启基于注解的缓存</p>
-<p>在Application上标注@EnableCaching</p>
-<p>2.在对应的serviceimpl方法上开启</p>
-<p>@Cacheable</p>
-<p>3.在配置文件里面配置Redis服务器的地址（默认端口为6379）</p>
-<p>4.在自定义的CustomRedisConfiguration类里面</p>
-<p>添加RedisCacheManager的bean</p>
-<span id="more"></span>
-
-<h5 id="二、命令注解"><a href="#二、命令注解" class="headerlink" title="二、命令注解"></a>二、命令注解</h5><h6 id="Cacheable"><a href="#Cacheable" class="headerlink" title="@Cacheable"></a>@Cacheable</h6><h6 id="CachePut"><a href="#CachePut" class="headerlink" title="@CachePut"></a>@CachePut</h6><h6 id="CacheEvict"><a href="#CacheEvict" class="headerlink" title="@CacheEvict"></a>@CacheEvict</h6><p>key:指定要清除的key</p>
-<p>allEntries = true :指定清除这个缓存中的所有数据</p>
-<p>beforeInvocation = false :</p>
-<p>缓存的清除是否在方法之前执行，默认代表缓存清除操作是在方法执行之后执行，出现异常则不会清除缓存</p>
-<h6 id="Caching"><a href="#Caching" class="headerlink" title="@Caching"></a>@Caching</h6><p>组建复杂的缓存方式</p>
-<blockquote>
-<p>@Caching(</p>
-<pre><code>cacheable = &#123;
-   
-    @Cacheable(value=&quot;user&quot;,key=&quot;#id&quot;)
-   
-&#125;,
-   
-put = &#123;
-   
-    @CachePut(value=&quot;user&quot;,key=&quot;#result.lastName&quot;),
-   
-    @CachePut(value=&quot;user&quot;,key=&quot;#result.dId&quot;)
-   
-&#125;
-</code></pre>
-<p>)</p>
-</blockquote>
-<h6 id="CacheConfig"><a href="#CacheConfig" class="headerlink" title="@CacheConfig"></a>@CacheConfig</h6><p>作用：抽取一部分公共的配置属性</p>
-<blockquote>
-<p>@CacheConfig(cacheNames=”user”)</p>
-</blockquote>
-<h5 id="三、自定义KeyGenerator"><a href="#三、自定义KeyGenerator" class="headerlink" title="三、自定义KeyGenerator"></a>三、自定义KeyGenerator</h5><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> KeyGenerator <span class="title function_">customKeyGenerator</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">KeyGenerator</span>()&#123;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> Object <span class="title function_">generate</span><span class="params">(Object o, Method method, Object... objects)</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> method.getName()+<span class="string">&quot;[&quot;</span>+Arrays.asList(objects).toString()+<span class="string">&quot;]&quot;</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h5 id="四、自定义序列化器RedisTemplate"><a href="#四、自定义序列化器RedisTemplate" class="headerlink" title="四、自定义序列化器RedisTemplate"></a>四、自定义序列化器RedisTemplate</h5><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line">   <span class="keyword">public</span> RedisTemplate <span class="title function_">redisTemplate</span><span class="params">(RedisConnectionFactory redisConnectionFactory)</span>&#123;</span><br><span class="line">       Jackson2JsonRedisSerializer&lt;Object&gt; serializer = <span class="keyword">new</span> <span class="title class_">Jackson2JsonRedisSerializer</span>&lt;Object&gt;(Object.class);</span><br><span class="line">       <span class="type">ObjectMapper</span> <span class="variable">objectMapper</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectMapper</span>();</span><br><span class="line">       objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, <span class="literal">false</span>);					<span class="comment">//这行代码可以使得生成的json没有[]</span></span><br><span class="line">       objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);</span><br><span class="line">       objectMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);</span><br><span class="line">       serializer.setObjectMapper(objectMapper);</span><br><span class="line"></span><br><span class="line">       RedisTemplate&lt;String, Object&gt; redisTemplate = <span class="keyword">new</span> <span class="title class_">RedisTemplate</span>&lt;&gt;();</span><br><span class="line">       redisTemplate.setConnectionFactory(redisConnectionFactory);</span><br><span class="line">       redisTemplate.setKeySerializer(<span class="keyword">new</span> <span class="title class_">StringRedisSerializer</span>());</span><br><span class="line">       redisTemplate.setValueSerializer(serializer);</span><br><span class="line">       redisTemplate.setHashKeySerializer(<span class="keyword">new</span> <span class="title class_">StringRedisSerializer</span>());</span><br><span class="line">       redisTemplate.setHashValueSerializer(serializer);</span><br><span class="line">       redisTemplate.afterPropertiesSet();</span><br><span class="line"></span><br><span class="line">       <span class="keyword">return</span> redisTemplate;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
-
-<h5 id="五、自定义CacheManager"><a href="#五、自定义CacheManager" class="headerlink" title="五、自定义CacheManager"></a>五、自定义CacheManager</h5><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line">   <span class="keyword">public</span> RedisCacheManager <span class="title function_">cacheManager</span><span class="params">(RedisTemplate redisTemplate)</span>&#123;</span><br><span class="line">       <span class="type">RedisCacheWriter</span> <span class="variable">redisCacheWriter</span> <span class="operator">=</span> RedisCacheWriter.nonLockingRedisCacheWriter(redisTemplate.getConnectionFactory());</span><br><span class="line">       <span class="type">RedisCacheConfiguration</span> <span class="variable">redisCacheConfiguration</span> <span class="operator">=</span> RedisCacheConfiguration.defaultCacheConfig()</span><br><span class="line">               .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(redisTemplate.getValueSerializer()));</span><br><span class="line">       <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">RedisCacheManager</span>(redisCacheWriter, redisCacheConfiguration);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-]]></content>
-      <categories>
-        <category>学习工具</category>
-      </categories>
-      <tags>
-        <tag>Redis</tag>
-        <tag>SpringBoot</tag>
-        <tag>缓存</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Springboot集成Mybatis下PageHelper不起作用</title>
-    <url>/2018/10/25/Springboot%E9%9B%86%E6%88%90Mybatis%E4%B8%8BPageHelper%E4%B8%8D%E8%B5%B7%E4%BD%9C%E7%94%A8/</url>
-    <content><![CDATA[<p>最近在项目中使用SpringBoot集成Mybatis，但是Pagehelper不去分页效果的作用</p>
-<p>在依赖文件中，去掉原本的pagehelper，改用集成的pagehelper：</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!-- https://mvnrepository.com/artifact/com.github.pagehelper/pagehelper-spring-boot-starter --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.github.pagehelper<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>pagehelper-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>问题解决本</category>
-      </categories>
-      <tags>
-        <tag>SpringBoot</tag>
-        <tag>Mybatis</tag>
-        <tag>PageHelper</tag>
-        <tag>分页</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>使用SpringBoot的定时任务</title>
     <url>/2018/10/18/%E4%BD%BF%E7%94%A8SpringBoot%E7%9A%84%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/</url>
     <content><![CDATA[<h5 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h5><p>1.在主类上添加标注</p>
@@ -2872,23 +2889,6 @@ put = &#123;
       <tags>
         <tag>SpringBoot</tag>
         <tag>定时任务</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>SpringBoot 设置允许跨域访问</title>
-    <url>/2018/10/31/SpringBoot-%E8%AE%BE%E7%BD%AE%E5%85%81%E8%AE%B8%E8%B7%A8%E5%9F%9F%E8%AE%BF%E9%97%AE/</url>
-    <content><![CDATA[<p>在SpringBoot项目中设置允许跨域访问</p>
-<span id="more"></span>
-
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Author</span> Rifu</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Date</span> 2018/10/31  13:37</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CorsConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> CorsConfiguration <span class="title function_">buildConfig</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">CorsConfiguration</span> <span class="variable">corsConfiguration</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">CorsConfiguration</span>();</span><br><span class="line">        corsConfiguration.addAllowedOrigin(<span class="string">&quot;*&quot;</span>); <span class="comment">// 允许任何域名使用</span></span><br><span class="line">        corsConfiguration.addAllowedHeader(<span class="string">&quot;*&quot;</span>); <span class="comment">// 允许任何头</span></span><br><span class="line">        corsConfiguration.addAllowedMethod(<span class="string">&quot;*&quot;</span>); <span class="comment">// 允许任何方法（post、get等）</span></span><br><span class="line">        <span class="keyword">return</span> corsConfiguration;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> CorsFilter <span class="title function_">corsFilter</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">UrlBasedCorsConfigurationSource</span> <span class="variable">source</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UrlBasedCorsConfigurationSource</span>();</span><br><span class="line">        source.registerCorsConfiguration(<span class="string">&quot;/**&quot;</span>,buildConfig());</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">CorsFilter</span>(source);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>学习笔记</category>
-      </categories>
-      <tags>
-        <tag>SpringBoot</tag>
-        <tag>跨域访问</tag>
       </tags>
   </entry>
   <entry>
