@@ -940,48 +940,6 @@
       </tags>
   </entry>
   <entry>
-    <title>HashMap和ConcurrentHashMap详解</title>
-    <url>/2021/05/23/HashMap%E5%92%8CConcurrentHashMap%E8%AF%A6%E8%A7%A3/</url>
-    <content><![CDATA[<h4 id="为什么JDK8的ConcurrentHashMap放弃使用Segment分段锁"><a href="#为什么JDK8的ConcurrentHashMap放弃使用Segment分段锁" class="headerlink" title="为什么JDK8的ConcurrentHashMap放弃使用Segment分段锁"></a>为什么JDK8的ConcurrentHashMap放弃使用Segment分段锁</h4><p>jdk1.7分段锁的实现</p>
-<p>和hashmap一样，在jdk1.7中ConcurrentHashMap的底层数据结构是数组加链表。和hashmap不同的是ConcurrentHashMap中存放的数据是一段段的，即由多个Segment(段)组成的。每个Segment中都有着类似于数组加链表的结构。</p>
-<h5 id="关于Segment"><a href="#关于Segment" class="headerlink" title="关于Segment"></a>关于Segment</h5><p>ConcurrentHashMap有3个参数：</p>
-<ol>
-<li>initialCapacity：初始总容量，默认16</li>
-<li>loadFactor：加载因子，默认0.75</li>
-<li>concurrencyLevel：并发级别，默认16</li>
-</ol>
-<p>其中并发级别控制了Segment的个数，在一个ConcurrentHashMap创建后Segment的个数是不能变的，扩容过程过改变的是每个Segment的大小。<span id="more"></span></p>
-<h5 id="关于分段锁"><a href="#关于分段锁" class="headerlink" title="关于分段锁"></a>关于分段锁</h5><p>段Segment继承了重入锁ReentrantLock，有了锁的功能，每个锁控制的是一段，当每个Segment越来越大时，锁的粒度就变得有些大了。</p>
-<ul>
-<li>分段锁的优势在于保证在操作不同段 map 的时候可以并发执行，操作同段 map 的时候，进行锁的竞争和等待。这相对于直接对整个map同步synchronized是有优势的。</li>
-<li>缺点在于分成很多段时会比较浪费内存空间(不连续，碎片化); 操作map时竞争同一个分段锁的概率非常小时，分段锁反而会造成更新等操作的长时间等待; 当某个段很大时，分段锁的性能会下降。</li>
-</ul>
-<h4 id="jdk1-8的map实现"><a href="#jdk1-8的map实现" class="headerlink" title="jdk1.8的map实现"></a>jdk1.8的map实现</h4><p>和hashmap一样,jdk 1.8中ConcurrentHashmap采用的底层数据结构为数组+链表+红黑树的形式。数组可以扩容，链表可以转化为红黑树。</p>
-<h5 id="什么时候扩容？"><a href="#什么时候扩容？" class="headerlink" title="什么时候扩容？"></a>什么时候扩容？</h5><ol>
-<li>当前容量超过阈值</li>
-<li>当链表中元素个数超过默认设定（8个），当数组的大小还未超过64的时候，此时进行数组的扩容，如果超过则将链表转化成红黑树</li>
-</ol>
-<h5 id="什么时候链表转化为红黑树？"><a href="#什么时候链表转化为红黑树？" class="headerlink" title="什么时候链表转化为红黑树？"></a>什么时候链表转化为红黑树？</h5><p>当数组大小已经超过64并且链表中的元素个数超过默认设定（8个）时，将链表转化为红黑树</p>
-<p>ConcurrentHashMap的put操作代码如下:</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">final</span> V <span class="title function_">putVal</span><span class="params">(K key, V value, <span class="type">boolean</span> onlyIfAbsent)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (key == <span class="literal">null</span> || value == <span class="literal">null</span>) <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">NullPointerException</span>();</span><br><span class="line">        <span class="type">int</span> <span class="variable">hash</span> <span class="operator">=</span> spread(key.hashCode());</span><br><span class="line">        <span class="type">int</span> <span class="variable">binCount</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (Node&lt;K,V&gt;[] tab = table;;) &#123;</span><br><span class="line">            Node&lt;K,V&gt; f; <span class="type">int</span> n, i, fh;</span><br><span class="line">            <span class="keyword">if</span> (tab == <span class="literal">null</span> || (n = tab.length) == <span class="number">0</span>)</span><br><span class="line">                <span class="comment">//初始化整个table</span></span><br><span class="line">                tab = initTable();</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> ((f = tabAt(tab, i = (n - <span class="number">1</span>) &amp; hash)) == <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="comment">//初始化某个桶</span></span><br><span class="line">                <span class="keyword">if</span> (casTabAt(tab, i, <span class="literal">null</span>,</span><br><span class="line">                             <span class="keyword">new</span> <span class="title class_">Node</span>&lt;K,V&gt;(hash, key, value, <span class="literal">null</span>)))</span><br><span class="line">                    <span class="keyword">break</span>;                   <span class="comment">// no lock when adding to empty bin</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> ((fh = f.hash) == MOVED)</span><br><span class="line">                <span class="comment">//当前table正在迁移，当前线程加入到数据迁移的工作中</span></span><br><span class="line">                tab = helpTransfer(tab, f);</span><br><span class="line">            <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="type">V</span> <span class="variable">oldVal</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">                <span class="comment">//对桶中的头结点进行同步加锁操作</span></span><br><span class="line">                <span class="keyword">synchronized</span> (f) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (tabAt(tab, i) == f) &#123;</span><br><span class="line">                        <span class="comment">//当前桶里面是链表</span></span><br><span class="line">                        <span class="keyword">if</span> (fh &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">                            binCount = <span class="number">1</span>;</span><br><span class="line">                            <span class="keyword">for</span> (Node&lt;K,V&gt; e = f;; ++binCount) &#123;</span><br><span class="line">                                K ek;</span><br><span class="line">                                <span class="keyword">if</span> (e.hash == hash &amp;&amp;</span><br><span class="line">                                    ((ek = e.key) == key ||</span><br><span class="line">                                     (ek != <span class="literal">null</span> &amp;&amp; key.equals(ek)))) &#123;</span><br><span class="line">                                    oldVal = e.val;</span><br><span class="line">                                    <span class="keyword">if</span> (!onlyIfAbsent)</span><br><span class="line">                                        e.val = value;</span><br><span class="line">                                    <span class="keyword">break</span>;</span><br><span class="line">                                &#125;</span><br><span class="line">                                Node&lt;K,V&gt; pred = e;</span><br><span class="line">                                <span class="keyword">if</span> ((e = e.next) == <span class="literal">null</span>) &#123;</span><br><span class="line">                                    pred.next = <span class="keyword">new</span> <span class="title class_">Node</span>&lt;K,V&gt;(hash, key,</span><br><span class="line">                                                              value, <span class="literal">null</span>);</span><br><span class="line">                                    <span class="keyword">break</span>;</span><br><span class="line">                                &#125;</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="comment">//桶里面是一颗红黑树</span></span><br><span class="line">                        <span class="keyword">else</span> <span class="keyword">if</span> (f <span class="keyword">instanceof</span> TreeBin) &#123;</span><br><span class="line">                            Node&lt;K,V&gt; p;</span><br><span class="line">                            binCount = <span class="number">2</span>;</span><br><span class="line">                            <span class="keyword">if</span> ((p = ((TreeBin&lt;K,V&gt;)f).putTreeVal(hash, key,</span><br><span class="line">                                                           value)) != <span class="literal">null</span>) &#123;</span><br><span class="line">                                oldVal = p.val;</span><br><span class="line">                                <span class="keyword">if</span> (!onlyIfAbsent)</span><br><span class="line">                                    p.val = value;</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (binCount != <span class="number">0</span>) &#123;</span><br><span class="line">                    <span class="comment">//判断是否需要扩容</span></span><br><span class="line">                    <span class="keyword">if</span> (binCount &gt;= TREEIFY_THRESHOLD)</span><br><span class="line">                        treeifyBin(tab, i);</span><br><span class="line">                    <span class="keyword">if</span> (oldVal != <span class="literal">null</span>)</span><br><span class="line">                        <span class="keyword">return</span> oldVal;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        addCount(<span class="number">1L</span>, binCount);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>把数组中的每个元素看成一个桶。可以看到大部分都是CAS操作，加锁的部分是对桶的头节点进行加锁，锁粒度很小。</p>
-<h5 id="为什么不用ReentrantLock而用synchronized"><a href="#为什么不用ReentrantLock而用synchronized" class="headerlink" title="为什么不用ReentrantLock而用synchronized ?"></a>为什么不用ReentrantLock而用synchronized ?</h5><ul>
-<li>减少内存开销:如果使用ReentrantLock则需要节点继承AQS来获得同步支持，增加内存开销，而1.8中只有头节点需要进行同步。</li>
-<li>内部优化:synchronized则是JVM直接支持的，JVM能够在运行时作出相应的优化措施：锁粗化、锁消除、锁自旋等等。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>学习笔记</category>
-      </categories>
-      <tags>
-        <tag>HashMap</tag>
-        <tag>ConcurrentHashMap</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Idea 常用的插件</title>
     <url>/2018/10/16/Idea%20%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8%E7%AF%87/</url>
     <content><![CDATA[<p>记录一下本人在使用Idea 时用到的十分好用的插件</p>
@@ -1035,6 +993,48 @@
       </tags>
   </entry>
   <entry>
+    <title>HashMap和ConcurrentHashMap详解</title>
+    <url>/2021/05/23/HashMap%E5%92%8CConcurrentHashMap%E8%AF%A6%E8%A7%A3/</url>
+    <content><![CDATA[<h4 id="为什么JDK8的ConcurrentHashMap放弃使用Segment分段锁"><a href="#为什么JDK8的ConcurrentHashMap放弃使用Segment分段锁" class="headerlink" title="为什么JDK8的ConcurrentHashMap放弃使用Segment分段锁"></a>为什么JDK8的ConcurrentHashMap放弃使用Segment分段锁</h4><p>jdk1.7分段锁的实现</p>
+<p>和hashmap一样，在jdk1.7中ConcurrentHashMap的底层数据结构是数组加链表。和hashmap不同的是ConcurrentHashMap中存放的数据是一段段的，即由多个Segment(段)组成的。每个Segment中都有着类似于数组加链表的结构。</p>
+<h5 id="关于Segment"><a href="#关于Segment" class="headerlink" title="关于Segment"></a>关于Segment</h5><p>ConcurrentHashMap有3个参数：</p>
+<ol>
+<li>initialCapacity：初始总容量，默认16</li>
+<li>loadFactor：加载因子，默认0.75</li>
+<li>concurrencyLevel：并发级别，默认16</li>
+</ol>
+<p>其中并发级别控制了Segment的个数，在一个ConcurrentHashMap创建后Segment的个数是不能变的，扩容过程过改变的是每个Segment的大小。<span id="more"></span></p>
+<h5 id="关于分段锁"><a href="#关于分段锁" class="headerlink" title="关于分段锁"></a>关于分段锁</h5><p>段Segment继承了重入锁ReentrantLock，有了锁的功能，每个锁控制的是一段，当每个Segment越来越大时，锁的粒度就变得有些大了。</p>
+<ul>
+<li>分段锁的优势在于保证在操作不同段 map 的时候可以并发执行，操作同段 map 的时候，进行锁的竞争和等待。这相对于直接对整个map同步synchronized是有优势的。</li>
+<li>缺点在于分成很多段时会比较浪费内存空间(不连续，碎片化); 操作map时竞争同一个分段锁的概率非常小时，分段锁反而会造成更新等操作的长时间等待; 当某个段很大时，分段锁的性能会下降。</li>
+</ul>
+<h4 id="jdk1-8的map实现"><a href="#jdk1-8的map实现" class="headerlink" title="jdk1.8的map实现"></a>jdk1.8的map实现</h4><p>和hashmap一样,jdk 1.8中ConcurrentHashmap采用的底层数据结构为数组+链表+红黑树的形式。数组可以扩容，链表可以转化为红黑树。</p>
+<h5 id="什么时候扩容？"><a href="#什么时候扩容？" class="headerlink" title="什么时候扩容？"></a>什么时候扩容？</h5><ol>
+<li>当前容量超过阈值</li>
+<li>当链表中元素个数超过默认设定（8个），当数组的大小还未超过64的时候，此时进行数组的扩容，如果超过则将链表转化成红黑树</li>
+</ol>
+<h5 id="什么时候链表转化为红黑树？"><a href="#什么时候链表转化为红黑树？" class="headerlink" title="什么时候链表转化为红黑树？"></a>什么时候链表转化为红黑树？</h5><p>当数组大小已经超过64并且链表中的元素个数超过默认设定（8个）时，将链表转化为红黑树</p>
+<p>ConcurrentHashMap的put操作代码如下:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">final</span> V <span class="title function_">putVal</span><span class="params">(K key, V value, <span class="type">boolean</span> onlyIfAbsent)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (key == <span class="literal">null</span> || value == <span class="literal">null</span>) <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">NullPointerException</span>();</span><br><span class="line">        <span class="type">int</span> <span class="variable">hash</span> <span class="operator">=</span> spread(key.hashCode());</span><br><span class="line">        <span class="type">int</span> <span class="variable">binCount</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (Node&lt;K,V&gt;[] tab = table;;) &#123;</span><br><span class="line">            Node&lt;K,V&gt; f; <span class="type">int</span> n, i, fh;</span><br><span class="line">            <span class="keyword">if</span> (tab == <span class="literal">null</span> || (n = tab.length) == <span class="number">0</span>)</span><br><span class="line">                <span class="comment">//初始化整个table</span></span><br><span class="line">                tab = initTable();</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> ((f = tabAt(tab, i = (n - <span class="number">1</span>) &amp; hash)) == <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="comment">//初始化某个桶</span></span><br><span class="line">                <span class="keyword">if</span> (casTabAt(tab, i, <span class="literal">null</span>,</span><br><span class="line">                             <span class="keyword">new</span> <span class="title class_">Node</span>&lt;K,V&gt;(hash, key, value, <span class="literal">null</span>)))</span><br><span class="line">                    <span class="keyword">break</span>;                   <span class="comment">// no lock when adding to empty bin</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> ((fh = f.hash) == MOVED)</span><br><span class="line">                <span class="comment">//当前table正在迁移，当前线程加入到数据迁移的工作中</span></span><br><span class="line">                tab = helpTransfer(tab, f);</span><br><span class="line">            <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="type">V</span> <span class="variable">oldVal</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">                <span class="comment">//对桶中的头结点进行同步加锁操作</span></span><br><span class="line">                <span class="keyword">synchronized</span> (f) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (tabAt(tab, i) == f) &#123;</span><br><span class="line">                        <span class="comment">//当前桶里面是链表</span></span><br><span class="line">                        <span class="keyword">if</span> (fh &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">                            binCount = <span class="number">1</span>;</span><br><span class="line">                            <span class="keyword">for</span> (Node&lt;K,V&gt; e = f;; ++binCount) &#123;</span><br><span class="line">                                K ek;</span><br><span class="line">                                <span class="keyword">if</span> (e.hash == hash &amp;&amp;</span><br><span class="line">                                    ((ek = e.key) == key ||</span><br><span class="line">                                     (ek != <span class="literal">null</span> &amp;&amp; key.equals(ek)))) &#123;</span><br><span class="line">                                    oldVal = e.val;</span><br><span class="line">                                    <span class="keyword">if</span> (!onlyIfAbsent)</span><br><span class="line">                                        e.val = value;</span><br><span class="line">                                    <span class="keyword">break</span>;</span><br><span class="line">                                &#125;</span><br><span class="line">                                Node&lt;K,V&gt; pred = e;</span><br><span class="line">                                <span class="keyword">if</span> ((e = e.next) == <span class="literal">null</span>) &#123;</span><br><span class="line">                                    pred.next = <span class="keyword">new</span> <span class="title class_">Node</span>&lt;K,V&gt;(hash, key,</span><br><span class="line">                                                              value, <span class="literal">null</span>);</span><br><span class="line">                                    <span class="keyword">break</span>;</span><br><span class="line">                                &#125;</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="comment">//桶里面是一颗红黑树</span></span><br><span class="line">                        <span class="keyword">else</span> <span class="keyword">if</span> (f <span class="keyword">instanceof</span> TreeBin) &#123;</span><br><span class="line">                            Node&lt;K,V&gt; p;</span><br><span class="line">                            binCount = <span class="number">2</span>;</span><br><span class="line">                            <span class="keyword">if</span> ((p = ((TreeBin&lt;K,V&gt;)f).putTreeVal(hash, key,</span><br><span class="line">                                                           value)) != <span class="literal">null</span>) &#123;</span><br><span class="line">                                oldVal = p.val;</span><br><span class="line">                                <span class="keyword">if</span> (!onlyIfAbsent)</span><br><span class="line">                                    p.val = value;</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (binCount != <span class="number">0</span>) &#123;</span><br><span class="line">                    <span class="comment">//判断是否需要扩容</span></span><br><span class="line">                    <span class="keyword">if</span> (binCount &gt;= TREEIFY_THRESHOLD)</span><br><span class="line">                        treeifyBin(tab, i);</span><br><span class="line">                    <span class="keyword">if</span> (oldVal != <span class="literal">null</span>)</span><br><span class="line">                        <span class="keyword">return</span> oldVal;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        addCount(<span class="number">1L</span>, binCount);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>把数组中的每个元素看成一个桶。可以看到大部分都是CAS操作，加锁的部分是对桶的头节点进行加锁，锁粒度很小。</p>
+<h5 id="为什么不用ReentrantLock而用synchronized"><a href="#为什么不用ReentrantLock而用synchronized" class="headerlink" title="为什么不用ReentrantLock而用synchronized ?"></a>为什么不用ReentrantLock而用synchronized ?</h5><ul>
+<li>减少内存开销:如果使用ReentrantLock则需要节点继承AQS来获得同步支持，增加内存开销，而1.8中只有头节点需要进行同步。</li>
+<li>内部优化:synchronized则是JVM直接支持的，JVM能够在运行时作出相应的优化措施：锁粗化、锁消除、锁自旋等等。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>学习笔记</category>
+      </categories>
+      <tags>
+        <tag>HashMap</tag>
+        <tag>ConcurrentHashMap</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>JMM内存模型</title>
     <url>/2021/04/15/JMM%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/</url>
     <content><![CDATA[]]></content>
@@ -1044,92 +1044,6 @@
       <tags>
         <tag>高并发</tag>
         <tag>内存模型</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Java线程池的正确使用姿势</title>
-    <url>/2020/04/13/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%9A%84%E6%AD%A3%E7%A1%AE%E4%BD%BF%E7%94%A8%E5%A7%BF%E5%8A%BF/</url>
-    <content><![CDATA[<p>Executor框架是从JKD1.5之后开始引入，位于java.util.concurrent包下，其内部使用了线程池机制，控制线程的创建、执行和关闭，简化了并发变成的操作。</p>
-<p><img src="https://img-blog.csdnimg.cn/20190921152211773.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2h1YW5nbGlmdTUyMA==,size_16,color_FFFFFF,t_70" alt="img"><img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==" alt="点击并拖拽以移动"></p>
-<span id="more"></span>
-
-<p>Executor</p>
-<p>Executor是一个接口，其定义了一个接收Runnable对象的方法executor，其方法签名为executor(Runnable command),该方法接收一个Runable实例，它用来执行一个任务，任务即一个实现了Runnable接口的类，一般来说，Runnable任务开辟在新线程中的使用方法为：new Thread(new RunnableTask())).start()，但在Executor中，可以使用Executor而不用显示地创建线程：executor.execute(new RunnableTask()); // 异步执行</p>
-<p>ExecutorService</p>
-<p>ExecutorService是一个使用比Executor更加广泛的子类接口，提供了对生命周期的管理方法，可跟踪一个或者多个异步任务的执行状况返回Future。可调用本身的shutdown()来平滑关闭ExecutorService(拒绝接受新的任务，已提交的任务会继续执行完毕)。</p>
-<p>通过ExecutorService.submit()方法，可以得到Future,可以通过future.isDone()来判断当前任务是否已执行完成;也可以用future.get()来直接获取执行完成返回的结果。</p>
-<p>Executors</p>
-<p>Executors提供了一系列的工厂方法来创建线程池，返回的线程池都实现了ExecutorService接口。</p>
-<ul>
-<li><p>public static ExecutorService newFixedThreadPool(int Threads) 创建固定数目线程的线程池。</p>
-</li>
-<li><p>public static ExecutorService newCachedThreadPool()：创建一个可缓存的线程池，调用execute 将重用以前构造的线程（如果线程可用）。如果没有可用的线程，则创建一个新线程并添加到池中。终止并从缓存中移除那些已有 60 秒钟未被使用的线程。</p>
-</li>
-<li><p><em>public static ExecutorService newSingleThreadExecutor()：</em>创建一个单线程化的Executor。</p>
-</li>
-<li><p><em>public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize)</em></p>
-<p>创建一个支持定时及周期性的任务执行的线程池，多数情况下可用来替代Timer类。</p>
-</li>
-</ul>
-<h3 id="线程池的正确使用"><a href="#线程池的正确使用" class="headerlink" title="线程池的正确使用"></a>线程池的正确使用</h3><p>以下是阿里编程规范的一段话：</p>
-<p>线程池不允许使用Executors来创建，而是通过ThreadPoolExecutor的方式，这样的处理方式让写的同学更加清楚线程池的运行规则，规避资源耗尽的风险。</p>
-<p>Executors的各个方法的弊端：</p>
-<p>newFixedThreadPool和newSingleThreadExecutor:</p>
-<p>  堆积的处理请求队列可能会耗费非常大的内存，甚至造成OOM</p>
-<p>newCachedThreadPool和newScheduledThreadPool:</p>
-<p> 线程的最大数是Integer.MAX_VALUE,可能会创建数量非常大的线程，甚至OOM</p>
-<p>正确的使用方式：</p>
-<p>手动创建线程池</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">ThreadPoolExecutor</span><span class="params">(<span class="type">int</span> paramInt1, <span class="type">int</span> paramInt2, <span class="type">long</span> paramLong, TimeUnit paramTimeUnit,</span></span><br><span class="line"><span class="params">            BlockingQueue&lt;Runnable&gt; paramBlockingQueue, ThreadFactory paramThreadFactory,</span></span><br><span class="line"><span class="params">            RejectedExecutionHandler paramRejectedExecutionHandler)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.ctl = <span class="keyword">new</span> <span class="title class_">AtomicInteger</span>(ctlOf(-<span class="number">536870912</span>, <span class="number">0</span>));</span><br><span class="line">        <span class="built_in">this</span>.mainLock = <span class="keyword">new</span> <span class="title class_">ReentrantLock</span>();</span><br><span class="line">        <span class="built_in">this</span>.workers = <span class="keyword">new</span> <span class="title class_">HashSet</span>();</span><br><span class="line">        <span class="built_in">this</span>.termination = <span class="built_in">this</span>.mainLock.newCondition();</span><br><span class="line">        <span class="keyword">if</span> ((paramInt1 &lt; <span class="number">0</span>) || (paramInt2 &lt;= <span class="number">0</span>) || (paramInt2 &lt; paramInt1) || (paramLong &lt; <span class="number">0L</span>))</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>();</span><br><span class="line">        <span class="keyword">if</span> ((paramBlockingQueue == <span class="literal">null</span>) || (paramThreadFactory == <span class="literal">null</span>) || (paramRejectedExecutionHandler == <span class="literal">null</span>))</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">NullPointerException</span>();</span><br><span class="line">        <span class="built_in">this</span>.corePoolSize = paramInt1;</span><br><span class="line">        <span class="built_in">this</span>.maximumPoolSize = paramInt2;</span><br><span class="line">        <span class="built_in">this</span>.workQueue = paramBlockingQueue;</span><br><span class="line">        <span class="built_in">this</span>.keepAliveTime = paramTimeUnit.toNanos(paramLong);</span><br><span class="line">        <span class="built_in">this</span>.threadFactory = paramThreadFactory;</span><br><span class="line">        <span class="built_in">this</span>.handler = paramRejectedExecutionHandler;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<p><img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==" alt="点击并拖拽以移动"></p>
-<ul>
-<li>corePoolSize :线程池的核心池大小，在创建线程池之后，线程池默认没有任何线程。当有任务过来的时候才会去创建创建线程执行任务。换个说法，线程池创建之后，线程池中的线程数为0，当任务过来就会创建一个线程去执行，直到线程数达到corePoolSize 之后，就会被到达的任务放在队列中。（注意是到达的任务）。换句更精炼的话：corePoolSize 表示允许线程池中允许同时运行的最大线程数。如果执行了线程池的prestartAllCoreThreads()方法，线程池会提前创建并启动所有核心线程。</li>
-<li>maximumPoolSize :线程池允许的最大线程数，他表示最大能创建多少个线程。maximumPoolSize肯定是大于等于corePoolSize。</li>
-<li>keepAliveTime :表示线程没有任务时最多保持多久然后停止。默认情况下，只有线程池中线程数大于corePoolSize 时，keepAliveTime 才会起作用。换句话说，当线程池中的线程数大于corePoolSize，并且一个线程空闲时间达到了keepAliveTime，那么就是shutdown。</li>
-<li>Unit:keepAliveTime 的单位。</li>
-<li>workQueue ：一个阻塞队列，用来存储等待执行的任务，当线程池中的线程数超过它的corePoolSize的时候，线程会进入阻塞队列进行阻塞等待。通过workQueue，线程池实现了阻塞功能。</li>
-<li>threadFactory ：线程工厂，用来创建线程。</li>
-<li>handler :表示当拒绝处理任务时的策略。</li>
-</ul>
-<h3 id="手动创建线程池应注意点"><a href="#手动创建线程池应注意点" class="headerlink" title="手动创建线程池应注意点"></a>手动创建线程池应注意点</h3><p>1.<strong>任务独立。</strong>如何任务依赖于其他任务，那么可能产生死锁。例如某个任务等待另一个任务的返回值或执行结果，那么除非线程池足够大，否则将发生线程饥饿死锁。</p>
-<p>2.<strong>合理配置阻塞时间过长的任务。</strong>如果任务阻塞时间过长，那么即使不出现死锁，线程池的性能也会变得很糟糕。在Java并发包里可阻塞方法都同时定义了限时方式和不限时方式。例如</p>
-<p>Thread.join,BlockingQueue.put,CountDownLatch.await等，如果任务超时，则标识任务失败，然后中止任务或者将任务放回队列以便随后执行，这样，无论任务的最终结果是否成功，这种办法都能够保证任务总能继续执行下去。</p>
-<p>3.<strong>设置合理的线程池大小。</strong>只需要避免过大或者过小的情况即可，上文的公式**线程池大小=NCPU *UCPU(1+W/C)**。</p>
-<p>4.<strong>选择合适的阻塞队列。</strong>newFixedThreadPool和newSingleThreadExecutor都使用了无界的阻塞队列，无界阻塞队列会有消耗很大的内存，如果使用了有界阻塞队列，它会规避内存占用过大的问题，但是当任务填满有界阻塞队列，新的任务该怎么办？在使用有界队列是，需要选择合适的拒绝策略，队列的大小和线程池的大小必须一起调节。对于非常大的或者无界的线程池，可以使用SynchronousQueue来避免任务排队，以直接将任务从生产者提交到工作者线程。</p>
-<h3 id="线程池大小设定"><a href="#线程池大小设定" class="headerlink" title="线程池大小设定"></a>线程池大小设定</h3><p><strong>线程池的大小决定着系统的性能，过大或者过小的线程池数量都无法发挥最优的系统性能。</strong></p>
-<p>当然线程池的大小也不需要做的太过于精确，只需要避免过大和过小的情况。一般来说，确定线程池的大小需要考虑CPU的数量，内存大小，任务是计算密集型还是IO密集型等因素</p>
-<p><strong>NCPU = CPU的数量</strong></p>
-<p><strong>UCPU = 期望对CPU的使用率 0 ≤ UCPU ≤ 1</strong></p>
-<p><strong>W/C = 等待时间与计算时间的比率</strong></p>
-<p><strong>如果希望处理器达到理想的使用率，那么线程池的最优大小为：</strong></p>
-<p><strong>线程池大小=NCPU *UCPU(1+W/C)</strong></p>
-<p>在Java中使用</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">ncpus</span> <span class="operator">=</span> Runtime.getRuntime().availableProcessors();</span><br></pre></td></tr></table></figure>
-
-<p><img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==" alt="点击并拖拽以移动"></p>
-<p>获取CPU的数量。</p>
-<h3 id="拒绝策略"><a href="#拒绝策略" class="headerlink" title="拒绝策略"></a>拒绝策略</h3><blockquote>
-<p>默认采用的是丢弃策略AbortPolicy</p>
-</blockquote>
-<ul>
-<li><p>AbortPolicy:丢弃任务并抛出RejectedExecutionException</p>
-</li>
-<li><p>CallerRunsPolicy：只要线程池未关闭，该策略直接在调用者线程中，运行当前被丢弃的任务。显然这样做不会真的丢弃任务，但是，任务提交线程的性能极有可能会急剧下降。</p>
-</li>
-<li><p>DiscardOldestPolicy：丢弃队列中最老的一个请求，也就是即将被执行的一个任务，并尝试再次提交当前任务。</p>
-</li>
-<li><p>DiscardPolicy：丢弃任务，不做任何处理。</p>
-</li>
-</ul>
-<p>如果当前线程池中的线程数目&gt;=corePoolSize，则每来一个任务，会尝试将其添加到任务缓存队列当中，若添加成功，则该任务会等待空闲线程将其取出去执行；若添加失败（一般来说是任务缓存队列已满），则会尝试创建新的线程去执行这个任务；如果当前线程池中的线程数目达到maximumPoolSize，则会采取任务<strong>拒绝策略</strong>进行处理；</p>
-]]></content>
-      <categories>
-        <category>高并发</category>
-      </categories>
-      <tags>
-        <tag>线程池</tag>
-        <tag>JUC</tag>
       </tags>
   </entry>
   <entry>
@@ -1908,6 +1822,92 @@
       </tags>
   </entry>
   <entry>
+    <title>Java线程池的正确使用姿势</title>
+    <url>/2020/04/13/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%9A%84%E6%AD%A3%E7%A1%AE%E4%BD%BF%E7%94%A8%E5%A7%BF%E5%8A%BF/</url>
+    <content><![CDATA[<p>Executor框架是从JKD1.5之后开始引入，位于java.util.concurrent包下，其内部使用了线程池机制，控制线程的创建、执行和关闭，简化了并发变成的操作。</p>
+<p><img src="https://img-blog.csdnimg.cn/20190921152211773.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2h1YW5nbGlmdTUyMA==,size_16,color_FFFFFF,t_70" alt="img"><img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==" alt="点击并拖拽以移动"></p>
+<span id="more"></span>
+
+<p>Executor</p>
+<p>Executor是一个接口，其定义了一个接收Runnable对象的方法executor，其方法签名为executor(Runnable command),该方法接收一个Runable实例，它用来执行一个任务，任务即一个实现了Runnable接口的类，一般来说，Runnable任务开辟在新线程中的使用方法为：new Thread(new RunnableTask())).start()，但在Executor中，可以使用Executor而不用显示地创建线程：executor.execute(new RunnableTask()); // 异步执行</p>
+<p>ExecutorService</p>
+<p>ExecutorService是一个使用比Executor更加广泛的子类接口，提供了对生命周期的管理方法，可跟踪一个或者多个异步任务的执行状况返回Future。可调用本身的shutdown()来平滑关闭ExecutorService(拒绝接受新的任务，已提交的任务会继续执行完毕)。</p>
+<p>通过ExecutorService.submit()方法，可以得到Future,可以通过future.isDone()来判断当前任务是否已执行完成;也可以用future.get()来直接获取执行完成返回的结果。</p>
+<p>Executors</p>
+<p>Executors提供了一系列的工厂方法来创建线程池，返回的线程池都实现了ExecutorService接口。</p>
+<ul>
+<li><p>public static ExecutorService newFixedThreadPool(int Threads) 创建固定数目线程的线程池。</p>
+</li>
+<li><p>public static ExecutorService newCachedThreadPool()：创建一个可缓存的线程池，调用execute 将重用以前构造的线程（如果线程可用）。如果没有可用的线程，则创建一个新线程并添加到池中。终止并从缓存中移除那些已有 60 秒钟未被使用的线程。</p>
+</li>
+<li><p><em>public static ExecutorService newSingleThreadExecutor()：</em>创建一个单线程化的Executor。</p>
+</li>
+<li><p><em>public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize)</em></p>
+<p>创建一个支持定时及周期性的任务执行的线程池，多数情况下可用来替代Timer类。</p>
+</li>
+</ul>
+<h3 id="线程池的正确使用"><a href="#线程池的正确使用" class="headerlink" title="线程池的正确使用"></a>线程池的正确使用</h3><p>以下是阿里编程规范的一段话：</p>
+<p>线程池不允许使用Executors来创建，而是通过ThreadPoolExecutor的方式，这样的处理方式让写的同学更加清楚线程池的运行规则，规避资源耗尽的风险。</p>
+<p>Executors的各个方法的弊端：</p>
+<p>newFixedThreadPool和newSingleThreadExecutor:</p>
+<p>  堆积的处理请求队列可能会耗费非常大的内存，甚至造成OOM</p>
+<p>newCachedThreadPool和newScheduledThreadPool:</p>
+<p> 线程的最大数是Integer.MAX_VALUE,可能会创建数量非常大的线程，甚至OOM</p>
+<p>正确的使用方式：</p>
+<p>手动创建线程池</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">ThreadPoolExecutor</span><span class="params">(<span class="type">int</span> paramInt1, <span class="type">int</span> paramInt2, <span class="type">long</span> paramLong, TimeUnit paramTimeUnit,</span></span><br><span class="line"><span class="params">            BlockingQueue&lt;Runnable&gt; paramBlockingQueue, ThreadFactory paramThreadFactory,</span></span><br><span class="line"><span class="params">            RejectedExecutionHandler paramRejectedExecutionHandler)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.ctl = <span class="keyword">new</span> <span class="title class_">AtomicInteger</span>(ctlOf(-<span class="number">536870912</span>, <span class="number">0</span>));</span><br><span class="line">        <span class="built_in">this</span>.mainLock = <span class="keyword">new</span> <span class="title class_">ReentrantLock</span>();</span><br><span class="line">        <span class="built_in">this</span>.workers = <span class="keyword">new</span> <span class="title class_">HashSet</span>();</span><br><span class="line">        <span class="built_in">this</span>.termination = <span class="built_in">this</span>.mainLock.newCondition();</span><br><span class="line">        <span class="keyword">if</span> ((paramInt1 &lt; <span class="number">0</span>) || (paramInt2 &lt;= <span class="number">0</span>) || (paramInt2 &lt; paramInt1) || (paramLong &lt; <span class="number">0L</span>))</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>();</span><br><span class="line">        <span class="keyword">if</span> ((paramBlockingQueue == <span class="literal">null</span>) || (paramThreadFactory == <span class="literal">null</span>) || (paramRejectedExecutionHandler == <span class="literal">null</span>))</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">NullPointerException</span>();</span><br><span class="line">        <span class="built_in">this</span>.corePoolSize = paramInt1;</span><br><span class="line">        <span class="built_in">this</span>.maximumPoolSize = paramInt2;</span><br><span class="line">        <span class="built_in">this</span>.workQueue = paramBlockingQueue;</span><br><span class="line">        <span class="built_in">this</span>.keepAliveTime = paramTimeUnit.toNanos(paramLong);</span><br><span class="line">        <span class="built_in">this</span>.threadFactory = paramThreadFactory;</span><br><span class="line">        <span class="built_in">this</span>.handler = paramRejectedExecutionHandler;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==" alt="点击并拖拽以移动"></p>
+<ul>
+<li>corePoolSize :线程池的核心池大小，在创建线程池之后，线程池默认没有任何线程。当有任务过来的时候才会去创建创建线程执行任务。换个说法，线程池创建之后，线程池中的线程数为0，当任务过来就会创建一个线程去执行，直到线程数达到corePoolSize 之后，就会被到达的任务放在队列中。（注意是到达的任务）。换句更精炼的话：corePoolSize 表示允许线程池中允许同时运行的最大线程数。如果执行了线程池的prestartAllCoreThreads()方法，线程池会提前创建并启动所有核心线程。</li>
+<li>maximumPoolSize :线程池允许的最大线程数，他表示最大能创建多少个线程。maximumPoolSize肯定是大于等于corePoolSize。</li>
+<li>keepAliveTime :表示线程没有任务时最多保持多久然后停止。默认情况下，只有线程池中线程数大于corePoolSize 时，keepAliveTime 才会起作用。换句话说，当线程池中的线程数大于corePoolSize，并且一个线程空闲时间达到了keepAliveTime，那么就是shutdown。</li>
+<li>Unit:keepAliveTime 的单位。</li>
+<li>workQueue ：一个阻塞队列，用来存储等待执行的任务，当线程池中的线程数超过它的corePoolSize的时候，线程会进入阻塞队列进行阻塞等待。通过workQueue，线程池实现了阻塞功能。</li>
+<li>threadFactory ：线程工厂，用来创建线程。</li>
+<li>handler :表示当拒绝处理任务时的策略。</li>
+</ul>
+<h3 id="手动创建线程池应注意点"><a href="#手动创建线程池应注意点" class="headerlink" title="手动创建线程池应注意点"></a>手动创建线程池应注意点</h3><p>1.<strong>任务独立。</strong>如何任务依赖于其他任务，那么可能产生死锁。例如某个任务等待另一个任务的返回值或执行结果，那么除非线程池足够大，否则将发生线程饥饿死锁。</p>
+<p>2.<strong>合理配置阻塞时间过长的任务。</strong>如果任务阻塞时间过长，那么即使不出现死锁，线程池的性能也会变得很糟糕。在Java并发包里可阻塞方法都同时定义了限时方式和不限时方式。例如</p>
+<p>Thread.join,BlockingQueue.put,CountDownLatch.await等，如果任务超时，则标识任务失败，然后中止任务或者将任务放回队列以便随后执行，这样，无论任务的最终结果是否成功，这种办法都能够保证任务总能继续执行下去。</p>
+<p>3.<strong>设置合理的线程池大小。</strong>只需要避免过大或者过小的情况即可，上文的公式**线程池大小=NCPU *UCPU(1+W/C)**。</p>
+<p>4.<strong>选择合适的阻塞队列。</strong>newFixedThreadPool和newSingleThreadExecutor都使用了无界的阻塞队列，无界阻塞队列会有消耗很大的内存，如果使用了有界阻塞队列，它会规避内存占用过大的问题，但是当任务填满有界阻塞队列，新的任务该怎么办？在使用有界队列是，需要选择合适的拒绝策略，队列的大小和线程池的大小必须一起调节。对于非常大的或者无界的线程池，可以使用SynchronousQueue来避免任务排队，以直接将任务从生产者提交到工作者线程。</p>
+<h3 id="线程池大小设定"><a href="#线程池大小设定" class="headerlink" title="线程池大小设定"></a>线程池大小设定</h3><p><strong>线程池的大小决定着系统的性能，过大或者过小的线程池数量都无法发挥最优的系统性能。</strong></p>
+<p>当然线程池的大小也不需要做的太过于精确，只需要避免过大和过小的情况。一般来说，确定线程池的大小需要考虑CPU的数量，内存大小，任务是计算密集型还是IO密集型等因素</p>
+<p><strong>NCPU = CPU的数量</strong></p>
+<p><strong>UCPU = 期望对CPU的使用率 0 ≤ UCPU ≤ 1</strong></p>
+<p><strong>W/C = 等待时间与计算时间的比率</strong></p>
+<p><strong>如果希望处理器达到理想的使用率，那么线程池的最优大小为：</strong></p>
+<p><strong>线程池大小=NCPU *UCPU(1+W/C)</strong></p>
+<p>在Java中使用</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">ncpus</span> <span class="operator">=</span> Runtime.getRuntime().availableProcessors();</span><br></pre></td></tr></table></figure>
+
+<p><img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==" alt="点击并拖拽以移动"></p>
+<p>获取CPU的数量。</p>
+<h3 id="拒绝策略"><a href="#拒绝策略" class="headerlink" title="拒绝策略"></a>拒绝策略</h3><blockquote>
+<p>默认采用的是丢弃策略AbortPolicy</p>
+</blockquote>
+<ul>
+<li><p>AbortPolicy:丢弃任务并抛出RejectedExecutionException</p>
+</li>
+<li><p>CallerRunsPolicy：只要线程池未关闭，该策略直接在调用者线程中，运行当前被丢弃的任务。显然这样做不会真的丢弃任务，但是，任务提交线程的性能极有可能会急剧下降。</p>
+</li>
+<li><p>DiscardOldestPolicy：丢弃队列中最老的一个请求，也就是即将被执行的一个任务，并尝试再次提交当前任务。</p>
+</li>
+<li><p>DiscardPolicy：丢弃任务，不做任何处理。</p>
+</li>
+</ul>
+<p>如果当前线程池中的线程数目&gt;=corePoolSize，则每来一个任务，会尝试将其添加到任务缓存队列当中，若添加成功，则该任务会等待空闲线程将其取出去执行；若添加失败（一般来说是任务缓存队列已满），则会尝试创建新的线程去执行这个任务；如果当前线程池中的线程数目达到maximumPoolSize，则会采取任务<strong>拒绝策略</strong>进行处理；</p>
+]]></content>
+      <categories>
+        <category>高并发</category>
+      </categories>
+      <tags>
+        <tag>线程池</tag>
+        <tag>JUC</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Linux 下安装 Nginx 教程</title>
     <url>/2019/04/12/Linux%20%E4%B8%8B%E5%AE%89%E8%A3%85Nginx%20%E6%95%99%E7%A8%8B/</url>
     <content><![CDATA[<h1 id=""><a href="#" class="headerlink" title=""></a></h1><h3 id="一、环境配置"><a href="#一、环境配置" class="headerlink" title="一、环境配置"></a>一、环境配置</h3><p>1.安装GCC</p>
@@ -1956,6 +1956,65 @@
         <tag>版本控制器</tag>
         <tag>Nginx</tag>
         <tag>安装Nginx</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux搭建Jenkins持续化集成部署项目</title>
+    <url>/2021/04/13/Linux%E6%90%AD%E5%BB%BAJenkins%E6%8C%81%E7%BB%AD%E5%8C%96%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2%E9%A1%B9%E7%9B%AE/</url>
+    <content><![CDATA[<blockquote>
+<p>背景：由于之前在腾讯购买的云服务器过期，续费的价格虚高，导致最后放弃使用，之前部署的一套Jenkins环境丢失，刚好朋友的阿里云服务器一直处于置灰状态，拿过来重新搭一遍环境</p>
+</blockquote>
+<h3 id="前提"><a href="#前提" class="headerlink" title="前提"></a>前提</h3><p>需要搭建好JDK和Maven环境，这里就不做赘述。</p>
+<p>同时去下载jenkins的war包，这里不建议在docker里面部署jenkins，很多坑。</p>
+<p>如果是直接在本地下载的，需要上传到服务器，上传命令rz，这里如果提示命令不存在，则需要安装lszrz。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">安装lszrz插件</span></span><br><span class="line">yum install -y lszrz</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">上传指令</span></span><br><span class="line">rz</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">下载指令</span></span><br><span class="line">sz</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h3 id="跑起来"><a href="#跑起来" class="headerlink" title="跑起来"></a>跑起来</h3><p>先把下载好/上传好的jenkins.war执行起来。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">后台运行，并输出日志到out.log</span></span><br><span class="line">nohup java -jar jenkins.war &gt; out.log &amp;</span><br></pre></td></tr></table></figure>
+
+<p>如果没有意外，在浏览器输入对应的ip+端口8080，即可以看到jenkins正在初始化。</p>
+<p>首先第一步是要输入管理员的账号密码，默认密码是在目录/data/jenkins_home/secrets/initialAdminPassword</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">如果不知道密码在哪里，可以先查一下，这里选择在根目录下通过文件名称查询</span></span><br><span class="line">find / -name initialAdminPassword</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">查到在哪里后，将里面的内容复制出来</span></span><br><span class="line">cat /data/jenkins_home/secrets/initialAdminPassword</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">拿到密码在页面上输入，即可进入主页面</span></span><br></pre></td></tr></table></figure>
+
+<p>第二步是安装所需要的插件，这里额外提一个插件git parameter，这个可以在构建项目的时候选择构建的分支。</p>
+<p>第三步是初始化一些全局配置，如maven、jdk、时间等。</p>
+<p><img src="image-20210412151330194.png" alt="image-20210412151330194"></p>
+<p><img src="image-20210412151422095.png" alt="image-20210412151402045"></p>
+<p><img src="image-20210412151440186.png" alt="image-20210412151440186"></p>
+<p>还有就是配置时间，如果不配置的话jenkins上显示的时间不正确，我们一般都是用的上海的时区,在【系统管理】-&gt;【脚本命令行】运行下面的命令</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">System.setProperty(&#x27;org.apache.commons.jelly.tags.fmt.timeZone&#x27;, &#x27;Asia/Shanghai&#x27;)</span><br></pre></td></tr></table></figure>
+
+<p><img src="image-20210412151759256.png" alt="image-20210412151759256"></p>
+<h3 id="部署项目"><a href="#部署项目" class="headerlink" title="部署项目"></a>部署项目</h3><p>先创建一个流水线项目</p>
+<p><img src="image-20210412145624401.png" alt="image-20210412145624401"></p>
+<p>接下来是配置预检分支，配置流水线步骤。</p>
+<p>在参数化构建过程里面，我们选择一个git参数，这个参数是作为后面我们部署项目所使用的分支。</p>
+<p><img src="image-20210412145935953.png" alt="image-20210412145935953"></p>
+<p><img src="image-20210412150024211.png" alt="image-20210412150024211"></p>
+<p>接下来配置流水线工作，先配置远程仓库</p>
+<p><img src="image-20210412150216717.png" alt="image-20210412150216717"></p>
+<p><img src="image-20210412150246555.png" alt="image-20210412150246555"></p>
+<p>脚本路径我这里使用的是项目根目录下的文件，名称为Jenkinsfile，也可以直接用在线脚本的形式。</p>
+<p>这里我填一个坑，就是上面截图最后的“轻量级检出”，如果勾选了这个选项，在上面指定的分支会获取不到，这里我检查了很久，因为看了其他博客这里配置是没问题的，后来在stack overflow查到了我想要的答案，就是不要勾选这里。</p>
+<p>对应的Jenkinsfile我也贴出来，如下</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"> def devUser = &#x27;root&#x27;</span><br><span class="line"></span><br><span class="line"> def project = &#x27;guns&#x27;</span><br><span class="line"></span><br><span class="line"> pipeline &#123;</span><br><span class="line"></span><br><span class="line">     agent any</span><br><span class="line"></span><br><span class="line">     parameters &#123;</span><br><span class="line"></span><br><span class="line">             gitParameter branchFilter: &#x27;origin/(.*)&#x27;, defaultValue: &#x27;master&#x27;, name: &#x27;BRANCH&#x27;, type: &#x27;PT_BRANCH&#x27;</span><br><span class="line"></span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">     stages &#123;</span><br><span class="line"></span><br><span class="line">         stage(&#x27;代码更新&#x27;) &#123;</span><br><span class="line"></span><br><span class="line">             steps &#123;</span><br><span class="line">             #这里的credentialsId在jenkins的全局凭据里面可看到</span><br><span class="line">                 git branch: &#x27;$BRANCH&#x27;,credentialsId: &#x27;huanglifu&#x27;,</span><br><span class="line">                     url: &#x27;https://gitee.com/rifu520/guns.git&#x27;</span><br><span class="line">                     </span><br><span class="line">             &#125;</span><br><span class="line"></span><br><span class="line">         &#125;</span><br><span class="line"></span><br><span class="line">         stage(&#x27;构建代码&#x27;) &#123;</span><br><span class="line"></span><br><span class="line">             steps &#123;</span><br><span class="line"></span><br><span class="line">                 sh &#x27;mvn clean compile&#x27;</span><br><span class="line"></span><br><span class="line">             &#125;</span><br><span class="line"></span><br><span class="line">         &#125;</span><br><span class="line"></span><br><span class="line">         stage(&#x27;打包服务&#x27;) &#123;</span><br><span class="line"></span><br><span class="line">             steps &#123;</span><br><span class="line"></span><br><span class="line">                 echo &#x27;开始打包&#x27;</span><br><span class="line">                 </span><br><span class="line">                 sh &#x27;mvn package -Dmaven.test.skip=true&#x27;</span><br><span class="line">                 </span><br><span class="line">                 echo &#x27;打包完成&#x27;</span><br><span class="line"></span><br><span class="line">             &#125;</span><br><span class="line"></span><br><span class="line">         &#125;</span><br><span class="line"></span><br><span class="line">         stage(&#x27;创建镜像&#x27;) &#123;</span><br><span class="line"></span><br><span class="line">             steps &#123;</span><br><span class="line"></span><br><span class="line">                 sh &quot;&quot;&quot;</span><br><span class="line">cd guns-main</span><br><span class="line"></span><br><span class="line">                     mv -f target/*.jar ./$&#123;project&#125;.jar</span><br><span class="line"></span><br><span class="line">                     docker build -t $&#123;project&#125;:$BUILD_NUMBER .</span><br><span class="line"></span><br><span class="line">                     rm -f ./$&#123;project&#125;.jar</span><br><span class="line"></span><br><span class="line">                 &quot;&quot;&quot;</span><br><span class="line"></span><br><span class="line">             &#125;</span><br><span class="line"></span><br><span class="line">         &#125;</span><br><span class="line"></span><br><span class="line">         stage(&#x27;部署生产环境&#x27;) &#123;</span><br><span class="line"></span><br><span class="line">             steps &#123;</span><br><span class="line"></span><br><span class="line">                 sh &quot;&quot;&quot;</span><br><span class="line"></span><br><span class="line">                     docker  rm -f $&#123;project&#125; | true</span><br><span class="line"></span><br><span class="line">                     docker  run -d --name $&#123;project&#125; -p 9090:9090 -v /home/service/guns:/guns -e &quot;spring.profiles.active=dev&quot;  --restart=always $&#123;project&#125;:$BUILD_NUMBER</span><br><span class="line"></span><br><span class="line">                 &quot;&quot;&quot;</span><br><span class="line"></span><br><span class="line">             &#125;</span><br><span class="line"></span><br><span class="line">         &#125;</span><br><span class="line"></span><br><span class="line">     &#125;</span><br><span class="line"></span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p>以下是dockerfile</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">FROM java:8-jre</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">作者</span></span><br><span class="line">MAINTAINER rifu</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">时区</span></span><br><span class="line">ENV TZ Asia/Shanghai</span><br><span class="line">RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime &amp;&amp; echo $TZ &gt; /etc/timezone; mkdir -p guns</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">端口</span></span><br><span class="line">EXPOSE 9090</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">应用包</span></span><br><span class="line">ADD guns.jar /usr/local/</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">启动命令</span></span><br><span class="line">ENTRYPOINT java -Xms512m -Xmx512m \</span><br><span class="line">-XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=128m \</span><br><span class="line">-XX:+PrintGCDetails -XX:+PrintGCDateStamps -Xloggc:guns/gc.log \</span><br><span class="line">-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=guns/heap.log \</span><br><span class="line">-XX:ErrorFile=guns/hs_err_pid%p.log \</span><br><span class="line">-jar /usr/local/guns.jar \</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>学习笔记</category>
+      </categories>
+      <tags>
+        <tag>Jenkins</tag>
+        <tag>持续化集成CI/CD</tag>
       </tags>
   </entry>
   <entry>
@@ -2088,65 +2147,6 @@
       </categories>
       <tags>
         <tag>mybatis</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux搭建Jenkins持续化集成部署项目</title>
-    <url>/2021/04/13/Linux%E6%90%AD%E5%BB%BAJenkins%E6%8C%81%E7%BB%AD%E5%8C%96%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2%E9%A1%B9%E7%9B%AE/</url>
-    <content><![CDATA[<blockquote>
-<p>背景：由于之前在腾讯购买的云服务器过期，续费的价格虚高，导致最后放弃使用，之前部署的一套Jenkins环境丢失，刚好朋友的阿里云服务器一直处于置灰状态，拿过来重新搭一遍环境</p>
-</blockquote>
-<h3 id="前提"><a href="#前提" class="headerlink" title="前提"></a>前提</h3><p>需要搭建好JDK和Maven环境，这里就不做赘述。</p>
-<p>同时去下载jenkins的war包，这里不建议在docker里面部署jenkins，很多坑。</p>
-<p>如果是直接在本地下载的，需要上传到服务器，上传命令rz，这里如果提示命令不存在，则需要安装lszrz。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">安装lszrz插件</span></span><br><span class="line">yum install -y lszrz</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">上传指令</span></span><br><span class="line">rz</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">下载指令</span></span><br><span class="line">sz</span><br></pre></td></tr></table></figure>
-
-<span id="more"></span>
-
-<h3 id="跑起来"><a href="#跑起来" class="headerlink" title="跑起来"></a>跑起来</h3><p>先把下载好/上传好的jenkins.war执行起来。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">后台运行，并输出日志到out.log</span></span><br><span class="line">nohup java -jar jenkins.war &gt; out.log &amp;</span><br></pre></td></tr></table></figure>
-
-<p>如果没有意外，在浏览器输入对应的ip+端口8080，即可以看到jenkins正在初始化。</p>
-<p>首先第一步是要输入管理员的账号密码，默认密码是在目录/data/jenkins_home/secrets/initialAdminPassword</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">如果不知道密码在哪里，可以先查一下，这里选择在根目录下通过文件名称查询</span></span><br><span class="line">find / -name initialAdminPassword</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">查到在哪里后，将里面的内容复制出来</span></span><br><span class="line">cat /data/jenkins_home/secrets/initialAdminPassword</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">拿到密码在页面上输入，即可进入主页面</span></span><br></pre></td></tr></table></figure>
-
-<p>第二步是安装所需要的插件，这里额外提一个插件git parameter，这个可以在构建项目的时候选择构建的分支。</p>
-<p>第三步是初始化一些全局配置，如maven、jdk、时间等。</p>
-<p><img src="image-20210412151330194.png" alt="image-20210412151330194"></p>
-<p><img src="image-20210412151422095.png" alt="image-20210412151402045"></p>
-<p><img src="image-20210412151440186.png" alt="image-20210412151440186"></p>
-<p>还有就是配置时间，如果不配置的话jenkins上显示的时间不正确，我们一般都是用的上海的时区,在【系统管理】-&gt;【脚本命令行】运行下面的命令</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">System.setProperty(&#x27;org.apache.commons.jelly.tags.fmt.timeZone&#x27;, &#x27;Asia/Shanghai&#x27;)</span><br></pre></td></tr></table></figure>
-
-<p><img src="image-20210412151759256.png" alt="image-20210412151759256"></p>
-<h3 id="部署项目"><a href="#部署项目" class="headerlink" title="部署项目"></a>部署项目</h3><p>先创建一个流水线项目</p>
-<p><img src="image-20210412145624401.png" alt="image-20210412145624401"></p>
-<p>接下来是配置预检分支，配置流水线步骤。</p>
-<p>在参数化构建过程里面，我们选择一个git参数，这个参数是作为后面我们部署项目所使用的分支。</p>
-<p><img src="image-20210412145935953.png" alt="image-20210412145935953"></p>
-<p><img src="image-20210412150024211.png" alt="image-20210412150024211"></p>
-<p>接下来配置流水线工作，先配置远程仓库</p>
-<p><img src="image-20210412150216717.png" alt="image-20210412150216717"></p>
-<p><img src="image-20210412150246555.png" alt="image-20210412150246555"></p>
-<p>脚本路径我这里使用的是项目根目录下的文件，名称为Jenkinsfile，也可以直接用在线脚本的形式。</p>
-<p>这里我填一个坑，就是上面截图最后的“轻量级检出”，如果勾选了这个选项，在上面指定的分支会获取不到，这里我检查了很久，因为看了其他博客这里配置是没问题的，后来在stack overflow查到了我想要的答案，就是不要勾选这里。</p>
-<p>对应的Jenkinsfile我也贴出来，如下</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"> def devUser = &#x27;root&#x27;</span><br><span class="line"></span><br><span class="line"> def project = &#x27;guns&#x27;</span><br><span class="line"></span><br><span class="line"> pipeline &#123;</span><br><span class="line"></span><br><span class="line">     agent any</span><br><span class="line"></span><br><span class="line">     parameters &#123;</span><br><span class="line"></span><br><span class="line">             gitParameter branchFilter: &#x27;origin/(.*)&#x27;, defaultValue: &#x27;master&#x27;, name: &#x27;BRANCH&#x27;, type: &#x27;PT_BRANCH&#x27;</span><br><span class="line"></span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">     stages &#123;</span><br><span class="line"></span><br><span class="line">         stage(&#x27;代码更新&#x27;) &#123;</span><br><span class="line"></span><br><span class="line">             steps &#123;</span><br><span class="line">             #这里的credentialsId在jenkins的全局凭据里面可看到</span><br><span class="line">                 git branch: &#x27;$BRANCH&#x27;,credentialsId: &#x27;huanglifu&#x27;,</span><br><span class="line">                     url: &#x27;https://gitee.com/rifu520/guns.git&#x27;</span><br><span class="line">                     </span><br><span class="line">             &#125;</span><br><span class="line"></span><br><span class="line">         &#125;</span><br><span class="line"></span><br><span class="line">         stage(&#x27;构建代码&#x27;) &#123;</span><br><span class="line"></span><br><span class="line">             steps &#123;</span><br><span class="line"></span><br><span class="line">                 sh &#x27;mvn clean compile&#x27;</span><br><span class="line"></span><br><span class="line">             &#125;</span><br><span class="line"></span><br><span class="line">         &#125;</span><br><span class="line"></span><br><span class="line">         stage(&#x27;打包服务&#x27;) &#123;</span><br><span class="line"></span><br><span class="line">             steps &#123;</span><br><span class="line"></span><br><span class="line">                 echo &#x27;开始打包&#x27;</span><br><span class="line">                 </span><br><span class="line">                 sh &#x27;mvn package -Dmaven.test.skip=true&#x27;</span><br><span class="line">                 </span><br><span class="line">                 echo &#x27;打包完成&#x27;</span><br><span class="line"></span><br><span class="line">             &#125;</span><br><span class="line"></span><br><span class="line">         &#125;</span><br><span class="line"></span><br><span class="line">         stage(&#x27;创建镜像&#x27;) &#123;</span><br><span class="line"></span><br><span class="line">             steps &#123;</span><br><span class="line"></span><br><span class="line">                 sh &quot;&quot;&quot;</span><br><span class="line">cd guns-main</span><br><span class="line"></span><br><span class="line">                     mv -f target/*.jar ./$&#123;project&#125;.jar</span><br><span class="line"></span><br><span class="line">                     docker build -t $&#123;project&#125;:$BUILD_NUMBER .</span><br><span class="line"></span><br><span class="line">                     rm -f ./$&#123;project&#125;.jar</span><br><span class="line"></span><br><span class="line">                 &quot;&quot;&quot;</span><br><span class="line"></span><br><span class="line">             &#125;</span><br><span class="line"></span><br><span class="line">         &#125;</span><br><span class="line"></span><br><span class="line">         stage(&#x27;部署生产环境&#x27;) &#123;</span><br><span class="line"></span><br><span class="line">             steps &#123;</span><br><span class="line"></span><br><span class="line">                 sh &quot;&quot;&quot;</span><br><span class="line"></span><br><span class="line">                     docker  rm -f $&#123;project&#125; | true</span><br><span class="line"></span><br><span class="line">                     docker  run -d --name $&#123;project&#125; -p 9090:9090 -v /home/service/guns:/guns -e &quot;spring.profiles.active=dev&quot;  --restart=always $&#123;project&#125;:$BUILD_NUMBER</span><br><span class="line"></span><br><span class="line">                 &quot;&quot;&quot;</span><br><span class="line"></span><br><span class="line">             &#125;</span><br><span class="line"></span><br><span class="line">         &#125;</span><br><span class="line"></span><br><span class="line">     &#125;</span><br><span class="line"></span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<p>以下是dockerfile</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">FROM java:8-jre</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">作者</span></span><br><span class="line">MAINTAINER rifu</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">时区</span></span><br><span class="line">ENV TZ Asia/Shanghai</span><br><span class="line">RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime &amp;&amp; echo $TZ &gt; /etc/timezone; mkdir -p guns</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">端口</span></span><br><span class="line">EXPOSE 9090</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">应用包</span></span><br><span class="line">ADD guns.jar /usr/local/</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">启动命令</span></span><br><span class="line">ENTRYPOINT java -Xms512m -Xmx512m \</span><br><span class="line">-XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=128m \</span><br><span class="line">-XX:+PrintGCDetails -XX:+PrintGCDateStamps -Xloggc:guns/gc.log \</span><br><span class="line">-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=guns/heap.log \</span><br><span class="line">-XX:ErrorFile=guns/hs_err_pid%p.log \</span><br><span class="line">-jar /usr/local/guns.jar \</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>学习笔记</category>
-      </categories>
-      <tags>
-        <tag>Jenkins</tag>
-        <tag>持续化集成CI/CD</tag>
       </tags>
   </entry>
   <entry>
@@ -2675,6 +2675,23 @@
       </tags>
   </entry>
   <entry>
+    <title>SpringBoot 设置允许跨域访问</title>
+    <url>/2018/10/31/SpringBoot-%E8%AE%BE%E7%BD%AE%E5%85%81%E8%AE%B8%E8%B7%A8%E5%9F%9F%E8%AE%BF%E9%97%AE/</url>
+    <content><![CDATA[<p>在SpringBoot项目中设置允许跨域访问</p>
+<span id="more"></span>
+
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Author</span> Rifu</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Date</span> 2018/10/31  13:37</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CorsConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> CorsConfiguration <span class="title function_">buildConfig</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">CorsConfiguration</span> <span class="variable">corsConfiguration</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">CorsConfiguration</span>();</span><br><span class="line">        corsConfiguration.addAllowedOrigin(<span class="string">&quot;*&quot;</span>); <span class="comment">// 允许任何域名使用</span></span><br><span class="line">        corsConfiguration.addAllowedHeader(<span class="string">&quot;*&quot;</span>); <span class="comment">// 允许任何头</span></span><br><span class="line">        corsConfiguration.addAllowedMethod(<span class="string">&quot;*&quot;</span>); <span class="comment">// 允许任何方法（post、get等）</span></span><br><span class="line">        <span class="keyword">return</span> corsConfiguration;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> CorsFilter <span class="title function_">corsFilter</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">UrlBasedCorsConfigurationSource</span> <span class="variable">source</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UrlBasedCorsConfigurationSource</span>();</span><br><span class="line">        source.registerCorsConfiguration(<span class="string">&quot;/**&quot;</span>,buildConfig());</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">CorsFilter</span>(source);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>学习笔记</category>
+      </categories>
+      <tags>
+        <tag>SpringBoot</tag>
+        <tag>跨域访问</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>快速使用SpringBoot 和Redis</title>
     <url>/2019/05/06/SpringBoot%E6%90%AD%E9%85%8DRedis%20%E4%BD%BF%E7%94%A8%E7%BC%93%E5%AD%98/</url>
     <content><![CDATA[<h5 id="一、步骤"><a href="#一、步骤" class="headerlink" title="一、步骤"></a>一、步骤</h5><p>1.开启基于注解的缓存</p>
@@ -2733,23 +2750,6 @@ put = &#123;
         <tag>Redis</tag>
         <tag>SpringBoot</tag>
         <tag>缓存</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>SpringBoot 设置允许跨域访问</title>
-    <url>/2018/10/31/SpringBoot-%E8%AE%BE%E7%BD%AE%E5%85%81%E8%AE%B8%E8%B7%A8%E5%9F%9F%E8%AE%BF%E9%97%AE/</url>
-    <content><![CDATA[<p>在SpringBoot项目中设置允许跨域访问</p>
-<span id="more"></span>
-
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Author</span> Rifu</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Date</span> 2018/10/31  13:37</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CorsConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> CorsConfiguration <span class="title function_">buildConfig</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">CorsConfiguration</span> <span class="variable">corsConfiguration</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">CorsConfiguration</span>();</span><br><span class="line">        corsConfiguration.addAllowedOrigin(<span class="string">&quot;*&quot;</span>); <span class="comment">// 允许任何域名使用</span></span><br><span class="line">        corsConfiguration.addAllowedHeader(<span class="string">&quot;*&quot;</span>); <span class="comment">// 允许任何头</span></span><br><span class="line">        corsConfiguration.addAllowedMethod(<span class="string">&quot;*&quot;</span>); <span class="comment">// 允许任何方法（post、get等）</span></span><br><span class="line">        <span class="keyword">return</span> corsConfiguration;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> CorsFilter <span class="title function_">corsFilter</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">UrlBasedCorsConfigurationSource</span> <span class="variable">source</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UrlBasedCorsConfigurationSource</span>();</span><br><span class="line">        source.registerCorsConfiguration(<span class="string">&quot;/**&quot;</span>,buildConfig());</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">CorsFilter</span>(source);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>学习笔记</category>
-      </categories>
-      <tags>
-        <tag>SpringBoot</tag>
-        <tag>跨域访问</tag>
       </tags>
   </entry>
   <entry>
